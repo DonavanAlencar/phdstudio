@@ -62,7 +62,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link to="/" className="text-2xl font-heading font-black tracking-tighter flex items-center gap-1 group">
           <span className="text-white">phd</span>
-          <span className="text-brand-blue">STUDIO</span>
+          <span className="text-brand-red">STUDIO</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -78,7 +78,7 @@ const Navbar = () => {
           ))}
           <a 
             href="#contact"
-            className="bg-white text-black hover:bg-brand-blue hover:text-white font-bold py-2.5 px-6 rounded-lg transition-all text-sm"
+            className="bg-white text-black hover:bg-brand-red hover:text-white font-bold py-2.5 px-6 rounded-lg transition-all text-sm"
           >
             Diagnóstico Gratuito
           </a>
@@ -97,12 +97,12 @@ const Navbar = () => {
             <button 
               key={item} 
               onClick={() => scrollToSection(item.toLowerCase())}
-              className="text-left text-lg font-medium text-gray-300 hover:text-brand-blue"
+              className="text-left text-lg font-medium text-gray-300 hover:text-brand-red"
             >
               {item}
             </button>
           ))}
-          <a href="#contact" className="bg-brand-blue text-white font-bold py-3 px-6 rounded-lg text-center mt-2">
+          <a href="#contact" className="bg-brand-red text-white font-bold py-3 px-6 rounded-lg text-center mt-2">
             Diagnóstico Gratuito
           </a>
         </div>
@@ -116,7 +116,7 @@ const Footer = () => (
     <div className="max-w-7xl mx-auto px-6">
       <div className="grid md:grid-cols-4 gap-12 mb-12">
         <div className="col-span-1 md:col-span-2">
-          <h3 className="text-3xl font-heading font-black text-white mb-4">phd<span className="text-brand-blue">STUDIO</span></h3>
+          <h3 className="text-3xl font-heading font-black text-white mb-4">phd<span className="text-brand-red">STUDIO</span></h3>
           <p className="text-gray-400 max-w-sm mb-6">
             Agência de tecnologia e marketing focada em escala e previsibilidade.
             Transformamos dados em receita.
@@ -124,7 +124,7 @@ const Footer = () => (
           <div className="flex gap-4">
             {/* Social Placeholders */}
             {[1, 2, 3].map((i) => (
-              <div key={i} className="w-10 h-10 bg-white/5 rounded-full hover:bg-brand-blue transition-colors flex items-center justify-center cursor-pointer">
+              <div key={i} className="w-10 h-10 bg-white/5 rounded-full hover:bg-brand-red transition-colors flex items-center justify-center cursor-pointer">
                 <span className="w-4 h-4 bg-white/50 rounded-full"></span>
               </div>
             ))}
@@ -134,10 +134,10 @@ const Footer = () => (
         <div>
           <h4 className="font-bold text-white mb-4">Soluções</h4>
           <ul className="space-y-2 text-gray-400 text-sm">
-            <li><a href="#" className="hover:text-brand-blue">Tráfego Pago</a></li>
-            <li><a href="#" className="hover:text-brand-blue">Lançamentos</a></li>
-            <li><a href="#" className="hover:text-brand-blue">Automação & CRM</a></li>
-            <li><a href="#" className="hover:text-brand-blue">Web Design</a></li>
+            <li><a href="#" className="hover:text-brand-red">Tráfego Pago</a></li>
+            <li><a href="#" className="hover:text-brand-red">Lançamentos</a></li>
+            <li><a href="#" className="hover:text-brand-red">Automação & CRM</a></li>
+            <li><a href="#" className="hover:text-brand-red">Web Design</a></li>
           </ul>
         </div>
         
@@ -195,8 +195,8 @@ const FadeInSection: React.FC<{ children: React.ReactNode; className?: string }>
 };
 
 const MetricCard = ({ value, label, icon: Icon }: { value: string, label: string, icon: any }) => (
-  <div className="glass-card p-6 rounded-xl flex items-center gap-4 hover:border-brand-blue/50 transition-colors">
-    <div className="p-3 bg-brand-blue/10 rounded-lg text-brand-blue">
+  <div className="glass-card p-6 rounded-xl flex items-center gap-4 hover:border-brand-red/50 transition-colors">
+    <div className="p-3 bg-brand-red/10 rounded-lg text-brand-red">
       <Icon size={24} />
     </div>
     <div>
@@ -213,10 +213,10 @@ const FaqItem = ({ question, answer }: { question: string, answer: string }) => 
     <div className="border-b border-white/10">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-6 flex justify-between items-center text-left hover:text-brand-blue transition-colors"
+        className="w-full py-6 flex justify-between items-center text-left hover:text-brand-red transition-colors"
       >
         <span className="text-lg font-medium text-white">{question}</span>
-        <ChevronDown className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-brand-blue' : 'text-gray-500'}`} />
+        <ChevronDown className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-brand-red' : 'text-gray-500'}`} />
       </button>
       <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-48 opacity-100 mb-6' : 'max-h-0 opacity-0'}`}>
         <p className="text-gray-400 leading-relaxed pr-8">{answer}</p>
@@ -245,14 +245,14 @@ const HomePage = () => {
 
         <div className="max-w-7xl mx-auto px-6 relative z-20 w-full grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8 animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-xs font-bold tracking-wide uppercase">
-              <span className="w-2 h-2 rounded-full bg-brand-blue animate-pulse"></span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-red/10 border border-brand-red/20 text-brand-red text-xs font-bold tracking-wide uppercase">
+              <span className="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
               Agência de Performance
             </div>
             
             <h1 className="text-5xl lg:text-7xl font-heading font-black leading-[1.1] text-white">
               Marketing que <br />
-              gera <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-cyan-400">vendas</span> — <br />
+              gera <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-red-400">vendas</span> — <br />
               todos os dias.
             </h1>
             
@@ -263,7 +263,7 @@ const HomePage = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <a 
                 href="#contact" 
-                className="bg-brand-blue hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-lg text-center transition-all transform hover:translate-y-[-2px] hover:shadow-lg hover:shadow-blue-900/40"
+                className="bg-brand-red hover:bg-red-700 text-white font-bold py-4 px-8 rounded-lg text-center transition-all transform hover:translate-y-[-2px] hover:shadow-lg hover:shadow-red-900/40"
               >
                 Quero crescer agora
               </a>
@@ -289,12 +289,12 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 -mt-24 relative z-30">
           
           {/* Card 1: Recorrência */}
-          <div className="group relative overflow-hidden rounded-2xl bg-brand-gray border border-white/10 p-8 hover:border-brand-blue transition-all duration-300">
+          <div className="group relative overflow-hidden rounded-2xl bg-brand-gray border border-white/10 p-8 hover:border-brand-red transition-all duration-300">
             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
               <TrendingUp size={120} />
             </div>
             <div className="relative z-10 space-y-4">
-              <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center text-green-500 mb-4">
+              <div className="w-12 h-12 bg-brand-red/10 rounded-lg flex items-center justify-center text-brand-red mb-4">
                 <TrendingUp size={24} />
               </div>
               <h3 className="text-2xl font-bold text-white">Marketing Recorrente</h3>
@@ -302,9 +302,9 @@ const HomePage = () => {
                 Para negócios, e-commerces e serviços que buscam previsibilidade e crescimento diário de vendas.
               </p>
               <ul className="space-y-2 text-sm text-gray-300 mb-6">
-                <li className="flex items-center gap-2"><Check size={16} className="text-green-500"/> Tráfego Pago (Ads)</li>
-                <li className="flex items-center gap-2"><Check size={16} className="text-green-500"/> Gestão de Redes Sociais</li>
-                <li className="flex items-center gap-2"><Check size={16} className="text-green-500"/> CRM e Vendas</li>
+                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Tráfego Pago (Ads)</li>
+                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Gestão de Redes Sociais</li>
+                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> CRM e Vendas</li>
               </ul>
               <button className="w-full py-3 rounded-lg border border-white/20 text-white hover:bg-white hover:text-black font-bold transition-colors">
                 Quero crescimento diário
@@ -313,12 +313,12 @@ const HomePage = () => {
           </div>
 
           {/* Card 2: Lançamentos */}
-          <div className="group relative overflow-hidden rounded-2xl bg-brand-gray border border-white/10 p-8 hover:border-brand-blue transition-all duration-300">
+          <div className="group relative overflow-hidden rounded-2xl bg-brand-gray border border-white/10 p-8 hover:border-brand-red transition-all duration-300">
             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
               <Rocket size={120} />
             </div>
             <div className="relative z-10 space-y-4">
-              <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-500 mb-4">
+              <div className="w-12 h-12 bg-brand-red/10 rounded-lg flex items-center justify-center text-brand-red mb-4">
                 <Rocket size={24} />
               </div>
               <h3 className="text-2xl font-bold text-white">Lançamentos Digitais</h3>
@@ -326,9 +326,9 @@ const HomePage = () => {
                 Para infoprodutores e experts que desejam escalar seus lançamentos com estrutura profissional.
               </p>
               <ul className="space-y-2 text-sm text-gray-300 mb-6">
-                <li className="flex items-center gap-2"><Check size={16} className="text-purple-500"/> Estratégia de Lançamento</li>
-                <li className="flex items-center gap-2"><Check size={16} className="text-purple-500"/> Páginas de Alta Conversão</li>
-                <li className="flex items-center gap-2"><Check size={16} className="text-purple-500"/> Automação de E-mail/Wpp</li>
+                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Estratégia de Lançamento</li>
+                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Páginas de Alta Conversão</li>
+                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Automação de E-mail/Wpp</li>
               </ul>
               <button className="w-full py-3 rounded-lg border border-white/20 text-white hover:bg-white hover:text-black font-bold transition-colors">
                 Quero escalar meu lançamento
@@ -355,11 +355,11 @@ const HomePage = () => {
             {/* Client Logos Strip (Simulated) */}
             <div className="border-y border-white/10 py-8 overflow-hidden relative">
               <div className="flex justify-between items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500 px-4">
-                 <span className="text-2xl font-black font-heading">EMPRESA<span className="text-brand-blue">ONE</span></span>
+                 <span className="text-2xl font-black font-heading">EMPRESA<span className="text-brand-red">ONE</span></span>
                  <span className="text-2xl font-black font-heading">TECH<span className="text-white">CORP</span></span>
-                 <span className="text-2xl font-black font-heading">START<span className="text-brand-blue">UP</span></span>
+                 <span className="text-2xl font-black font-heading">START<span className="text-brand-red">UP</span></span>
                  <span className="text-2xl font-black font-heading hidden md:inline">ECOMM<span className="text-white">PRO</span></span>
-                 <span className="text-2xl font-black font-heading hidden md:inline">DIGITAL<span className="text-brand-blue">X</span></span>
+                 <span className="text-2xl font-black font-heading hidden md:inline">DIGITAL<span className="text-brand-red">X</span></span>
               </div>
             </div>
           </FadeInSection>
@@ -368,11 +368,11 @@ const HomePage = () => {
 
       {/* 4. SOLUTIONS BY BENEFIT */}
       <section id="soluções" className="py-24 px-6 bg-brand-dark relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-blue/10 via-brand-dark to-brand-dark pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-red/10 via-brand-dark to-brand-dark pointer-events-none"></div>
         <div className="max-w-7xl mx-auto relative z-10">
           <FadeInSection className="mb-16">
             <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6">
-              Soluções Integradas <br/> para <span className="text-brand-blue">Resultados Reais</span>
+              Soluções Integradas <br/> para <span className="text-brand-red">Resultados Reais</span>
             </h2>
             <p className="text-gray-400 max-w-2xl text-lg">
               Deixamos a parte técnica e estratégica conosco, para que você foque apenas em entregar o seu melhor produto ou serviço.
@@ -382,15 +382,15 @@ const HomePage = () => {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Solution 1 */}
             <FadeInSection className="delay-100">
-              <div className="bg-brand-gray rounded-xl p-8 h-full border border-white/5 hover:border-brand-blue/50 transition-colors group">
-                <div className="w-14 h-14 bg-blue-500/20 text-brand-blue rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="bg-brand-gray rounded-xl p-8 h-full border border-white/5 hover:border-brand-red/50 transition-colors group">
+                <div className="w-14 h-14 bg-brand-red/20 text-brand-red rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Target size={32} />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">Performance & Vendas</h3>
                 <p className="text-gray-400 mb-6 text-sm leading-relaxed">
                   Gestão profissional de tráfego pago (Meta, Google, TikTok) focada em conversão. Criativos que vendem e copy persuasiva.
                 </p>
-                <a href="#contact" className="text-brand-blue font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
+                <a href="#contact" className="text-brand-red font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
                   Ver solução <ArrowRight size={16} />
                 </a>
               </div>
@@ -398,15 +398,15 @@ const HomePage = () => {
 
             {/* Solution 2 */}
             <FadeInSection className="delay-200">
-              <div className="bg-brand-gray rounded-xl p-8 h-full border border-white/5 hover:border-brand-blue/50 transition-colors group">
-                <div className="w-14 h-14 bg-indigo-500/20 text-indigo-400 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="bg-brand-gray rounded-xl p-8 h-full border border-white/5 hover:border-brand-red/50 transition-colors group">
+                <div className="w-14 h-14 bg-brand-red/20 text-brand-red rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Zap size={32} />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">Tecnologia & Automação</h3>
                 <p className="text-gray-400 mb-6 text-sm leading-relaxed">
                   Implementação de CRM, automação de e-mail marketing, chatbots e recuperação de vendas. Sua máquina de vendas rodando 24/7.
                 </p>
-                <a href="#contact" className="text-indigo-400 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
+                <a href="#contact" className="text-brand-red font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
                   Ver solução <ArrowRight size={16} />
                 </a>
               </div>
@@ -414,15 +414,15 @@ const HomePage = () => {
 
             {/* Solution 3 */}
             <FadeInSection className="delay-300">
-              <div className="bg-brand-gray rounded-xl p-8 h-full border border-white/5 hover:border-brand-blue/50 transition-colors group">
-                <div className="w-14 h-14 bg-cyan-500/20 text-cyan-400 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="bg-brand-gray rounded-xl p-8 h-full border border-white/5 hover:border-brand-red/50 transition-colors group">
+                <div className="w-14 h-14 bg-brand-red/20 text-brand-red rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Cpu size={32} />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">Web & Design</h3>
                 <p className="text-gray-400 mb-6 text-sm leading-relaxed">
                   Landing Pages de alta conversão, identidade visual estratégica e sites institucionais velozes. Design feito para vender.
                 </p>
-                <a href="#contact" className="text-cyan-400 font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
+                <a href="#contact" className="text-brand-red font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
                   Ver solução <ArrowRight size={16} />
                 </a>
               </div>
@@ -441,7 +441,7 @@ const HomePage = () => {
 
           <div className="grid md:grid-cols-3 gap-8 relative">
             {/* Connector Line (Desktop) */}
-            <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-brand-blue/50 to-transparent"></div>
+            <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-brand-red/50 to-transparent"></div>
 
             {[
               { step: "01", title: "Diagnóstico Profundo", desc: "Analisamos seus dados, concorrentes e gargalos atuais." },
@@ -449,7 +449,7 @@ const HomePage = () => {
               { step: "03", title: "Escala & Otimização", desc: "Análise diária de métricas para aumentar o ROI continuamente." }
             ].map((item, idx) => (
               <FadeInSection key={idx} className={`relative z-10 delay-${idx * 200}`}>
-                <div className="w-24 h-24 bg-brand-dark border-2 border-brand-blue rounded-full flex items-center justify-center text-3xl font-black text-white mx-auto mb-6 shadow-[0_0_20px_rgba(37,99,235,0.3)]">
+                <div className="w-24 h-24 bg-brand-dark border-2 border-brand-red rounded-full flex items-center justify-center text-3xl font-black text-white mx-auto mb-6 shadow-[0_0_20px_rgba(229,9,20,0.3)]">
                   {item.step}
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
@@ -473,12 +473,12 @@ const HomePage = () => {
           <div className="grid md:grid-cols-3 gap-8">
             {ASSETS.cases.map((item, idx) => (
               <FadeInSection key={idx}>
-                <div className="group rounded-xl overflow-hidden bg-brand-gray border border-white/5 hover:border-brand-blue transition-all">
+                <div className="group rounded-xl overflow-hidden bg-brand-gray border border-white/5 hover:border-brand-red transition-all">
                   <div className="h-48 overflow-hidden relative">
                     <img src={item.img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={item.logo} />
                     <div className="absolute inset-0 bg-black/50"></div>
                     <div className="absolute bottom-4 left-4">
-                      <p className="text-xs font-bold text-brand-blue uppercase mb-1">{item.logo}</p>
+                      <p className="text-xs font-bold text-brand-red uppercase mb-1">{item.logo}</p>
                       <p className="text-2xl font-black text-white">{item.metric}</p>
                     </div>
                   </div>
@@ -521,13 +521,13 @@ const HomePage = () => {
       </section>
 
       {/* 8. FINAL CTA (CONTACT) */}
-      <section id="contact" className="py-24 px-6 bg-brand-blue relative overflow-hidden">
+      <section id="contact" className="py-24 px-6 bg-brand-red relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-heading font-black text-white mb-6">
             Pronto para fazer seu marketing crescer de verdade?
           </h2>
-          <p className="text-blue-100 text-xl mb-10 max-w-2xl mx-auto">
+          <p className="text-red-100 text-xl mb-10 max-w-2xl mx-auto">
             Receba um diagnóstico completo — criativos, campanhas, páginas e automações — e descubra onde está o dinheiro deixado na mesa.
           </p>
           
@@ -535,11 +535,11 @@ const HomePage = () => {
             <form className="space-y-4">
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">Nome da Empresa</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-900 focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition-colors" placeholder="Sua empresa" />
+                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-900 focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-colors" placeholder="Sua empresa" />
               </div>
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">Seu WhatsApp</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-900 focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition-colors" placeholder="(11) 99999-9999" />
+                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-900 focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-colors" placeholder="(11) 99999-9999" />
               </div>
               <button className="w-full bg-black hover:bg-gray-800 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2 mt-4">
                 Quero meu diagnóstico gratuito
@@ -562,7 +562,7 @@ const HomePage = () => {
 const App = () => {
   return (
     <HashRouter>
-      <div className="font-sans bg-black text-white selection:bg-brand-blue selection:text-white">
+      <div className="font-sans bg-black text-white selection:bg-brand-red selection:text-white">
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
