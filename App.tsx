@@ -5,8 +5,11 @@ import {
   TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight 
 } from 'lucide-react';
 
-// --- Assets Configuration (Updated for Agency/Tech Vibe) ---
+// --- Assets Configuration ---
 const ASSETS = {
+  // ATUALIZADO: Link direto para a nova imagem do logo no GitHub
+  logo: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Novo%202.png", 
+
   // Video mock (using high quality tech image for background)
   heroBg: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop", 
   
@@ -60,9 +63,12 @@ const Navbar = () => {
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-brand-dark/95 backdrop-blur-md border-b border-white/10 py-4' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-heading font-black tracking-tighter flex items-center gap-1 group">
-          <span className="text-white">phd</span>
-          <span className="text-brand-red">STUDIO</span>
+        <Link to="/" className="flex items-center gap-2 group" aria-label="PHD Studio Home">
+          <img 
+            src={ASSETS.logo} 
+            alt="PHD Studio" 
+            className="h-12 w-auto object-contain" 
+          />
         </Link>
 
         {/* Desktop Nav */}
@@ -116,7 +122,13 @@ const Footer = () => (
     <div className="max-w-7xl mx-auto px-6">
       <div className="grid md:grid-cols-4 gap-12 mb-12">
         <div className="col-span-1 md:col-span-2">
-          <h3 className="text-3xl font-heading font-black text-white mb-4">phd<span className="text-brand-red">STUDIO</span></h3>
+          <Link to="/" className="block mb-6" aria-label="PHD Studio Home">
+            <img 
+              src={ASSETS.logo} 
+              alt="PHD Studio" 
+              className="h-16 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" 
+            />
+          </Link>
           <p className="text-gray-400 max-w-sm mb-6">
             Agência de tecnologia e marketing focada em escala e previsibilidade.
             Transformamos dados em receita.
