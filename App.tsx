@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { 
-  Menu, X, Phone, Check, ChevronRight, ChevronDown, 
-  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight 
+  Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
+  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote 
 } from 'lucide-react';
 
 // --- Assets Configuration ---
 const ASSETS = {
-  // ATUALIZADO: Link direto para a nova imagem do logo no GitHub
+  // Link direto para a nova imagem do logo no GitHub
   logo: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Novo%202.png", 
 
   // Video mock (using high quality tech image for background)
@@ -17,6 +17,17 @@ const ASSETS = {
   recurringBg: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop",
   launchBg: "https://images.unsplash.com/photo-1642427749670-f20e2e76ed8c?q=80&w=800&auto=format&fit=crop",
   
+  // Client Logos (Placeholders for Marquee)
+  // Substitua estas URLs pelos seus SVGs no GitHub quando estiverem prontos
+  clientLogos: [
+    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+01",
+    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+02",
+    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+03",
+    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+04",
+    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+05",
+    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+06",
+  ],
+
   // Case Studies
   cases: [
     {
@@ -40,76 +51,137 @@ const ASSETS = {
   ]
 };
 
+// --- Fake Data for Testimonials ---
+const TESTIMONIALS = [
+  {
+    id: 1,
+    name: "Juliana Almeida",
+    role: "CEO, Tech Startup",
+    quote: "O sistema da PHD transformou a minha visão de negócio. A automação que implementaram economizou horas da minha equipe e aumentou nossas vendas em 40%.",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop"
+  },
+  {
+    id: 2,
+    name: "Ricardo Borges",
+    role: "Infoprodutor e Mentor",
+    quote: "Em um mês de parceria, escalamos meu lançamento para 6 dígitos. A estratégia de tráfego e os criativos foram impecáveis. Recomendo de olhos fechados.",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop"
+  },
+  {
+    id: 3,
+    name: "Fernanda Costa",
+    role: "Diretora de Marketing",
+    quote: "A qualidade visual e técnica é o ponto alto. Eles entregam não só design bonito, mas páginas que convertem de verdade. O suporte é rápido e eficiente.",
+    avatar: "https://images.unsplash.com/photo-1573496359-e3631dd16299?q=80&w=200&auto=format&fit=crop"
+  },
+  {
+    id: 4,
+    name: "Carlos Mendes",
+    role: "Fundador E-commerce",
+    quote: "Estávamos estagnados e a PHD trouxe a visão de dados que faltava. Otimizaram nosso funil e hoje temos previsibilidade de receita recorrente.",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop"
+  },
+  {
+    id: 5,
+    name: "Patricia Lima",
+    role: "Especialista em Vendas",
+    quote: "Profissionalismo raro no mercado. Desde o diagnóstico até a implementação, tudo foi transparente. O ROI da campanha superou todas as expectativas.",
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&auto=format&fit=crop"
+  }
+];
+
 // --- Components ---
+
+const TestimonialCard: React.FC<{ data: typeof TESTIMONIALS[0] }> = ({ data }) => (
+  <div className="bg-[#121212] border border-white/10 p-8 rounded-2xl min-w-[320px] md:min-w-[400px] flex-shrink-0 snap-center hover:border-brand-red/50 transition-colors duration-300 flex flex-col justify-between h-full group">
+    <div>
+      <Quote className="text-brand-red w-8 h-8 mb-6 opacity-50 group-hover:opacity-100 transition-opacity" />
+      <p className="text-gray-300 text-lg leading-relaxed italic mb-8 font-light">
+        "{data.quote}"
+      </p>
+    </div>
+    <div className="flex items-center gap-4 border-t border-white/5 pt-6">
+      <img 
+        src={data.avatar} 
+        alt={data.name} 
+        className="w-12 h-12 rounded-full object-cover ring-2 ring-brand-red/20 group-hover:ring-brand-red/50 transition-all"
+      />
+      <div>
+        <h4 className="text-white font-bold font-heading">{data.name}</h4>
+        <p className="text-sm text-gray-500">{data.role}</p>
+      </div>
+    </div>
+  </div>
+);
+
+const SectionTitle = ({ title, subtitle, centered = false }: { title: string, subtitle?: string, centered?: boolean }) => (
+  <div className={`mb-12 ${centered ? 'text-center' : ''}`}>
+    <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-4">
+      {title}
+    </h2>
+    {subtitle && (
+      <p className="text-gray-400 text-lg max-w-2xl mx-auto font-light">
+        {subtitle}
+      </p>
+    )}
+  </div>
+);
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id: string) => {
-    setIsOpen(false);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const navLinks = [
+    { name: 'Soluções', href: '#solucoes' },
+    { name: 'Metodologia', href: '#metodologia' },
+    { name: 'Cases', href: '#cases' },
+    { name: 'Depoimentos', href: '#depoimentos' },
+    { name: 'FAQ', href: '#faq' },
+  ];
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-brand-dark/95 backdrop-blur-md border-b border-white/10 py-4' : 'bg-transparent py-6'}`}>
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2 group" aria-label="PHD Studio Home">
-          <img 
-            src={ASSETS.logo} 
-            alt="PHD Studio" 
-            className="h-12 w-auto object-contain" 
-          />
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-6'}`}>
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        <Link to="/" className="relative z-50 block">
+           <img 
+             src={ASSETS.logo} 
+             alt="PHD Studio" 
+             className="h-10 w-auto object-contain md:h-12"
+           />
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center gap-8">
-          {['Soluções', 'Metodologia', 'Cases', 'FAQ'].map((item) => (
-            <button 
-              key={item} 
-              onClick={() => scrollToSection(item.toLowerCase())}
-              className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
-            >
-              {item}
-            </button>
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-8">
+          {navLinks.map((link) => (
+            <a key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+              {link.name}
+            </a>
           ))}
-          <a 
-            href="#contact"
-            className="bg-white text-black hover:bg-brand-red hover:text-white font-bold py-2.5 px-6 rounded-lg transition-all text-sm"
-          >
-            Diagnóstico Gratuito
+          <a href="#contato" className="bg-brand-red text-white px-6 py-2 rounded-full font-bold text-sm hover:bg-red-700 transition-all transform hover:scale-105 flex items-center gap-2">
+            AUDITORIA GRATUITA
           </a>
         </div>
 
         {/* Mobile Toggle */}
-        <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-white">
+        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden z-50 text-white">
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
-      </div>
 
-      {/* Mobile Nav */}
-      <div className={`lg:hidden absolute top-full left-0 w-full bg-brand-dark border-b border-white/10 transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="flex flex-col p-6 gap-4">
-          {['Soluções', 'Metodologia', 'Cases', 'FAQ'].map((item) => (
-            <button 
-              key={item} 
-              onClick={() => scrollToSection(item.toLowerCase())}
-              className="text-left text-lg font-medium text-gray-300 hover:text-brand-red"
-            >
-              {item}
-            </button>
+        {/* Mobile Menu */}
+        <div className={`fixed inset-0 bg-black z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          {navLinks.map((link) => (
+            <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+              {link.name}
+            </a>
           ))}
-          <a href="#contact" className="bg-brand-red text-white font-bold py-3 px-6 rounded-lg text-center mt-2">
-            Diagnóstico Gratuito
+          <a href="#contato" onClick={() => setIsOpen(false)} className="bg-brand-red text-white px-8 py-3 rounded-full font-bold text-lg">
+            AUDITORIA GRATUITA
           </a>
         </div>
       </div>
@@ -117,473 +189,452 @@ const Navbar = () => {
   );
 };
 
-const Footer = () => (
-  <footer className="bg-black border-t border-white/10 py-16">
-    <div className="max-w-7xl mx-auto px-6">
-      <div className="grid md:grid-cols-4 gap-12 mb-12">
-        <div className="col-span-1 md:col-span-2">
-          <Link to="/" className="block mb-6" aria-label="PHD Studio Home">
-            <img 
-              src={ASSETS.logo} 
-              alt="PHD Studio" 
-              className="h-16 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" 
-            />
-          </Link>
-          <p className="text-gray-400 max-w-sm mb-6">
-            Agência de tecnologia e marketing focada em escala e previsibilidade.
-            Transformamos dados em receita.
+const Hero = () => {
+  return (
+    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+      {/* Background with overlay */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src={ASSETS.heroBg} 
+          alt="Background" 
+          className="w-full h-full object-cover opacity-20"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/80 to-brand-dark"></div>
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10 grid md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-8 animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-brand-red text-sm font-bold tracking-wide">
+            <span className="w-2 h-2 bg-brand-red rounded-full animate-pulse"></span>
+            MARKETING + TECNOLOGIA
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-black font-heading leading-tight">
+            Marketing que gera <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-red-500">vendas</span> todos os dias.
+          </h1>
+          
+          <p className="text-xl text-gray-400 font-light max-w-lg leading-relaxed">
+            Criativos, campanhas e automações inteligentes para negócios que querem crescer com consistência ou escalar lançamentos.
           </p>
-          <div className="flex gap-4">
-            {/* Social Placeholders */}
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="w-10 h-10 bg-white/5 rounded-full hover:bg-brand-red transition-colors flex items-center justify-center cursor-pointer">
-                <span className="w-4 h-4 bg-white/50 rounded-full"></span>
-              </div>
-            ))}
+          
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <a href="#recorrente" className="bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/20">
+              Quero crescer agora
+              <ArrowRight size={20} />
+            </a>
+            <a href="#diagnostico" className="bg-transparent border border-white/20 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/5 transition-all text-center">
+              Auditar meu marketing
+            </a>
+          </div>
+
+          <div className="pt-8 flex items-center gap-8 text-sm text-gray-500 font-medium">
+            <div className="flex items-center gap-2">
+              <Check size={16} className="text-brand-red" />
+              Gestão de Tráfego
+            </div>
+            <div className="flex items-center gap-2">
+              <Check size={16} className="text-brand-red" />
+              Automação & CRM
+            </div>
+            <div className="flex items-center gap-2">
+              <Check size={16} className="text-brand-red" />
+              Lançamentos
+            </div>
           </div>
         </div>
+
+        {/* Right side visual */}
+        <div className="relative hidden md:block animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+          <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500">
+            <img 
+              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop" 
+              alt="Dashboard" 
+              className="rounded-xl opacity-80"
+            />
+            {/* Floating Cards */}
+            <div className="absolute -top-12 -right-12 bg-[#1A1A1A] p-4 rounded-xl border border-white/10 shadow-xl animate-pulse-slow">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-green-500/20 p-2 rounded-lg">
+                  <TrendingUp className="text-green-500" size={20} />
+                </div>
+                <div>
+                  <div className="text-xs text-gray-400">ROAS Médio</div>
+                  <div className="text-lg font-bold text-white">+480%</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="absolute -bottom-8 -left-8 bg-[#1A1A1A] p-4 rounded-xl border border-white/10 shadow-xl" style={{animationDelay: '1s'}}>
+              <div className="flex items-center gap-3">
+                <div className="bg-brand-red/20 p-2 rounded-lg">
+                  <Zap className="text-brand-red" size={20} />
+                </div>
+                <div>
+                  <div className="text-xs text-gray-400">Leads Gerados</div>
+                  <div className="text-lg font-bold text-white">15.4k+</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const ClientMarquee = () => {
+  const logos = [...ASSETS.clientLogos, ...ASSETS.clientLogos];
+
+  return (
+    <div className="bg-brand-gray border-y border-white/5 py-8 overflow-hidden relative group">
+       <div className="absolute left-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-r from-brand-gray to-transparent"></div>
+       <div className="absolute right-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-l from-brand-gray to-transparent"></div>
+       
+       <div className="flex gap-16 animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
+         {logos.map((logo, index) => (
+           <div key={index} className="flex-shrink-0 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300">
+             <img 
+              src={logo} 
+              alt={`Cliente ${index}`} 
+              className="h-12 w-auto object-contain brightness-0 invert" 
+             />
+           </div>
+         ))}
+       </div>
+    </div>
+  );
+};
+
+const AudienceSplit = () => {
+  return (
+    <section className="py-20 bg-brand-dark">
+      <div className="container mx-auto px-4">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Card Recorrente */}
+          <div id="recorrente" className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
+            <div className="absolute inset-0">
+               <img src={ASSETS.recurringBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Recorrente" />
+               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+            </div>
+            <div className="relative p-10 h-full flex flex-col items-start">
+              <div className="bg-blue-500/10 p-3 rounded-xl mb-6 border border-blue-500/20">
+                <TrendingUp className="text-blue-500" size={32} />
+              </div>
+              <h3 className="text-3xl font-bold font-heading mb-4">Crescimento Recorrente</h3>
+              <p className="text-gray-400 mb-8 flex-grow">
+                Para negócios que buscam previsibilidade, leads qualificados todos os dias e construção de marca sólida no longo prazo.
+              </p>
+              <ul className="space-y-3 mb-8 text-sm text-gray-300">
+                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Tráfego Pago Perpétuo</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Gestão de Redes Sociais</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> CRM & Vendas</li>
+              </ul>
+              <button className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-gray-200 transition-colors">
+                Quero crescimento diário
+              </button>
+            </div>
+          </div>
+
+          {/* Card Lançamento */}
+          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
+            <div className="absolute inset-0">
+               <img src={ASSETS.launchBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Lançamento" />
+               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+            </div>
+            <div className="relative p-10 h-full flex flex-col items-start">
+              <div className="bg-brand-red/10 p-3 rounded-xl mb-6 border border-brand-red/20">
+                <Rocket className="text-brand-red" size={32} />
+              </div>
+              <h3 className="text-3xl font-bold font-heading mb-4">Lançamentos Digitais</h3>
+              <p className="text-gray-400 mb-8 flex-grow">
+                Para infoprodutores e experts que querem escalar seus resultados com picos de vendas explosivos e estratégia validada.
+              </p>
+              <ul className="space-y-3 mb-8 text-sm text-gray-300">
+                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Estratégia de Lançamento</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Captura de Leads em Massa</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Design de Alta Conversão</li>
+              </ul>
+              <button className="w-full bg-brand-red text-white font-bold py-4 rounded-lg hover:bg-red-700 transition-colors">
+                Quero escalar lançamento
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Solutions = () => {
+  const solutions = [
+    {
+      icon: <Target className="text-brand-red" size={24} />,
+      title: "Performance & Tráfego",
+      desc: "Anúncios ultra-segmentados no Meta, Google e TikTok Ads para colocar sua oferta na frente de quem compra.",
+    },
+    {
+      icon: <Cpu className="text-brand-red" size={24} />,
+      title: "Automação & IA",
+      desc: "Implementação de CRMs, chatbots e fluxos automáticos para recuperar vendas e qualificar leads 24/7.",
+    },
+    {
+      icon: <Users className="text-brand-red" size={24} />,
+      title: "Criação & Branding",
+      desc: "Identidade visual forte, vídeos que prendem a atenção e design que transmite autoridade imediata.",
+    },
+    {
+      icon: <BarChart3 className="text-brand-red" size={24} />,
+      title: "Web & Landing Pages",
+      desc: "Páginas de alta conversão, otimizadas para velocidade e mobile, prontas para receber tráfego pesado.",
+    },
+  ];
+
+  return (
+    <section id="solucoes" className="py-20 bg-[#0A0A0A]">
+      <div className="container mx-auto px-4">
+        <SectionTitle 
+          title="Soluções Integradas" 
+          subtitle="Um ecossistema completo para resolver gargalos e acelerar seu faturamento." 
+          centered 
+        />
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {solutions.map((sol, index) => (
+            <div key={index} className="bg-brand-gray border border-white/5 p-8 rounded-xl hover:border-brand-red/30 hover:-translate-y-2 transition-all duration-300 group">
+              <div className="bg-white/5 w-14 h-14 rounded-lg flex items-center justify-center mb-6 group-hover:bg-brand-red/10 transition-colors">
+                {sol.icon}
+              </div>
+              <h4 className="text-xl font-bold font-heading mb-3">{sol.title}</h4>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                {sol.desc}
+              </p>
+              <a href="#contato" className="inline-block mt-6 text-brand-red text-sm font-bold uppercase tracking-wider hover:underline">
+                Saber mais
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Methodology = () => (
+  <section id="metodologia" className="py-20 bg-brand-dark border-t border-white/5">
+    <div className="container mx-auto px-4">
+      <SectionTitle title="Método PHD" subtitle="Como transformamos desconhecidos em clientes fiéis." />
+      
+      <div className="grid md:grid-cols-3 gap-8 mt-16 relative">
+        <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-brand-red/50 to-transparent"></div>
         
-        <div>
-          <h4 className="font-bold text-white mb-4">Soluções</h4>
-          <ul className="space-y-2 text-gray-400 text-sm">
-            <li><a href="#" className="hover:text-brand-red">Tráfego Pago</a></li>
-            <li><a href="#" className="hover:text-brand-red">Lançamentos</a></li>
-            <li><a href="#" className="hover:text-brand-red">Automação & CRM</a></li>
-            <li><a href="#" className="hover:text-brand-red">Web Design</a></li>
-          </ul>
+        {[
+          { step: "01", title: "Diagnóstico Profundo", desc: "Entendemos seu modelo de negócio, margens e público para traçar a rota segura." },
+          { step: "02", title: "Implementação Ágil", desc: "Configuramos campanhas, criativos e automações em tempo recorde para testar rápido." },
+          { step: "03", title: "Escala & Otimização", desc: "Com dados em mãos, aumentamos o investimento onde traz retorno e cortamos o desperdício." }
+        ].map((item, i) => (
+          <div key={i} className="relative bg-brand-dark z-10 p-6 border-l-2 md:border-l-0 md:border-t-0 border-brand-red/30 pl-8 md:pl-0 md:pt-8 md:text-center">
+            <div className="md:mx-auto bg-brand-red text-white w-12 h-12 rounded-full flex items-center justify-center font-black text-lg mb-6 shadow-lg shadow-brand-red/30">
+              {item.step}
+            </div>
+            <h4 className="text-2xl font-bold font-heading mb-3">{item.title}</h4>
+            <p className="text-gray-400">
+              {item.desc}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const Cases = () => (
+  <section id="cases" className="py-20 bg-brand-gray">
+    <div className="container mx-auto px-4">
+      <div className="flex justify-between items-end mb-12">
+        <div className="max-w-2xl">
+           <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-4">Resultados Reais</h2>
+           <p className="text-gray-400">Não vendemos promessas. Vendemos performance comprovada.</p>
+        </div>
+        <a href="#contato" className="hidden md:flex items-center gap-2 text-brand-red font-bold hover:underline">
+          Ver todos os cases <ArrowRight size={16} />
+        </a>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-8">
+        {ASSETS.cases.map((c, i) => (
+          <div key={i} className="group cursor-pointer">
+            <div className="overflow-hidden rounded-xl mb-6 relative">
+              <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">
+                CASE SUCESSO
+              </div>
+              <img src={c.img} className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" alt={c.logo} />
+              <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors"></div>
+            </div>
+            <div className="flex items-start justify-between mb-2">
+              <h3 className="text-2xl font-bold font-heading text-white">{c.logo}</h3>
+              <span className="text-brand-red font-black text-xl">{c.metric}</span>
+            </div>
+            <p className="text-gray-400 text-sm border-l-2 border-white/10 pl-4">
+              {c.desc}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const Testimonials = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = 400; // estimated card width
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  return (
+    <section id="depoimentos" className="py-20 bg-brand-dark relative overflow-hidden border-t border-white/5">
+        <div className="container mx-auto px-4">
+            <SectionTitle 
+              title="O que os Gigantes dizem" 
+              subtitle="Resultados reais de membros da nossa comunidade." 
+              centered 
+            />
+            
+            <div className="relative group/nav">
+                {/* Navigation Arrows (Desktop) */}
+                <button 
+                  onClick={() => scroll('left')} 
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 bg-brand-red/80 p-3 rounded-full text-white shadow-lg hover:bg-brand-red transition opacity-0 group-hover/nav:opacity-100 hidden md:block backdrop-blur-sm"
+                >
+                    <ChevronLeft size={24} />
+                </button>
+                <button 
+                  onClick={() => scroll('right')} 
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 bg-brand-red/80 p-3 rounded-full text-white shadow-lg hover:bg-brand-red transition opacity-0 group-hover/nav:opacity-100 hidden md:block backdrop-blur-sm"
+                >
+                    <ChevronRight size={24} />
+                </button>
+
+                {/* Scroll Container */}
+                <div 
+                  ref={scrollRef} 
+                  className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide px-4 md:px-0" 
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                    {TESTIMONIALS.map(t => (
+                        <TestimonialCard key={t.id} data={t} />
+                    ))}
+                </div>
+            </div>
+        </div>
+    </section>
+  )
+};
+
+const FAQ = () => {
+  const faqs = [
+    { q: "Qual o investimento mínimo para começar?", a: "Recomendamos um budget de mídia a partir de R$ 1.500/mês para testes consistentes, mas nossos pacotes de gestão se adaptam ao seu momento." },
+    { q: "Vocês atendem quais nichos?", a: "Somos especialistas em Negócios Locais, Infoprodutos, E-commerce e Serviços B2B que buscam escala." },
+    { q: "Em quanto tempo vejo resultados?", a: "Primeiras vitórias costumam aparecer em 15-30 dias. A maturação e escala consistente ocorrem entre o 2º e 3º mês." },
+    { q: "Fazem apenas o tráfego?", a: "Não. Somos uma assessoria completa. Entregamos criativos, landing pages e setup de CRM para garantir que o tráfego converta." }
+  ];
+
+  return (
+    <section id="faq" className="py-20 bg-[#0A0A0A]">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <SectionTitle title="Perguntas Frequentes" centered />
+        <div className="space-y-4">
+          {faqs.map((faq, i) => (
+            <div key={i} className="border border-white/10 rounded-lg bg-brand-gray overflow-hidden">
+              <details className="group">
+                <summary className="flex justify-between items-center p-6 cursor-pointer list-none">
+                  <span className="font-bold text-lg">{faq.q}</span>
+                  <ChevronDown className="transform group-open:rotate-180 transition-transform text-brand-red" />
+                </summary>
+                <div className="px-6 pb-6 text-gray-400 leading-relaxed">
+                  {faq.a}
+                </div>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Footer = () => (
+  <footer className="bg-black border-t border-white/10 pt-20 pb-10">
+    <div className="container mx-auto px-4">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
+        <div className="text-center md:text-left">
+           <img 
+             src={ASSETS.logo} 
+             alt="PHD Studio" 
+             className="h-16 w-auto object-contain mx-auto md:mx-0 mb-6"
+           />
+          <p className="text-gray-400 max-w-sm">
+            Agência especializada em transformar cliques em clientes através de dados, criatividade e tecnologia.
+          </p>
         </div>
         
-        <div>
-          <h4 className="font-bold text-white mb-4">Contato</h4>
-          <ul className="space-y-2 text-gray-400 text-sm">
-            <li>contato@phdstudio.com.br</li>
-            <li>+55 11 97215 8877</li>
-            <li>São Paulo, SP</li>
-          </ul>
+        <div className="bg-brand-gray p-8 rounded-2xl border border-white/10 text-center md:text-right w-full md:w-auto">
+          <h4 className="text-xl font-bold mb-2">Pronto para escalar?</h4>
+          <p className="text-gray-400 mb-6 text-sm">Receba um diagnóstico gratuito em 48h.</p>
+          <button className="bg-brand-red text-white w-full px-8 py-4 rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20">
+            QUERO MEU DIAGNÓSTICO
+          </button>
         </div>
       </div>
       
-      <div className="pt-8 border-t border-white/5 text-center md:text-left flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm">
-        <p>© {new Date().getFullYear()} PHD Studio. Todos os direitos reservados.</p>
+      <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+        <p>&copy; 2024 PHD Studio. Todos os direitos reservados.</p>
         <div className="flex gap-6 mt-4 md:mt-0">
-          <a href="#" className="hover:text-white">Termos</a>
-          <a href="#" className="hover:text-white">Privacidade</a>
+          <a href="#" className="hover:text-white transition-colors">Instagram</a>
+          <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
+          <a href="#" className="hover:text-white transition-colors">WhatsApp</a>
         </div>
       </div>
     </div>
   </footer>
 );
 
-// --- Custom Hook for Fade In Animation ---
-const useFadeIn = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const domRef = React.useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) setIsVisible(true);
-      });
-    });
-    if (domRef.current) observer.observe(domRef.current);
-    return () => {
-      if (domRef.current) observer.unobserve(domRef.current);
-    };
-  }, []);
-
-  return { domRef, isVisible };
-};
-
-const FadeInSection: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = "" }) => {
-  const { domRef, isVisible } = useFadeIn();
-  return (
-    <div
-      ref={domRef}
-      className={`fade-in-section ${isVisible ? 'is-visible' : ''} ${className}`}
-    >
-      {children}
-    </div>
-  );
-};
-
-const MetricCard = ({ value, label, icon: Icon }: { value: string, label: string, icon: any }) => (
-  <div className="glass-card p-6 rounded-xl flex items-center gap-4 hover:border-brand-red/50 transition-colors">
-    <div className="p-3 bg-brand-red/10 rounded-lg text-brand-red">
-      <Icon size={24} />
-    </div>
-    <div>
-      <h4 className="text-2xl font-bold text-white">{value}</h4>
-      <p className="text-sm text-gray-400">{label}</p>
-    </div>
-  </div>
-);
-
-const FaqItem = ({ question, answer }: { question: string, answer: string }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  return (
-    <div className="border-b border-white/10">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-6 flex justify-between items-center text-left hover:text-brand-red transition-colors"
-      >
-        <span className="text-lg font-medium text-white">{question}</span>
-        <ChevronDown className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-brand-red' : 'text-gray-500'}`} />
-      </button>
-      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-48 opacity-100 mb-6' : 'max-h-0 opacity-0'}`}>
-        <p className="text-gray-400 leading-relaxed pr-8">{answer}</p>
-      </div>
-    </div>
-  );
-};
-
-// --- HomePage ---
-
-const HomePage = () => {
-  return (
-    <main className="min-h-screen">
-      
-      {/* 1. HERO SECTION */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/60 z-10"></div>
-          {/* Simulated Video Background */}
-          <img 
-            src={ASSETS.heroBg}
-            alt="Marketing Dashboard Background" 
-            className="w-full h-full object-cover opacity-40"
-          />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 relative z-20 w-full grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8 animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-red/10 border border-brand-red/20 text-brand-red text-xs font-bold tracking-wide uppercase">
-              <span className="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
-              Agência de Performance
-            </div>
-            
-            <h1 className="text-5xl lg:text-7xl font-heading font-black leading-[1.1] text-white">
-              Marketing que <br />
-              gera <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-red-400">vendas</span> — <br />
-              todos os dias.
-            </h1>
-            
-            <p className="text-gray-300 text-lg lg:text-xl max-w-xl leading-relaxed">
-              Criativos, campanhas e automações inteligentes para negócios que querem crescer com consistência ou escalar lançamentos digitais.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <a 
-                href="#contact" 
-                className="bg-brand-red hover:bg-red-700 text-white font-bold py-4 px-8 rounded-lg text-center transition-all transform hover:translate-y-[-2px] hover:shadow-lg hover:shadow-red-900/40"
-              >
-                Quero crescer agora
-              </a>
-              <a 
-                href="#contact" 
-                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold py-4 px-8 rounded-lg text-center transition-all flex items-center justify-center gap-2"
-              >
-                <Target size={18} />
-                Auditar meu marketing
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-gray-500">
-          <ChevronDown size={24} />
-        </div>
-      </section>
-
-      {/* 2. AUDIENCE SPLIT */}
-      <section className="py-20 px-6 bg-brand-dark border-b border-white/5">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 -mt-24 relative z-30">
-          
-          {/* Card 1: Recorrência */}
-          <div className="group relative overflow-hidden rounded-2xl bg-brand-gray border border-white/10 p-8 hover:border-brand-red transition-all duration-300">
-            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-              <TrendingUp size={120} />
-            </div>
-            <div className="relative z-10 space-y-4">
-              <div className="w-12 h-12 bg-brand-red/10 rounded-lg flex items-center justify-center text-brand-red mb-4">
-                <TrendingUp size={24} />
-              </div>
-              <h3 className="text-2xl font-bold text-white">Marketing Recorrente</h3>
-              <p className="text-gray-400 h-16">
-                Para negócios, e-commerces e serviços que buscam previsibilidade e crescimento diário de vendas.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-300 mb-6">
-                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Tráfego Pago (Ads)</li>
-                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Gestão de Redes Sociais</li>
-                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> CRM e Vendas</li>
-              </ul>
-              <button className="w-full py-3 rounded-lg border border-white/20 text-white hover:bg-white hover:text-black font-bold transition-colors">
-                Quero crescimento diário
-              </button>
-            </div>
-          </div>
-
-          {/* Card 2: Lançamentos */}
-          <div className="group relative overflow-hidden rounded-2xl bg-brand-gray border border-white/10 p-8 hover:border-brand-red transition-all duration-300">
-            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-              <Rocket size={120} />
-            </div>
-            <div className="relative z-10 space-y-4">
-              <div className="w-12 h-12 bg-brand-red/10 rounded-lg flex items-center justify-center text-brand-red mb-4">
-                <Rocket size={24} />
-              </div>
-              <h3 className="text-2xl font-bold text-white">Lançamentos Digitais</h3>
-              <p className="text-gray-400 h-16">
-                Para infoprodutores e experts que desejam escalar seus lançamentos com estrutura profissional.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-300 mb-6">
-                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Estratégia de Lançamento</li>
-                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Páginas de Alta Conversão</li>
-                <li className="flex items-center gap-2"><Check size={16} className="text-brand-red"/> Automação de E-mail/Wpp</li>
-              </ul>
-              <button className="w-full py-3 rounded-lg border border-white/20 text-white hover:bg-white hover:text-black font-bold transition-colors">
-                Quero escalar meu lançamento
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* 3. SOCIAL PROOF & METRICS */}
-      <section className="py-20 bg-black">
-        <div className="max-w-7xl mx-auto px-6">
-          <FadeInSection>
-            <div className="text-center mb-12">
-              <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Resultados que falam por si</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <MetricCard value="+4.2x" label="Média de ROAS" icon={BarChart3} />
-                <MetricCard value="-58%" label="Redução no CPL" icon={TrendingUp} />
-                <MetricCard value="+15k" label="Leads Captados/Mês" icon={Users} />
-              </div>
-            </div>
-
-            {/* Client Logos Strip (Simulated) */}
-            <div className="border-y border-white/10 py-8 overflow-hidden relative">
-              <div className="flex justify-between items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500 px-4">
-                 <span className="text-2xl font-black font-heading">EMPRESA<span className="text-brand-red">ONE</span></span>
-                 <span className="text-2xl font-black font-heading">TECH<span className="text-white">CORP</span></span>
-                 <span className="text-2xl font-black font-heading">START<span className="text-brand-red">UP</span></span>
-                 <span className="text-2xl font-black font-heading hidden md:inline">ECOMM<span className="text-white">PRO</span></span>
-                 <span className="text-2xl font-black font-heading hidden md:inline">DIGITAL<span className="text-brand-red">X</span></span>
-              </div>
-            </div>
-          </FadeInSection>
-        </div>
-      </section>
-
-      {/* 4. SOLUTIONS BY BENEFIT */}
-      <section id="soluções" className="py-24 px-6 bg-brand-dark relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-red/10 via-brand-dark to-brand-dark pointer-events-none"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <FadeInSection className="mb-16">
-            <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6">
-              Soluções Integradas <br/> para <span className="text-brand-red">Resultados Reais</span>
-            </h2>
-            <p className="text-gray-400 max-w-2xl text-lg">
-              Deixamos a parte técnica e estratégica conosco, para que você foque apenas em entregar o seu melhor produto ou serviço.
-            </p>
-          </FadeInSection>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Solution 1 */}
-            <FadeInSection className="delay-100">
-              <div className="bg-brand-gray rounded-xl p-8 h-full border border-white/5 hover:border-brand-red/50 transition-colors group">
-                <div className="w-14 h-14 bg-brand-red/20 text-brand-red rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Target size={32} />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">Performance & Vendas</h3>
-                <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-                  Gestão profissional de tráfego pago (Meta, Google, TikTok) focada em conversão. Criativos que vendem e copy persuasiva.
-                </p>
-                <a href="#contact" className="text-brand-red font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
-                  Ver solução <ArrowRight size={16} />
-                </a>
-              </div>
-            </FadeInSection>
-
-            {/* Solution 2 */}
-            <FadeInSection className="delay-200">
-              <div className="bg-brand-gray rounded-xl p-8 h-full border border-white/5 hover:border-brand-red/50 transition-colors group">
-                <div className="w-14 h-14 bg-brand-red/20 text-brand-red rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Zap size={32} />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">Tecnologia & Automação</h3>
-                <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-                  Implementação de CRM, automação de e-mail marketing, chatbots e recuperação de vendas. Sua máquina de vendas rodando 24/7.
-                </p>
-                <a href="#contact" className="text-brand-red font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
-                  Ver solução <ArrowRight size={16} />
-                </a>
-              </div>
-            </FadeInSection>
-
-            {/* Solution 3 */}
-            <FadeInSection className="delay-300">
-              <div className="bg-brand-gray rounded-xl p-8 h-full border border-white/5 hover:border-brand-red/50 transition-colors group">
-                <div className="w-14 h-14 bg-brand-red/20 text-brand-red rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Cpu size={32} />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">Web & Design</h3>
-                <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-                  Landing Pages de alta conversão, identidade visual estratégica e sites institucionais velozes. Design feito para vender.
-                </p>
-                <a href="#contact" className="text-brand-red font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
-                  Ver solução <ArrowRight size={16} />
-                </a>
-              </div>
-            </FadeInSection>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. METHODOLOGY */}
-      <section id="metodologia" className="py-24 px-6 bg-black border-y border-white/10">
-        <div className="max-w-7xl mx-auto text-center">
-          <FadeInSection className="mb-16">
-            <h2 className="text-3xl font-heading font-bold text-white mb-4">Como trabalhamos</h2>
-            <p className="text-gray-400">Um processo validado para garantir resultados previsíveis.</p>
-          </FadeInSection>
-
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            {/* Connector Line (Desktop) */}
-            <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-brand-red/50 to-transparent"></div>
-
-            {[
-              { step: "01", title: "Diagnóstico Profundo", desc: "Analisamos seus dados, concorrentes e gargalos atuais." },
-              { step: "02", title: "Implementação Ágil", desc: "Configuração de campanhas, pixels, páginas e automações." },
-              { step: "03", title: "Escala & Otimização", desc: "Análise diária de métricas para aumentar o ROI continuamente." }
-            ].map((item, idx) => (
-              <FadeInSection key={idx} className={`relative z-10 delay-${idx * 200}`}>
-                <div className="w-24 h-24 bg-brand-dark border-2 border-brand-red rounded-full flex items-center justify-center text-3xl font-black text-white mx-auto mb-6 shadow-[0_0_20px_rgba(229,9,20,0.3)]">
-                  {item.step}
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-gray-400 text-sm max-w-xs mx-auto">{item.desc}</p>
-              </FadeInSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 6. CASES */}
-      <section id="cases" className="py-24 px-6 bg-brand-dark">
-        <div className="max-w-7xl mx-auto">
-          <FadeInSection className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-4xl font-heading font-bold text-white mb-2">Cases de Sucesso</h2>
-              <p className="text-gray-400">Histórias reais de crescimento.</p>
-            </div>
-          </FadeInSection>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {ASSETS.cases.map((item, idx) => (
-              <FadeInSection key={idx}>
-                <div className="group rounded-xl overflow-hidden bg-brand-gray border border-white/5 hover:border-brand-red transition-all">
-                  <div className="h-48 overflow-hidden relative">
-                    <img src={item.img} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={item.logo} />
-                    <div className="absolute inset-0 bg-black/50"></div>
-                    <div className="absolute bottom-4 left-4">
-                      <p className="text-xs font-bold text-brand-red uppercase mb-1">{item.logo}</p>
-                      <p className="text-2xl font-black text-white">{item.metric}</p>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-gray-400 text-sm">{item.desc}</p>
-                  </div>
-                </div>
-              </FadeInSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 7. FAQ */}
-      <section id="faq" className="py-24 px-6 bg-black">
-        <div className="max-w-3xl mx-auto">
-          <FadeInSection className="text-center mb-12">
-            <h2 className="text-3xl font-heading font-bold text-white">Perguntas Frequentes</h2>
-          </FadeInSection>
-          
-          <div className="space-y-2">
-            <FaqItem 
-              question="Vocês atendem quais nichos?" 
-              answer="Atendemos principalmente prestadores de serviços, e-commerces, infoprodutores e negócios locais que buscam escala. Se você tem um produto validado, podemos acelerar." 
-            />
-            <FaqItem 
-              question="Quanto tempo para ver resultados?" 
-              answer="Em campanhas de tráfego direto, os primeiros dados aparecem em 48h. Para otimização e escala consistente, trabalhamos com ciclos de maturação de 30 a 90 dias." 
-            />
-            <FaqItem 
-              question="Vocês fazem os criativos?" 
-              answer="Sim! Temos um time de design e motion para criar anúncios de alta conversão. Porém, também orientamos você na captação de vídeos 'orgânicos' que funcionam muito bem hoje." 
-            />
-            <FaqItem 
-              question="Existe contrato de fidelidade?" 
-              answer="Trabalhamos com contratos flexíveis, mas recomendamos um período mínimo de 3 meses para que a inteligência das campanhas e do CRM performe no seu potencial máximo." 
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* 8. FINAL CTA (CONTACT) */}
-      <section id="contact" className="py-24 px-6 bg-brand-red relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h2 className="text-4xl md:text-5xl font-heading font-black text-white mb-6">
-            Pronto para fazer seu marketing crescer de verdade?
-          </h2>
-          <p className="text-red-100 text-xl mb-10 max-w-2xl mx-auto">
-            Receba um diagnóstico completo — criativos, campanhas, páginas e automações — e descubra onde está o dinheiro deixado na mesa.
-          </p>
-          
-          <div className="bg-white rounded-2xl p-8 md:p-12 shadow-2xl max-w-lg mx-auto text-left">
-            <form className="space-y-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">Nome da Empresa</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-900 focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-colors" placeholder="Sua empresa" />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">Seu WhatsApp</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-900 focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-colors" placeholder="(11) 99999-9999" />
-              </div>
-              <button className="w-full bg-black hover:bg-gray-800 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-[1.02] flex justify-center items-center gap-2 mt-4">
-                Quero meu diagnóstico gratuito
-                <ArrowRight size={20} />
-              </button>
-            </form>
-            <p className="text-xs text-gray-500 mt-4 text-center">
-              * Entraremos em contato em até 24h úteis.
-            </p>
-          </div>
-        </div>
-      </section>
-
-    </main>
-  );
-};
-
-// --- App Root ---
-
-const App = () => {
+// --- Main App ---
+function App() {
   return (
     <HashRouter>
-      <div className="font-sans bg-black text-white selection:bg-brand-red selection:text-white">
+      <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
         <Navbar />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          {/* Kept routes structure flexible for future expansion, but centralized on Home for LP feel */}
-        </Routes>
+        <main>
+          <Hero />
+          <ClientMarquee />
+          <AudienceSplit />
+          <Solutions />
+          <Methodology />
+          <Cases />
+          <Testimonials /> 
+          <FAQ />
+        </main>
         <Footer />
+        
+        {/* Floating WhatsApp Button */}
+        <a 
+          href="https://wa.me/5511972158877" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
+          aria-label="Falar no WhatsApp"
+        >
+          <Phone size={28} fill="currentColor" />
+        </a>
       </div>
     </HashRouter>
   );
-};
+}
 
 export default App;
