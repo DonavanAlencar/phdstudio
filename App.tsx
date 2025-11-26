@@ -17,15 +17,14 @@ const ASSETS = {
   recurringBg: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop",
   launchBg: "https://images.unsplash.com/photo-1642427749670-f20e2e76ed8c?q=80&w=800&auto=format&fit=crop",
   
-  // Client Logos (Placeholders for Marquee)
-  // Substitua estas URLs pelos seus SVGs no GitHub quando estiverem prontos
+  // Client Logos (URLs reais do GitHub)
   clientLogos: [
-    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+01",
-    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+02",
-    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+03",
-    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+04",
-    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+05",
-    "https://placehold.co/150x80/121212/FFFFFF/png?text=CLIENTE+06",
+    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/3%20Eus.svg",
+    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/FSalgueiro%20Editora.svg",
+    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Gira%20Roda.svg",
+    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/IPClin.svg",
+    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Le%20Chiq.svg",
+    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ville%20Capital.svg",
   ],
 
   // Case Studies
