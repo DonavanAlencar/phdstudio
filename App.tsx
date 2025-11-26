@@ -27,7 +27,8 @@ const ASSETS = {
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ville%20Capital.svg",
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/IS%20WE%20TV.svg",
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ruvolo.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Sistema%20Gigantes.svg"
+    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Sistema%20Gigantes.svg",
+    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Dr%20Carlos.svg"
   ],
 
   // Case Studies
@@ -95,10 +96,10 @@ const TESTIMONIALS = [
 // --- Components ---
 
 const TestimonialCard: React.FC<{ data: typeof TESTIMONIALS[0] }> = ({ data }) => (
-  <div className="bg-[#121212] border border-white/10 p-8 rounded-2xl min-w-[320px] md:min-w-[400px] flex-shrink-0 snap-center hover:border-brand-red/50 transition-colors duration-300 flex flex-col justify-between h-full group">
+  <div className="bg-[#121212] border border-white/10 p-8 rounded-2xl w-[300px] md:w-[320px] flex-shrink-0 snap-center hover:border-brand-red/50 transition-colors duration-300 flex flex-col justify-between h-full group">
     <div>
       <Quote className="text-brand-red w-8 h-8 mb-6 opacity-50 group-hover:opacity-100 transition-opacity" />
-      <p className="text-gray-300 text-lg leading-relaxed italic mb-8 font-light">
+      <p className="text-gray-300 text-base leading-relaxed italic mb-8 font-light">
         "{data.quote}"
       </p>
     </div>
@@ -109,8 +110,8 @@ const TestimonialCard: React.FC<{ data: typeof TESTIMONIALS[0] }> = ({ data }) =
         className="w-12 h-12 rounded-full object-cover ring-2 ring-brand-red/20 group-hover:ring-brand-red/50 transition-all"
       />
       <div>
-        <h4 className="text-white font-bold font-heading">{data.name}</h4>
-        <p className="text-sm text-gray-500">{data.role}</p>
+        <h4 className="text-white font-bold font-heading text-sm">{data.name}</h4>
+        <p className="text-xs text-gray-500">{data.role}</p>
       </div>
     </div>
   </div>
@@ -490,7 +491,7 @@ const Testimonials = () => {
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = 400; // estimated card width
+      const scrollAmount = 340; // 320 card + 20 gap approx
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
