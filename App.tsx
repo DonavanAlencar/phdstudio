@@ -58,38 +58,31 @@ const ASSETS = {
 const TESTIMONIALS = [
   {
     id: 1,
-    name: "Juliana Almeida",
-    role: "CEO, Tech Startup",
-    quote: "O sistema da PHD transformou a minha visão de negócio. A automação que implementaram economizou horas da minha equipe e aumentou nossas vendas em 40%.",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop"
+    name: "Fabio Salgueiro",
+    role: "FSalgueiro Editora",
+    quote: "A PHD Studio foi essencial na criação das capas de mais de sete livros da FSalgueiro Editora. A estética e a criatividade da equipe deram vida às obras e transmitiram exatamente a mensagem que eu desejava. Recomendo pela qualidade e profissionalismo.",
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fabio-Salgueiro.svg"
   },
   {
     id: 2,
-    name: "Ricardo Borges",
-    role: "Infoprodutor e Mentor",
-    quote: "Em um mês de parceria, escalamos meu lançamento para 6 dígitos. A estratégia de tráfego e os criativos foram impecáveis. Recomendo de olhos fechados.",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop"
+    name: "Lucas Battistoni",
+    role: "Gestão de Tráfego",
+    quote: "Trabalhar com a PHD Studio na gestão de tráfego transformou meu negócio. As estratégias bem estruturadas aumentaram nossa visibilidade e conversões. Uma parceria confiável, com resultados reais. Estou muito satisfeito.",
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Lucas.svg"
   },
   {
     id: 3,
-    name: "Fernanda Costa",
-    role: "Diretora de Marketing",
-    quote: "A qualidade visual e técnica é o ponto alto. Eles entregam não só design bonito, mas páginas que convertem de verdade. O suporte é rápido e eficiente.",
-    avatar: "https://images.unsplash.com/photo-1573496359-e3631dd16299?q=80&w=200&auto=format&fit=crop"
+    name: "Fernanda",
+    role: "Pós-graduação",
+    quote: "Gravei um vídeo para minhas aulas de pós-graduação com a PHD Studio e fiquei muito satisfeita! Ficou didático, com música e imagens em total harmonia. Meus alunos adoraram. Super recomendo!",
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fernanda.svg"
   },
   {
     id: 4,
-    name: "Carlos Mendes",
-    role: "Fundador E-commerce",
-    quote: "Estávamos estagnados e a PHD trouxe a visão de dados que faltava. Otimizaram nosso funil e hoje temos previsibilidade de receita recorrente.",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop"
-  },
-  {
-    id: 5,
-    name: "Patricia Lima",
-    role: "Especialista em Vendas",
-    quote: "Profissionalismo raro no mercado. Desde o diagnóstico até a implementação, tudo foi transparente. O ROI da campanha superou todas as expectativas.",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&auto=format&fit=crop"
+    name: "Maria Eduarda Chamelete",
+    role: "Ruvolo Glass Company",
+    quote: "A parceria com a PHD Studio foi fundamental para o crescimento da Ruvolo Glass Company. Os vídeos promocionais ficaram impecáveis e reforçaram nossa identidade visual. A gestão de tráfego trouxe mais visibilidade e vendas. Excelente profissionalismo.",
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Duda.svg"
   }
 ];
 
