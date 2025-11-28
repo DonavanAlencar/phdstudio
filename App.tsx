@@ -61,28 +61,28 @@ const TESTIMONIALS = [
     name: "Fabio Salgueiro",
     role: "Escritor e Palestrante",
     quote: "A PHD Studio foi essencial na criação das capas de mais de sete livros da FSalgueiro Editora. A estética e a criatividade da equipe deram vida às obras e transmitiram exatamente a mensagem que eu desejava. Recomendo pela qualidade e profissionalismo.",
-    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fabio-Salgueiro.svg"
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fabio%20Salgueiro.png"
   },
   {
     id: 2,
     name: "Lucas Battistoni",
     role: "Especialista em Liderança de Marketing Multinível",
     quote: "Trabalhar com a PHD Studio na gestão de tráfego transformou meu negócio. As estratégias bem estruturadas aumentaram nossa visibilidade e conversões. Uma parceria confiável, com resultados reais. Estou muito satisfeito.",
-    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Lucas.svg"
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Lucas.png"
   },
   {
     id: 3,
     name: "Fernanda Daud",
     role: "Farmacêutica",
     quote: "Gravei um vídeo para minhas aulas de pós-graduação com a PHD Studio e fiquei muito satisfeita! Ficou didático, com música e imagens em total harmonia. Meus alunos adoraram. Super recomendo!",
-    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fernanda.svg"
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fernanda.png"
   },
   {
     id: 4,
     name: "Maria Eduarda Chamelete",
     role: "Especialista em e-commerce e estratégias digitais da Ruvollo",
     quote: "A parceria com a PHD Studio foi fundamental para o crescimento da Ruvolo Glass Company. Os vídeos promocionais ficaram impecáveis e reforçaram nossa identidade visual. A gestão de tráfego trouxe mais visibilidade e vendas. Excelente profissionalismo.",
-    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Duda.svg"
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Duda.png"
   }
 ];
 
@@ -235,24 +235,12 @@ const Hero = () => {
           <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
               <iframe
-                src="https://www.youtube.com/embed/McLwhMRAjaU"
+                src="https://www.youtube.com/embed/doxJNgoy87E"
                 title="PHD Studio - Marketing e Tecnologia"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="absolute inset-0 w-full h-full"
               ></iframe>
-            </div>
-            {/* Floating Cards */}
-            <div className="absolute -top-12 -right-12 bg-[#1A1A1A] p-4 rounded-xl border border-white/10 shadow-xl animate-pulse-slow">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="bg-green-500/20 p-2 rounded-lg">
-                  <TrendingUp className="text-green-500" size={20} />
-                </div>
-                <div>
-                  <div className="text-xs text-gray-400">ROAS Médio</div>
-                  <div className="text-lg font-bold text-white">+480%</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
