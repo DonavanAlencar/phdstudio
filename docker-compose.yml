@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  phdstudio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    container_name: phdstudio-app
+    # Não mapear portas - Traefik fará o roteamento
+    expose:
+      - "80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    labels:
+      # Labels do Traefik para phdstudio.com.br
+      - "traefik.enable=true"
+      - "traefik.http.routers.phdstudio.rule=Host(`phdstudio.com.br`)"
+      - "traefik.http.routers.phdstudio.entrypoints=websecure"
+      - "traefik.http.routers.phdstudio.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.phdstudio.priority=10"
+      - "traefik.http.services.phdstudio.loadbalancer.server.port=80"
+      # Redirecionar HTTP para HTTPS
+      - "traefik.http.routers.phdstudio-http.rule=Host(`phdstudio.com.br`)"
+      - "traefik.http.routers.phdstudio-http.entrypoints=web"
+      - "traefik.http.routers.phdstudio-http.priority=10"
+      - "traefik.http.routers.phdstudio-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+    networks:
+      - easypanel
+      - phdstudio-network
+
+networks:
+  easypanel:
+    external: true
+  phdstudio-network:
+    driver: bridge
+

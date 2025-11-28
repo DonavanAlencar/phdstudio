@@ -1,0 +1,41 @@
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Argumentos de build para variáveis de ambiente
+ARG GEMINI_API_KEY
+
+# Copiar arquivos de dependências
+COPY package.json package-lock.json ./
+
+# Instalar dependências (incluindo devDependencies para o build)
+# NODE_ENV não é definido aqui para garantir que devDependencies sejam instaladas
+RUN npm ci
+
+# Copiar código fonte
+COPY . .
+
+# Criar arquivo .env se GEMINI_API_KEY foi fornecida
+RUN if [ -n "$GEMINI_API_KEY" ]; then \
+        echo "GEMINI_API_KEY=$GEMINI_API_KEY" > .env.local; \
+    fi
+
+# Build da aplicação
+RUN npm run build
+
+# Stage 2: Production
+FROM nginx:alpine
+
+# Copiar build da aplicação
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copiar configuração inicial do nginx (será substituída após obter certificados)
+COPY nginx-init.conf /etc/nginx/conf.d/default.conf
+
+# Expor portas 80 (HTTP) e 443 (HTTPS)
+EXPOSE 80 443
+
+# Comando para iniciar nginx
+CMD ["nginx", "-g", "daemon off;"]
+
