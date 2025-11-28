@@ -14,6 +14,12 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "production"
     labels:
       # Labels do Traefik para phdstudio.com.br
       - "traefik.enable=true"
