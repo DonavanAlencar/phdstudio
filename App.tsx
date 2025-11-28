@@ -10,8 +10,8 @@ const ASSETS = {
   // Link direto para a nova imagem do logo no GitHub
   logo: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Novo%202.png", 
 
-  // Video mock (using high quality tech image for background)
-  heroBg: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop", 
+  // Video mock (using high quality tech image for background) - Otimizado para performance
+  heroBg: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop", 
   
   // Specific contextual images
   recurringBg: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop",
@@ -151,6 +151,9 @@ const Navbar = () => {
              src={ASSETS.logo} 
              alt="PHD Studio" 
              className="h-10 w-auto object-contain md:h-12"
+             width="200"
+             height="48"
+             loading="eager"
            />
         </Link>
 
@@ -192,6 +195,8 @@ const Hero = () => {
           className="w-full h-full object-cover opacity-20"
           loading="eager"
           fetchpriority="high"
+          width="1200"
+          height="800"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/80 to-brand-dark"></div>
       </div>
@@ -682,6 +687,8 @@ const Footer = () => (
              src={ASSETS.logo} 
              alt="PHD Studio" 
              className="h-16 w-auto object-contain mx-auto md:mx-0 mb-6"
+             width="200"
+             height="48"
              loading="lazy"
              decoding="async"
            />

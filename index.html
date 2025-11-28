@@ -4,16 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- Resource Hints for Performance -->
+    <!-- Resource Hints for Performance - Otimizado -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" />
-    <link rel="preconnect" href="https://www.google-analytics.com" />
     <link rel="dns-prefetch" href="https://raw.githubusercontent.com" />
     <link rel="dns-prefetch" href="https://images.unsplash.com" />
-    
-    <!-- Preload Critical Resources -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=Montserrat:wght@400;600;700;900&display=swap" as="style" />
     
     <!-- Primary Meta Tags -->
     <title>PHD Studio | Marketing & Tecnologia - Agência de Marketing Digital</title>
@@ -60,16 +56,111 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Novo%202.png" />
     
-    <!-- Google Tag (gtag.js) - Optimized for performance -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VFKC64NZHH"></script>
+    <!-- Google Tag (gtag.js) - Otimizado -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-VFKC64NZHH');
     </script>
+    <script async defer src="https://www.googletagmanager.com/gtag/js?id=G-VFKC64NZHH"></script>
     
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Tailwind CSS - Carregamento assíncrono seguro -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <!-- Google Fonts - Otimizado -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <script>
+      // Configuração do Tailwind após carregamento
+      function configureTailwind() {
+        if (typeof tailwind !== 'undefined') {
+          tailwind.config = {
+            theme: {
+              extend: {
+                fontFamily: {
+                  sans: ['Inter', 'sans-serif'],
+                  heading: ['Montserrat', 'sans-serif'],
+                },
+                colors: {
+                  brand: {
+                    red: '#E50914',
+                    dark: '#050505',
+                    gray: '#121212',
+                    light: '#F3F4F6'
+                  }
+                },
+                animation: {
+                  'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                  'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                  'marquee': 'marquee 25s linear infinite',
+                },
+                keyframes: {
+                  fadeInUp: {
+                    '0%': { opacity: '0', transform: 'translateY(20px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                  },
+                  marquee: {
+                    '0%': { transform: 'translateX(0)' },
+                    '100%': { transform: 'translateX(-100%)' },
+                  }
+                }
+              }
+            }
+          };
+        } else {
+          // Tentar novamente após um pequeno delay
+          setTimeout(configureTailwind, 50);
+        }
+      }
+      // Iniciar configuração quando DOM estiver pronto
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', configureTailwind);
+      } else {
+        configureTailwind();
+      }
+    </script>
+    <style>
+      body {
+        background-color: #050505;
+        color: #ffffff;
+        overflow-x: hidden;
+      }
+      .fade-in-section {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        will-change: opacity, transform;
+      }
+      .fade-in-section.is-visible {
+        opacity: 1;
+        transform: none;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #050505; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #262626; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #E50914; 
+      }
+      
+      .glass-card {
+        background: rgba(18, 18, 18, 0.6);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+    </style>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+    
+    <!-- Structured Data (JSON-LD) - Movido para o final para melhor performance -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -157,86 +248,5 @@
       }
     }
     </script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts - Loaded with display=swap for better performance -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet" />
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              heading: ['Montserrat', 'sans-serif'],
-            },
-            colors: {
-              brand: {
-                red: '#E50914', // Original Brand Red
-                dark: '#050505', // Deeper black
-                gray: '#121212', // Card backgrounds
-                light: '#F3F4F6'
-              }
-            },
-            animation: {
-              'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
-              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'marquee': 'marquee 25s linear infinite',
-            },
-            keyframes: {
-              fadeInUp: {
-                '0%': { opacity: '0', transform: 'translateY(20px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              },
-              marquee: {
-                '0%': { transform: 'translateX(0)' },
-                '100%': { transform: 'translateX(-100%)' },
-              }
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      body {
-        background-color: #050505;
-        color: #ffffff;
-        overflow-x: hidden;
-      }
-      .fade-in-section {
-        opacity: 0;
-        transform: translateY(30px);
-        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        will-change: opacity, transform;
-      }
-      .fade-in-section.is-visible {
-        opacity: 1;
-        transform: none;
-      }
-      /* Custom scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #050505; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #262626; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #E50914; 
-      }
-      
-      .glass-card {
-        background: rgba(18, 18, 18, 0.6);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-    </style>
-</head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
