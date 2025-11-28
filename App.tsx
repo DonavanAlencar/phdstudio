@@ -35,19 +35,19 @@ const ASSETS = {
   cases: [
     {
       img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
-      logo: "FinTech Pro",
+      logo: "Optimization Pro",
       metric: "+4.2x ROAS",
       desc: "Otimização de tráfego pago para SaaS financeiro."
     },
     {
       img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop",
       logo: "Launch X",
-      metric: "R$ 1.5M em 7 dias",
+      metric: "Resultados significativos em 3 meses",
       desc: "Estrutura completa para lançamento de infoproduto."
     },
     {
       img: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=800&auto=format&fit=crop",
-      logo: "E-comm Beauty",
+      logo: "E-commerce Monitoring",
       metric: "-58% CPL",
       desc: "Automação de recuperação de carrinho e leads."
     }
@@ -59,28 +59,28 @@ const TESTIMONIALS = [
   {
     id: 1,
     name: "Fabio Salgueiro",
-    role: "FSalgueiro Editora",
+    role: "Escritor e Palestrante",
     quote: "A PHD Studio foi essencial na criação das capas de mais de sete livros da FSalgueiro Editora. A estética e a criatividade da equipe deram vida às obras e transmitiram exatamente a mensagem que eu desejava. Recomendo pela qualidade e profissionalismo.",
     avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fabio-Salgueiro.svg"
   },
   {
     id: 2,
     name: "Lucas Battistoni",
-    role: "Gestão de Tráfego",
+    role: "Especialista em Liderança de Marketing Multinível",
     quote: "Trabalhar com a PHD Studio na gestão de tráfego transformou meu negócio. As estratégias bem estruturadas aumentaram nossa visibilidade e conversões. Uma parceria confiável, com resultados reais. Estou muito satisfeito.",
     avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Lucas.svg"
   },
   {
     id: 3,
-    name: "Fernanda",
-    role: "Pós-graduação",
+    name: "Fernanda Daud",
+    role: "Farmacêutica",
     quote: "Gravei um vídeo para minhas aulas de pós-graduação com a PHD Studio e fiquei muito satisfeita! Ficou didático, com música e imagens em total harmonia. Meus alunos adoraram. Super recomendo!",
     avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fernanda.svg"
   },
   {
     id: 4,
     name: "Maria Eduarda Chamelete",
-    role: "Ruvolo Glass Company",
+    role: "Especialista em e-commerce e estratégias digitais da Ruvollo",
     quote: "A parceria com a PHD Studio foi fundamental para o crescimento da Ruvolo Glass Company. Os vídeos promocionais ficaram impecáveis e reforçaram nossa identidade visual. A gestão de tráfego trouxe mais visibilidade e vendas. Excelente profissionalismo.",
     avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Duda.svg"
   }
@@ -206,7 +206,7 @@ const Hero = () => {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-black font-heading leading-tight">
-            Marketing que gera <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-red-500">vendas</span> todos os dias.
+            Marketing que gera <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-red-500">vendas</span> — todos os dias.
           </h1>
           
           <p className="text-xl text-gray-400 font-light max-w-lg leading-relaxed">
@@ -218,8 +218,8 @@ const Hero = () => {
               Quero crescer agora
               <ArrowRight size={20} />
             </a>
-            <a href="#diagnostico" className="bg-transparent border border-white/20 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/5 transition-all text-center">
-              Auditar meu marketing
+            <a href="#contato" className="bg-transparent border border-white/20 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/5 transition-all text-center">
+              Auditar meu marketing gratuitamente
             </a>
           </div>
 
@@ -239,14 +239,18 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Right side visual */}
+        {/* Right side video */}
         <div className="relative hidden md:block animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-          <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500">
-            <img 
-              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop" 
-              alt="Dashboard" 
-              className="rounded-xl opacity-80"
-            />
+          <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden">
+              <iframe
+                src="https://www.youtube.com/embed/McLwhMRAjaU"
+                title="PHD Studio - Marketing e Tecnologia"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              ></iframe>
+            </div>
             {/* Floating Cards */}
             <div className="absolute -top-12 -right-12 bg-[#1A1A1A] p-4 rounded-xl border border-white/10 shadow-xl animate-pulse-slow">
               <div className="flex items-center gap-3 mb-2">
@@ -301,29 +305,35 @@ const ClientMarquee = () => {
   );
 };
 
-const AudienceSplit = () => {
+const GrowthType = () => {
   return (
-    <section className="py-20 bg-brand-dark">
+    <section id="recorrente" className="py-20 bg-brand-dark">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Card Recorrente */}
-          <div id="recorrente" className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
+        <SectionTitle 
+          title="Escolha seu tipo de crescimento" 
+          subtitle="Dois caminhos, um objetivo: resultados que transformam seu negócio." 
+          centered 
+        />
+        <div className="grid md:grid-cols-2 gap-8 mt-12">
+          {/* Bloco 1 - Marketing Recorrente */}
+          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
             <div className="absolute inset-0">
-               <img src={ASSETS.recurringBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Recorrente" />
+               <img src={ASSETS.recurringBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Marketing Recorrente" />
                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
             </div>
             <div className="relative p-10 h-full flex flex-col items-start">
               <div className="bg-blue-500/10 p-3 rounded-xl mb-6 border border-blue-500/20">
                 <TrendingUp className="text-blue-500" size={32} />
               </div>
-              <h3 className="text-3xl font-bold font-heading mb-4">Crescimento Recorrente</h3>
-              <p className="text-gray-400 mb-8 flex-grow">
-                Para negócios que buscam previsibilidade, leads qualificados todos os dias e construção de marca sólida no longo prazo.
-              </p>
-              <ul className="space-y-3 mb-8 text-sm text-gray-300">
-                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Tráfego Pago Perpétuo</li>
-                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Gestão de Redes Sociais</li>
-                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> CRM & Vendas</li>
+              <h3 className="text-3xl font-bold font-heading mb-4">Para negócios que querem crescer todos os dias</h3>
+              <ul className="space-y-3 mb-8 text-sm text-gray-300 flex-grow">
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Gestão estratégica de redes sociais</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Tráfego contínuo</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> SEO e autoridade</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Funis de conversão</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Conteúdo profissional</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Email marketing</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Automação e CRM</li>
               </ul>
               <button className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-gray-200 transition-colors">
                 Quero crescimento diário
@@ -331,27 +341,28 @@ const AudienceSplit = () => {
             </div>
           </div>
 
-          {/* Card Lançamento */}
+          {/* Bloco 2 - Lançamentos Digitais */}
           <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
             <div className="absolute inset-0">
-               <img src={ASSETS.launchBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Lançamento" />
+               <img src={ASSETS.launchBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Lançamentos Digitais" />
                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
             </div>
             <div className="relative p-10 h-full flex flex-col items-start">
               <div className="bg-brand-red/10 p-3 rounded-xl mb-6 border border-brand-red/20">
                 <Rocket className="text-brand-red" size={32} />
               </div>
-              <h3 className="text-3xl font-bold font-heading mb-4">Lançamentos Digitais</h3>
-              <p className="text-gray-400 mb-8 flex-grow">
-                Para infoprodutores e experts que querem escalar seus resultados com picos de vendas explosivos e estratégia validada.
-              </p>
-              <ul className="space-y-3 mb-8 text-sm text-gray-300">
-                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Estratégia de Lançamento</li>
-                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Captura de Leads em Massa</li>
-                <li className="flex gap-2"><Check size={16} className="text-brand-red" /> Design de Alta Conversão</li>
+              <h3 className="text-3xl font-bold font-heading mb-4">Para quem trabalha com lançamentos</h3>
+              <ul className="space-y-3 mb-8 text-sm text-gray-300 flex-grow">
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Criativos de alta performance</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> VSL, cortes e anúncios</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Funil de pré-lançamento</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Campanhas agressivas</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Landing pages otimizadas</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Automação avançada (WhatsApp + IA)</li>
+                <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Pós-lançamento inteligente</li>
               </ul>
               <button className="w-full bg-brand-red text-white font-bold py-4 rounded-lg hover:bg-red-700 transition-colors">
-                Quero escalar lançamento
+                Quero escalar meu lançamento
               </button>
             </div>
           </div>
@@ -362,47 +373,65 @@ const AudienceSplit = () => {
 };
 
 const Solutions = () => {
-  const solutions = [
+  const solutionsBlocks = [
     {
-      icon: <Target className="text-brand-red" size={24} />,
-      title: "Performance & Tráfego",
-      desc: "Anúncios ultra-segmentados no Meta, Google e TikTok Ads para colocar sua oferta na frente de quem compra.",
+      title: "Soluções para Vendas (Performance)",
+      icon: <Target className="text-brand-red" size={28} />,
+      items: [
+        "Criativos de anúncio",
+        "Tráfego pago",
+        "Landing pages",
+        "Funis",
+        "Copywriting de conversão"
+      ]
     },
     {
-      icon: <Cpu className="text-brand-red" size={24} />,
-      title: "Automação & IA",
-      desc: "Implementação de CRMs, chatbots e fluxos automáticos para recuperar vendas e qualificar leads 24/7.",
+      title: "Soluções para Crescimento Contínuo",
+      icon: <TrendingUp className="text-brand-red" size={28} />,
+      items: [
+        "Redes sociais",
+        "Conteúdo",
+        "SEO",
+        "Email marketing",
+        "Branding"
+      ]
     },
     {
-      icon: <Users className="text-brand-red" size={24} />,
-      title: "Criação & Branding",
-      desc: "Identidade visual forte, vídeos que prendem a atenção e design que transmite autoridade imediata.",
-    },
-    {
-      icon: <BarChart3 className="text-brand-red" size={24} />,
-      title: "Web & Landing Pages",
-      desc: "Páginas de alta conversão, otimizadas para velocidade e mobile, prontas para receber tráfego pesado.",
-    },
+      title: "Soluções em Tecnologia + Automação",
+      icon: <Cpu className="text-brand-red" size={28} />,
+      items: [
+        "CRM",
+        "Integrações",
+        "Automação IA",
+        "Bots inteligentes",
+        "Dashboards"
+      ]
+    }
   ];
 
   return (
     <section id="solucoes" className="py-20 bg-[#0A0A0A]">
       <div className="container mx-auto px-4">
         <SectionTitle 
-          title="Soluções Integradas" 
+          title="Soluções Orientadas a Resultado" 
           subtitle="Um ecossistema completo para resolver gargalos e acelerar seu faturamento." 
           centered 
         />
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {solutions.map((sol, index) => (
+        <div className="grid md:grid-cols-3 gap-8 mt-12">
+          {solutionsBlocks.map((block, index) => (
             <div key={index} className="bg-brand-gray border border-white/5 p-8 rounded-xl hover:border-brand-red/30 hover:-translate-y-2 transition-all duration-300 group">
-              <div className="bg-white/5 w-14 h-14 rounded-lg flex items-center justify-center mb-6 group-hover:bg-brand-red/10 transition-colors">
-                {sol.icon}
+              <div className="bg-white/5 w-16 h-16 rounded-lg flex items-center justify-center mb-6 group-hover:bg-brand-red/10 transition-colors">
+                {block.icon}
               </div>
-              <h4 className="text-xl font-bold font-heading mb-3">{sol.title}</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                {sol.desc}
-              </p>
+              <h4 className="text-xl font-bold font-heading mb-6">{block.title}</h4>
+              <ul className="space-y-3">
+                {block.items.map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-300 text-sm">
+                    <Check size={16} className="text-brand-red flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
               <a href="#contato" className="inline-block mt-6 text-brand-red text-sm font-bold uppercase tracking-wider hover:underline">
                 Saber mais
               </a>
@@ -417,15 +446,15 @@ const Solutions = () => {
 const Methodology = () => (
   <section id="metodologia" className="py-20 bg-brand-dark border-t border-white/5">
     <div className="container mx-auto px-4">
-      <SectionTitle title="Método PHD" subtitle="Como transformamos desconhecidos em clientes fiéis." />
+      <SectionTitle title="Método PHD" subtitle="Como transformamos estratégias em resultados reais e mensuráveis." />
       
       <div className="grid md:grid-cols-3 gap-8 mt-16 relative">
         <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-brand-red/50 to-transparent"></div>
         
         {[
-          { step: "01", title: "Diagnóstico Profundo", desc: "Entendemos seu modelo de negócio, margens e público para traçar a rota segura." },
-          { step: "02", title: "Implementação Ágil", desc: "Configuramos campanhas, criativos e automações em tempo recorde para testar rápido." },
-          { step: "03", title: "Escala & Otimização", desc: "Com dados em mãos, aumentamos o investimento onde traz retorno e cortamos o desperdício." }
+          { step: "01", title: "Diagnóstico Estratégico", desc: "Analisamos seu modelo de negócio, público e concorrência para traçar a rota mais eficiente rumo aos resultados." },
+          { step: "02", title: "Implementação Rápida", desc: "Configuramos campanhas, criativos e automações em tempo recorde. Testamos rápido para validar o que funciona." },
+          { step: "03", title: "Escala Inteligente", desc: "Com dados reais em mãos, escalamos o que funciona e eliminamos o desperdício. Resultados que se multiplicam." }
         ].map((item, i) => (
           <div key={i} className="relative bg-brand-dark z-10 p-6 border-l-2 md:border-l-0 md:border-t-0 border-brand-red/30 pl-8 md:pl-0 md:pt-8 md:text-center">
             <div className="md:mx-auto bg-brand-red text-white w-12 h-12 rounded-full flex items-center justify-center font-black text-lg mb-6 shadow-lg shadow-brand-red/30">
@@ -448,7 +477,7 @@ const Cases = () => (
       <div className="flex justify-between items-end mb-12">
         <div className="max-w-2xl">
            <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-4">Resultados Reais</h2>
-           <p className="text-gray-400">Não vendemos promessas. Vendemos performance comprovada.</p>
+           <p className="text-gray-400">Performance comprovada que transforma números em crescimento real.</p>
         </div>
         <a href="#contato" className="hidden md:flex items-center gap-2 text-brand-red font-bold hover:underline">
           Ver todos os cases <ArrowRight size={16} />
@@ -495,11 +524,11 @@ const Testimonials = () => {
   return (
     <section id="depoimentos" className="py-20 bg-brand-dark relative overflow-hidden border-t border-white/5">
         <div className="container mx-auto px-4">
-            <SectionTitle 
-              title="O que os Gigantes dizem" 
-              subtitle="Resultados reais de membros da nossa comunidade." 
-              centered 
-            />
+        <SectionTitle 
+          title="O que nossos clientes dizem" 
+          subtitle="Resultados reais de quem confiou na PHD Studio para transformar seus negócios." 
+          centered 
+        />
             
             <div className="relative group/nav">
                 {/* Navigation Arrows (Desktop) */}
@@ -534,10 +563,10 @@ const Testimonials = () => {
 
 const FAQ = () => {
   const faqs = [
-    { q: "Qual o investimento mínimo para começar?", a: "Recomendamos um budget de mídia a partir de R$ 1.500/mês para testes consistentes, mas nossos pacotes de gestão se adaptam ao seu momento." },
-    { q: "Vocês atendem quais nichos?", a: "Somos especialistas em Negócios Locais, Infoprodutos, E-commerce e Serviços B2B que buscam escala." },
-    { q: "Em quanto tempo vejo resultados?", a: "Primeiras vitórias costumam aparecer em 15-30 dias. A maturação e escala consistente ocorrem entre o 2º e 3º mês." },
-    { q: "Fazem apenas o tráfego?", a: "Não. Somos uma assessoria completa. Entregamos criativos, landing pages e setup de CRM para garantir que o tráfego converta." }
+    { q: "Qual o investimento mínimo para começar?", a: "Recomendamos um budget de mídia a partir de R$ 1.500/mês para testes consistentes. Nossos pacotes se adaptam ao seu momento e objetivos." },
+    { q: "Vocês atendem quais nichos?", a: "Somos especialistas em Marketing Recorrente (empresas que querem crescer todos os dias) e Lançamentos Digitais (infoprodutores, experts e coprodutores)." },
+    { q: "Em quanto tempo vejo resultados?", a: "Primeiros resultados aparecem em 15-30 dias. A maturação e escala consistente ocorrem entre o 2º e 3º mês, com otimização contínua." },
+    { q: "Fazem apenas o tráfego?", a: "Não. Somos uma agência completa: Marketing + IA + Tecnologia. Entregamos criativos, landing pages, automações e CRM para garantir que cada real investido converta." }
   ];
 
   return (
@@ -575,7 +604,7 @@ const Footer = () => (
              className="h-16 w-auto object-contain mx-auto md:mx-0 mb-6"
            />
           <p className="text-gray-400 max-w-sm">
-            Agência especializada em transformar cliques em clientes através de dados, criatividade e tecnologia.
+            Agência híbrida de Marketing + IA + Tecnologia. Transformamos estratégias em vendas recorrentes e lançamentos de sucesso.
           </p>
         </div>
         
@@ -609,7 +638,7 @@ function App() {
         <main>
           <Hero />
           <ClientMarquee />
-          <AudienceSplit />
+          <GrowthType />
           <Solutions />
           <Methodology />
           <Cases />
