@@ -101,6 +101,8 @@ const TestimonialCard: React.FC<{ data: typeof TESTIMONIALS[0] }> = ({ data }) =
         src={data.avatar} 
         alt={data.name} 
         className="w-12 h-12 rounded-full object-cover ring-2 ring-brand-red/20 group-hover:ring-brand-red/50 transition-all"
+        loading="lazy"
+        decoding="async"
       />
       <div>
         <h4 className="text-white font-bold font-heading text-sm">{data.name}</h4>
@@ -188,6 +190,8 @@ const Hero = () => {
           src={ASSETS.heroBg} 
           alt="Background" 
           className="w-full h-full object-cover opacity-20"
+          loading="eager"
+          fetchpriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/80 to-brand-dark"></div>
       </div>
@@ -260,11 +264,13 @@ const ClientMarquee = () => {
        <div className="flex gap-16 animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
          {logos.map((logo, index) => (
            <div key={index} className="flex-shrink-0 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300">
-             <img 
+            <img 
               src={logo} 
               alt={`Cliente ${index}`} 
               className="h-12 w-auto object-contain brightness-0 invert" 
-             />
+              loading="lazy"
+              decoding="async"
+            />
            </div>
          ))}
        </div>
@@ -285,7 +291,7 @@ const GrowthType = () => {
           {/* Bloco 1 - Marketing Recorrente */}
           <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
             <div className="absolute inset-0">
-               <img src={ASSETS.recurringBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Marketing Recorrente" />
+               <img src={ASSETS.recurringBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Marketing Recorrente" loading="lazy" decoding="async" />
                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
             </div>
             <div className="relative p-10 h-full flex flex-col items-start">
@@ -311,7 +317,7 @@ const GrowthType = () => {
           {/* Bloco 2 - Lançamentos Digitais */}
           <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
             <div className="absolute inset-0">
-               <img src={ASSETS.launchBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Lançamentos Digitais" />
+               <img src={ASSETS.launchBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Lançamentos Digitais" loading="lazy" decoding="async" />
                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
             </div>
             <div className="relative p-10 h-full flex flex-col items-start">
@@ -458,7 +464,7 @@ const Cases = () => (
               <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">
                 CASE SUCESSO
               </div>
-              <img src={c.img} className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" alt={c.logo} />
+              <img src={c.img} className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" alt={c.logo} loading="lazy" decoding="async" />
               <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors"></div>
             </div>
             <div className="flex items-start justify-between mb-2">
@@ -676,6 +682,8 @@ const Footer = () => (
              src={ASSETS.logo} 
              alt="PHD Studio" 
              className="h-16 w-auto object-contain mx-auto md:mx-0 mb-6"
+             loading="lazy"
+             decoding="async"
            />
           <p className="text-gray-400 max-w-sm">
             Agência híbrida de Marketing + IA + Tecnologia. Transformamos estratégias em vendas recorrentes e lançamentos de sucesso.
@@ -724,7 +732,7 @@ function App() {
         
         {/* Floating WhatsApp Button */}
         <a 
-          href="https://wa.me/5511972158877" 
+          href="https://wa.me/5511971490549" 
           target="_blank" 
           rel="noopener noreferrer"
           className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
