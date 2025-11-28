@@ -42,7 +42,7 @@ const ASSETS = {
     {
       img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop",
       logo: "Launch X",
-      metric: "Resultados significativos em 3 meses",
+      metric: "+3 meses",
       desc: "Estrutura completa para lançamento de infoproduto."
     },
     {
@@ -159,9 +159,6 @@ const Navbar = () => {
               {link.name}
             </a>
           ))}
-          <a href="#contato" className="bg-brand-red text-white px-6 py-2 rounded-full font-bold text-sm hover:bg-red-700 transition-all transform hover:scale-105 flex items-center gap-2">
-            AUDITORIA GRATUITA
-          </a>
         </div>
 
         {/* Mobile Toggle */}
@@ -176,9 +173,6 @@ const Navbar = () => {
               {link.name}
             </a>
           ))}
-          <a href="#contato" onClick={() => setIsOpen(false)} className="bg-brand-red text-white px-8 py-3 rounded-full font-bold text-lg">
-            AUDITORIA GRATUITA
-          </a>
         </div>
       </div>
     </nav>
@@ -214,12 +208,9 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <a href="#recorrente" className="bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/20">
+            <a href="#contato" className="bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/20">
               Quero crescer agora
               <ArrowRight size={20} />
-            </a>
-            <a href="#contato" className="bg-transparent border border-white/20 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/5 transition-all text-center">
-              Auditar meu marketing gratuitamente
             </a>
           </div>
 
@@ -260,18 +251,6 @@ const Hero = () => {
                 <div>
                   <div className="text-xs text-gray-400">ROAS Médio</div>
                   <div className="text-lg font-bold text-white">+480%</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="absolute -bottom-8 -left-8 bg-[#1A1A1A] p-4 rounded-xl border border-white/10 shadow-xl" style={{animationDelay: '1s'}}>
-              <div className="flex items-center gap-3">
-                <div className="bg-brand-red/20 p-2 rounded-lg">
-                  <Zap className="text-brand-red" size={20} />
-                </div>
-                <div>
-                  <div className="text-xs text-gray-400">Leads Gerados</div>
-                  <div className="text-lg font-bold text-white">15.4k+</div>
                 </div>
               </div>
             </div>
@@ -335,9 +314,9 @@ const GrowthType = () => {
                 <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Email marketing</li>
                 <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Automação e CRM</li>
               </ul>
-              <button className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-gray-200 transition-colors">
+              <div className="w-full text-white text-center font-bold py-4 text-lg">
                 Quero crescimento diário
-              </button>
+              </div>
             </div>
           </div>
 
@@ -361,9 +340,9 @@ const GrowthType = () => {
                 <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Automação avançada (WhatsApp + IA)</li>
                 <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Pós-lançamento inteligente</li>
               </ul>
-              <button className="w-full bg-brand-red text-white font-bold py-4 rounded-lg hover:bg-red-700 transition-colors">
+              <div className="w-full text-white text-center font-bold py-4 text-lg">
                 Quero escalar meu lançamento
-              </button>
+              </div>
             </div>
           </div>
         </div>
@@ -530,7 +509,7 @@ const Testimonials = () => {
           centered 
         />
             
-            <div className="relative group/nav">
+            <div className="relative group/nav flex justify-center">
                 {/* Navigation Arrows (Desktop) */}
                 <button 
                   onClick={() => scroll('left')} 
@@ -593,6 +572,113 @@ const FAQ = () => {
   );
 };
 
+const ContactForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Aqui você pode adicionar a lógica para enviar os dados
+    console.log('Form data:', formData);
+    alert('Obrigado! Entraremos em contato em breve.');
+    setFormData({ name: '', email: '', phone: '', message: '' });
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  return (
+    <section id="contato" className="py-20 bg-brand-gray">
+      <div className="container mx-auto px-4 max-w-2xl">
+        <SectionTitle 
+          title="Vamos transformar seu negócio?" 
+          subtitle="Preencha o formulário e receba um diagnóstico gratuito em 48h." 
+          centered 
+        />
+        <form onSubmit={handleSubmit} className="bg-brand-dark border border-white/10 rounded-2xl p-8 md:p-10 space-y-6">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+              Nome completo
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+              placeholder="Seu nome"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+              E-mail
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+              placeholder="seu@email.com"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+              WhatsApp
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              className="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+              placeholder="(11) 99999-9999"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
+              Mensagem (opcional)
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              rows={4}
+              className="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors resize-none"
+              placeholder="Conte-nos sobre seu negócio..."
+            />
+          </div>
+          
+          <button
+            type="submit"
+            className="w-full bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20"
+          >
+            Enviar solicitação
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+};
+
 const Footer = () => (
   <footer className="bg-black border-t border-white/10 pt-20 pb-10">
     <div className="container mx-auto px-4">
@@ -611,9 +697,9 @@ const Footer = () => (
         <div className="bg-brand-gray p-8 rounded-2xl border border-white/10 text-center md:text-right w-full md:w-auto">
           <h4 className="text-xl font-bold mb-2">Pronto para escalar?</h4>
           <p className="text-gray-400 mb-6 text-sm">Receba um diagnóstico gratuito em 48h.</p>
-          <button className="bg-brand-red text-white w-full px-8 py-4 rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20">
+          <a href="#contato" className="bg-brand-red text-white w-full px-8 py-4 rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 text-center block">
             QUERO MEU DIAGNÓSTICO
-          </button>
+          </a>
         </div>
       </div>
       
@@ -644,6 +730,7 @@ function App() {
           <Cases />
           <Testimonials /> 
           <FAQ />
+          <ContactForm />
         </main>
         <Footer />
         
