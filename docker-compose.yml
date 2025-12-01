@@ -7,6 +7,10 @@ services:
       dockerfile: Dockerfile
       args:
         - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+        - VITE_EMAILJS_SERVICE_ID=${VITE_EMAILJS_SERVICE_ID:-}
+        - VITE_EMAILJS_TEMPLATE_ID=${VITE_EMAILJS_TEMPLATE_ID:-}
+        - VITE_EMAILJS_PUBLIC_KEY=${VITE_EMAILJS_PUBLIC_KEY:-}
+        - VITE_RECIPIENT_EMAIL=${VITE_RECIPIENT_EMAIL:-}
     container_name: phdstudio-app
     # Não mapear portas - Traefik fará o roteamento
     expose:

@@ -5,21 +5,28 @@ WORKDIR /app
 
 # Argumentos de build para variáveis de ambiente
 ARG GEMINI_API_KEY
+ARG VITE_EMAILJS_SERVICE_ID
+ARG VITE_EMAILJS_TEMPLATE_ID
+ARG VITE_EMAILJS_PUBLIC_KEY
+ARG VITE_RECIPIENT_EMAIL
 
 # Copiar arquivos de dependências
 COPY package.json package-lock.json ./
 
 # Instalar dependências (incluindo devDependencies para o build)
 # NODE_ENV não é definido aqui para garantir que devDependencies sejam instaladas
-RUN npm ci
+# Tenta npm ci primeiro, se falhar usa npm install
+RUN npm ci || npm install
 
 # Copiar código fonte
 COPY . .
 
-# Criar arquivo .env se GEMINI_API_KEY foi fornecida
-RUN if [ -n "$GEMINI_API_KEY" ]; then \
-        echo "GEMINI_API_KEY=$GEMINI_API_KEY" > .env.local; \
-    fi
+# Criar arquivo .env.local com todas as variáveis de ambiente
+RUN echo "GEMINI_API_KEY=${GEMINI_API_KEY:-}" > .env.local && \
+    echo "VITE_EMAILJS_SERVICE_ID=${VITE_EMAILJS_SERVICE_ID:-}" >> .env.local && \
+    echo "VITE_EMAILJS_TEMPLATE_ID=${VITE_EMAILJS_TEMPLATE_ID:-}" >> .env.local && \
+    echo "VITE_EMAILJS_PUBLIC_KEY=${VITE_EMAILJS_PUBLIC_KEY:-}" >> .env.local && \
+    echo "VITE_RECIPIENT_EMAIL=${VITE_RECIPIENT_EMAIL:-}" >> .env.local
 
 # Build da aplicação
 RUN npm run build

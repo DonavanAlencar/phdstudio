@@ -4,6 +4,7 @@ import {
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
   TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote 
 } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 // --- Assets Configuration ---
 const ASSETS = {
@@ -313,9 +314,6 @@ const GrowthType = () => {
                 <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Email marketing</li>
                 <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Automação e CRM</li>
               </ul>
-              <div className="w-full text-white text-center font-bold py-4 text-lg">
-                Quero crescimento diário
-              </div>
             </div>
           </div>
 
@@ -339,9 +337,6 @@ const GrowthType = () => {
                 <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Automação avançada (WhatsApp + IA)</li>
                 <li className="flex gap-2"><Check size={16} className="text-brand-red flex-shrink-0 mt-0.5" /> Pós-lançamento inteligente</li>
               </ul>
-              <div className="w-full text-white text-center font-bold py-4 text-lg">
-                Quero escalar meu lançamento
-              </div>
             </div>
           </div>
         </div>
@@ -572,19 +567,216 @@ const FAQ = () => {
 };
 
 const ContactForm = () => {
+  /*
+   * ⚠️ CONFIGURAÇÃO DO TEMPLATE NO EMAILJS ⚠️
+   * 
+   * IMPORTANTE: O template no EmailJS DEVE ter EXATAMENTE estas variáveis:
+   * 
+   * Subject: Novo Lead - {{from_name}}
+   * 
+   * Body (conteúdo do e-mail):
+   * Nome: {{from_name}}
+   * E-mail: {{from_email}}
+   * WhatsApp: {{phone}}
+   * Mensagem: {{message}}
+   * 
+   * Para responder, use: {{reply_to}}
+   * 
+   * ⚠️ ATENÇÃO:
+   * - Os nomes das variáveis devem ser EXATAMENTE: from_name, from_email, phone, message, reply_to
+   * - Não use espaços ou caracteres especiais nos nomes das variáveis
+   * - O template deve estar ATIVO no painel do EmailJS
+   * - O e-mail destinatário (to_email) pode ser configurado no template ou será enviado para o e-mail conectado
+   */
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     message: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Apenas o email destinatário precisa ser configurado
+  const RECIPIENT_EMAIL = import.meta.env.VITE_RECIPIENT_EMAIL || '';
+
+  // Configurações do EmailJS (configure uma vez no painel e copie aqui)
+  // Ou deixe vazio e configure via variáveis de ambiente
+  const EMAILJS_CONFIG = {
+    serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || '',
+    templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '',
+    publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '',
+  };
+
+  useEffect(() => {
+    // Log das configurações ao montar o componente (apenas em desenvolvimento)
+    console.log('🔍 Verificando configurações EmailJS ao montar:', {
+      serviceId: EMAILJS_CONFIG.serviceId || 'NÃO CONFIGURADO',
+      templateId: EMAILJS_CONFIG.templateId || 'NÃO CONFIGURADO',
+      publicKey: EMAILJS_CONFIG.publicKey ? `${EMAILJS_CONFIG.publicKey.substring(0, 5)}...` : 'NÃO CONFIGURADO',
+      recipientEmail: RECIPIENT_EMAIL || 'NÃO CONFIGURADO',
+      envVars: {
+        VITE_EMAILJS_SERVICE_ID: import.meta.env.VITE_EMAILJS_SERVICE_ID || 'não definida',
+        VITE_EMAILJS_TEMPLATE_ID: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'não definida',
+        VITE_EMAILJS_PUBLIC_KEY: import.meta.env.VITE_EMAILJS_PUBLIC_KEY ? 'definida' : 'não definida',
+        VITE_RECIPIENT_EMAIL: import.meta.env.VITE_RECIPIENT_EMAIL || 'não definida'
+      }
+    });
+
+    // Inicializar EmailJS
+    if (EMAILJS_CONFIG.publicKey) {
+      try {
+        emailjs.init(EMAILJS_CONFIG.publicKey);
+        console.log('✅ EmailJS inicializado com sucesso');
+      } catch (error) {
+        console.error('❌ Erro ao inicializar EmailJS:', error);
+      }
+    } else {
+      console.warn('⚠️ Public Key do EmailJS não configurada');
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aqui você pode adicionar a lógica para enviar os dados
-    console.log('Form data:', formData);
-    alert('Obrigado! Entraremos em contato em breve.');
-    setFormData({ name: '', email: '', phone: '', message: '' });
+    
+    if (!RECIPIENT_EMAIL) {
+      alert('Por favor, configure o VITE_RECIPIENT_EMAIL no arquivo .env');
+      return;
+    }
+
+    setIsLoading(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    // Parâmetros do template (declarado fora do try para estar disponível no catch)
+    // IMPORTANTE: Os nomes das variáveis devem corresponder EXATAMENTE ao template do EmailJS
+    // Baseado na imagem, o template usa: from_name, from_email, phone, message, reply_to
+    // E o campo "To Email" no template usa {{email}}, então vamos enviar como "email"
+    const templateParams = {
+      from_name: formData.name,
+      from_email: formData.email,
+      phone: formData.phone,
+      message: formData.message || 'Sem mensagem adicional',
+      reply_to: formData.email,
+      // O template tem "To Email" com {{email}}, então enviamos como "email"
+      email: RECIPIENT_EMAIL,
+    };
+
+    try {
+      // Log das configurações (apenas em desenvolvimento)
+      console.log('🔧 Configurações EmailJS:', {
+        hasServiceId: !!EMAILJS_CONFIG.serviceId,
+        hasTemplateId: !!EMAILJS_CONFIG.templateId,
+        hasPublicKey: !!EMAILJS_CONFIG.publicKey,
+        recipientEmail: RECIPIENT_EMAIL,
+        serviceId: EMAILJS_CONFIG.serviceId,
+        templateId: EMAILJS_CONFIG.templateId,
+        publicKeyLength: EMAILJS_CONFIG.publicKey?.length || 0
+      });
+
+      // Verificar configurações
+      if (!EMAILJS_CONFIG.serviceId || !EMAILJS_CONFIG.templateId || !EMAILJS_CONFIG.publicKey) {
+        const missing = [];
+        if (!EMAILJS_CONFIG.serviceId) missing.push('VITE_EMAILJS_SERVICE_ID');
+        if (!EMAILJS_CONFIG.templateId) missing.push('VITE_EMAILJS_TEMPLATE_ID');
+        if (!EMAILJS_CONFIG.publicKey) missing.push('VITE_EMAILJS_PUBLIC_KEY');
+        
+        const errorMsg = `EmailJS não configurado. Variáveis faltando: ${missing.join(', ')}`;
+        console.error('❌', errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      console.log('📧 Enviando e-mail com parâmetros:', {
+        serviceId: EMAILJS_CONFIG.serviceId,
+        templateId: EMAILJS_CONFIG.templateId,
+        templateParams: templateParams,
+        recipientEmail: RECIPIENT_EMAIL
+      });
+
+      // Enviar e-mail via EmailJS
+      const response = await emailjs.send(
+        EMAILJS_CONFIG.serviceId,
+        EMAILJS_CONFIG.templateId,
+        templateParams
+      );
+
+      console.log('✅ E-mail enviado com sucesso:', response);
+      
+      // Enviar evento de conversão para Google Analytics
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'form_submission', {
+          event_category: 'Contact Form',
+          event_label: 'Lead Form Submission',
+          value: 1,
+          send_to: 'G-VFKC64NZHH'
+        });
+        
+        // Evento de conversão (pode ser usado para Goals no GA4)
+        (window as any).gtag('event', 'conversion', {
+          send_to: 'G-VFKC64NZHH',
+          event_category: 'Lead',
+          event_label: 'Contact Form',
+          value: 1
+        });
+        
+        console.log('📊 Evento de conversão enviado para Google Analytics');
+      }
+      
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', phone: '', message: '' });
+      
+      setTimeout(() => {
+        setSubmitStatus('idle');
+      }, 5000);
+    } catch (error: any) {
+      // Log detalhado do erro
+      console.error('❌ Erro ao enviar e-mail:', {
+        error,
+        message: error?.message || 'Erro desconhecido',
+        text: error?.text || 'Sem detalhes adicionais',
+        status: error?.status || 'N/A',
+        statusText: error?.statusText || 'N/A',
+        stack: error?.stack || 'Sem stack trace',
+        config: {
+          serviceId: EMAILJS_CONFIG.serviceId,
+          templateId: EMAILJS_CONFIG.templateId,
+          hasPublicKey: !!EMAILJS_CONFIG.publicKey
+        },
+        // Informações adicionais do EmailJS
+        response: error?.response || 'N/A'
+      });
+
+      // Mensagem de erro mais descritiva baseada no status
+      let userErrorMessage = 'Erro ao enviar. Por favor, tente novamente ou entre em contato pelo WhatsApp.';
+      
+      // Tratamento específico para erro 422 (Unprocessable Entity)
+      if (error?.status === 422) {
+        userErrorMessage = 'Erro 422: Parâmetros inválidos. Verifique se o template do EmailJS está configurado corretamente com as variáveis: from_name, from_email, phone, message, reply_to, email';
+        console.error('🔴 ERRO 422 - Possíveis causas:');
+        console.error('  1. Template do EmailJS não tem as variáveis corretas');
+        console.error('  2. Nomes das variáveis no template não correspondem aos parâmetros enviados');
+        console.error('  3. Template não está ativo ou não existe');
+        console.error('  Parâmetros enviados:', templateParams);
+      } else if (error?.text) {
+        userErrorMessage = error.text;
+      } else if (error?.message) {
+        userErrorMessage = error.message;
+      }
+
+      // Mostrar erro no console para debug
+      console.error('💬 Mensagem de erro para o usuário:', userErrorMessage);
+      
+      setErrorMessage(userErrorMessage);
+      setSubmitStatus('error');
+      
+      setTimeout(() => {
+        setSubmitStatus('idle');
+      }, 5000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -668,10 +860,73 @@ const ContactForm = () => {
           
           <button
             type="submit"
-            className="w-full bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20"
+            disabled={isLoading}
+            className="w-full bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Enviar solicitação
+            {isLoading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Enviando...
+              </>
+            ) : (
+              'Enviar solicitação'
+            )}
           </button>
+
+          {/* Mensagens de feedback - Sucesso */}
+          {submitStatus === 'success' && (
+            <div className="mt-6 p-6 bg-gradient-to-r from-green-500/30 to-emerald-500/30 border-2 border-green-500 rounded-xl text-green-300 text-center shadow-lg shadow-green-500/20 animate-pulse">
+              <div className="flex flex-col items-center justify-center gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="bg-green-500/20 p-3 rounded-full animate-bounce">
+                    <Check size={28} className="text-green-400" strokeWidth={3} />
+                  </div>
+                  <span className="text-xl font-bold text-green-200">✓ E-mail enviado com sucesso!</span>
+                </div>
+                <p className="text-base text-green-400/90 mt-2 font-medium">
+                  Recebemos sua mensagem e entraremos em contato em breve.
+                </p>
+                <div className="mt-3 flex items-center gap-2 text-sm text-green-400/80 bg-green-500/10 px-4 py-2 rounded-lg">
+                  <Phone size={16} />
+                  <span>Ou entre em contato pelo WhatsApp se preferir</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Mensagens de feedback - Erro */}
+          {submitStatus === 'error' && (
+            <div className="mt-6 p-6 bg-gradient-to-r from-red-500/30 to-rose-500/30 border-2 border-red-500 rounded-xl text-red-300 text-center shadow-lg shadow-red-500/20">
+              <div className="flex flex-col items-center justify-center gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="bg-red-500/20 p-3 rounded-full">
+                    <X size={28} className="text-red-400" strokeWidth={3} />
+                  </div>
+                  <span className="text-xl font-bold text-red-200">✗ Erro ao enviar e-mail</span>
+                </div>
+                {errorMessage && (
+                  <div className="mt-3 p-4 bg-red-500/20 border border-red-500/50 rounded-lg w-full">
+                    <p className="text-sm text-red-200 font-semibold">{errorMessage}</p>
+                  </div>
+                )}
+                <div className="mt-4 flex flex-col gap-3 text-sm w-full">
+                  <p className="text-red-300/90 font-medium">
+                    Por favor, tente novamente em alguns instantes.
+                  </p>
+                  <div className="flex items-center justify-center gap-2 text-red-400/90 bg-red-500/10 px-4 py-2 rounded-lg">
+                    <Phone size={18} />
+                    <span className="font-medium">Ou entre em contato diretamente pelo WhatsApp</span>
+                  </div>
+                </div>
+                <p className="text-xs text-red-400/60 mt-3 italic">
+                  (Verifique o console do navegador para mais detalhes técnicos)
+                </p>
+              </div>
+            </div>
+          )}
         </form>
       </div>
     </section>

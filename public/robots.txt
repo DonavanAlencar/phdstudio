@@ -7,3 +7,4 @@ Sitemap: https://phdstudio.com.br/sitemap.xml
 # Crawl-delay
 Crawl-delay: 1
 
+
