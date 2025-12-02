@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
-  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote 
+  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, Loader2 
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
@@ -129,6 +129,7 @@ const SectionTitle = ({ title, subtitle, centered = false }: { title: string, su
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -136,13 +137,23 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Fechar menu mobile quando mudar de rota
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location]);
+
   const navLinks = [
-    { name: 'Soluções', href: '#solucoes' },
-    { name: 'Metodologia', href: '#metodologia' },
-    { name: 'Cases', href: '#cases' },
-    { name: 'Depoimentos', href: '#depoimentos' },
-    { name: 'FAQ', href: '#faq' },
+    { name: 'Soluções', href: '#solucoes', isHash: true },
+    { name: 'Metodologia', href: '#metodologia', isHash: true },
+    { name: 'Cases', href: '#cases', isHash: true },
+    { name: 'Depoimentos', href: '#depoimentos', isHash: true },
+    { name: 'FAQ', href: '#faq', isHash: true },
+    { name: 'Blog', href: '/blog', isHash: false },
   ];
+
+  const handleLinkClick = () => {
+    setIsOpen(false);
+  };
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-6'}`}>
@@ -160,11 +171,17 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
-              {link.name}
-            </a>
-          ))}
+          {navLinks.map((link) => 
+            link.isHash ? (
+              <a key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+                {link.name}
+              </a>
+            ) : (
+              <Link key={link.name} to={link.href} className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+                {link.name}
+              </Link>
+            )
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -174,11 +191,17 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         <div className={`fixed inset-0 bg-black z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-          {navLinks.map((link) => (
-            <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
-              {link.name}
-            </a>
-          ))}
+          {navLinks.map((link) => 
+            link.isHash ? (
+              <a key={link.name} href={link.href} onClick={handleLinkClick} className="text-2xl font-bold text-white hover:text-brand-red">
+                {link.name}
+              </a>
+            ) : (
+              <Link key={link.name} to={link.href} onClick={handleLinkClick} className="text-2xl font-bold text-white hover:text-brand-red">
+                {link.name}
+              </Link>
+            )
+          )}
         </div>
       </div>
     </nav>
@@ -973,26 +996,121 @@ const Footer = () => (
   </footer>
 );
 
-// --- Main App ---
-function App() {
+// --- Blog Component ---
+const Blog = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handleLoad = () => {
+    setIsLoading(false);
+    setHasError(false);
+  };
+
+  const handleError = () => {
+    setIsLoading(false);
+    setHasError(true);
+  };
+
   return (
-    <HashRouter>
-      <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
-        <Navbar />
-        <main>
-          <Hero />
-          <ClientMarquee />
-          <GrowthType />
-          <Solutions />
-          <Methodology />
-          <Cases />
-          <Testimonials /> 
-          <FAQ />
-          <ContactForm />
-        </main>
-        <Footer />
-        
-        {/* Floating WhatsApp Button */}
+    <div className="min-h-screen bg-brand-dark pt-20">
+      <div className="relative w-full h-[calc(100vh-5rem)]">
+        {/* Loading State */}
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-brand-dark z-10">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 text-brand-red animate-spin mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">Carregando blog...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {hasError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-brand-dark z-10">
+            <div className="text-center max-w-md px-4">
+              <X className="w-16 h-16 text-red-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-4">Erro ao carregar o blog</h2>
+              <p className="text-gray-400 mb-6">
+                Não foi possível carregar o conteúdo do blog. Isso pode acontecer devido a restrições de segurança do site.
+              </p>
+              <a 
+                href="https://www.phdstudio.net.br/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-block bg-brand-red text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700 transition-colors"
+              >
+                Abrir blog em nova aba
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Iframe */}
+        <iframe
+          ref={iframeRef}
+          src="https://www.phdstudio.net.br/"
+          title="PHD Studio Blog"
+          className="w-full h-full border-0"
+          onLoad={handleLoad}
+          onError={handleError}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+        />
+      </div>
+    </div>
+  );
+};
+
+// --- Home Page Component ---
+const HomePage = () => (
+  <>
+    <Hero />
+    <ClientMarquee />
+    <GrowthType />
+    <Solutions />
+    <Methodology />
+    <Cases />
+    <Testimonials /> 
+    <FAQ />
+    <ContactForm />
+  </>
+);
+
+// --- App Content (inside Router) ---
+const AppContent = () => {
+  const location = useLocation();
+  // Com HashRouter, a rota vem em location.hash (ex: '#/' ou '#/blog')
+  const isHomePage = !location.hash || location.hash === '#' || location.hash === '#/';
+
+  return (
+    <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+      <Navbar />
+      <Routes>
+        <Route 
+          path="/" 
+          element={
+            <>
+              <main>
+                <HomePage />
+              </main>
+              <Footer />
+            </>
+          } 
+        />
+        <Route 
+          path="/blog" 
+          element={<Blog />} 
+        />
+      </Routes>
+      
+      {/* Floating WhatsApp Button - Only show on home page */}
+      {isHomePage && (
         <a 
           href="https://wa.me/5511971490549" 
           target="_blank" 
@@ -1002,7 +1120,16 @@ function App() {
         >
           <Phone size={28} fill="currentColor" />
         </a>
-      </div>
+      )}
+    </div>
+  );
+};
+
+// --- Main App ---
+function App() {
+  return (
+    <HashRouter>
+      <AppContent />
     </HashRouter>
   );
 }
