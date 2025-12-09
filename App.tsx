@@ -142,7 +142,7 @@ const Navbar = () => {
     { name: 'Cases', href: '#cases' },
     { name: 'Depoimentos', href: '#depoimentos' },
     { name: 'FAQ', href: '#faq' },
-    { name: 'Blog', href: 'https://www.phdstudio.net.br/', external: true },
+    { name: 'Blog', href: 'https://www.phdstudio.blog.br/', external: true },
   ];
 
   return (
