@@ -92,3 +92,4 @@ curl https://phdstudio.com.br
 - **Domínio**: phdstudio.com.br (configurado no Traefik)
 - **Portas**: 80 (HTTP) e 443 (HTTPS) - gerenciadas pelo Traefik
 - **SSL**: Automático via Traefik/Let's Encrypt
+# Deploy automatizado ativo
