@@ -12,7 +12,7 @@ services:
         - VITE_EMAILJS_PUBLIC_KEY=${VITE_EMAILJS_PUBLIC_KEY:-}
         - VITE_RECIPIENT_EMAIL=${VITE_RECIPIENT_EMAIL:-}
     container_name: phdstudio-app
-    # Não mapear portas - Traefik fará o roteamento
+    # Porta exposta para o Easypanel/Traefik rotear
     expose:
       - "80"
     restart: unless-stopped
@@ -25,20 +25,23 @@ services:
         max-file: "3"
         labels: "production"
     labels:
-      # Labels do Traefik para phdstudio.com.br
+      # Labels do Traefik para phdstudio.com.br (quando Traefik estiver funcionando)
       - "traefik.enable=true"
       - "traefik.http.routers.phdstudio.rule=Host(`phdstudio.com.br`)"
       - "traefik.http.routers.phdstudio.entrypoints=https"
       - "traefik.http.routers.phdstudio.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.phdstudio.priority=10"
+      - "traefik.http.routers.phdstudio.priority=100"
       - "traefik.http.services.phdstudio.loadbalancer.server.port=80"
       # Redirecionar HTTP para HTTPS
       - "traefik.http.routers.phdstudio-http.rule=Host(`phdstudio.com.br`)"
       - "traefik.http.routers.phdstudio-http.entrypoints=http"
-      - "traefik.http.routers.phdstudio-http.priority=10"
+      - "traefik.http.routers.phdstudio-http.priority=100"
       - "traefik.http.routers.phdstudio-http.middlewares=redirect-to-https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      # Labels para Easypanel (se necessário)
+      - "easypanel.domain=phdstudio.com.br"
+      - "easypanel.port=80"
     networks:
       - easypanel
       - phdstudio-network
