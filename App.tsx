@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { HashRouter, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { HashRouter, Link, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
-  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote 
+  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
@@ -87,6 +87,61 @@ const TESTIMONIALS = [
   }
 ];
 
+// --- Authentication Context ---
+interface AuthContextType {
+  isAuthenticated: boolean;
+  login: (username: string, password: string) => boolean;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
+
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('isAuthenticated') === 'true';
+  });
+
+  const login = (username: string, password: string): boolean => {
+    if (username === 'vexin' && password === '@v3xiN!') {
+      setIsAuthenticated(true);
+      localStorage.setItem('isAuthenticated', 'true');
+      return true;
+    }
+    return false;
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('isAuthenticated');
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Protected Route Component
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
+
 // --- Components ---
 
 const TestimonialCard: React.FC<{ data: typeof TESTIMONIALS[0] }> = ({ data }) => (
@@ -129,6 +184,7 @@ const SectionTitle = ({ title, subtitle, centered = false }: { title: string, su
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -148,6 +204,15 @@ const Navbar = () => {
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-6'}`}>
       <div className="container mx-auto px-4 flex justify-between items-center">
+        {/* Botão Área do Cliente - Lado Esquerdo */}
+        <Link 
+          to="/login" 
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 flex items-center gap-2 relative z-50"
+        >
+          <Lock size={16} />
+          Área do Cliente
+        </Link>
+
         <Link to="/" className="relative z-50 block">
            <img 
              src={ASSETS.logo} 
@@ -178,6 +243,22 @@ const Navbar = () => {
               </a>
             )
           )}
+          {isAuthenticated && (
+            <>
+              <Link to="/funil" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+                Funil
+              </Link>
+              <Link to="/projecao" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+                Projeção
+              </Link>
+              <button 
+                onClick={logout}
+                className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider"
+              >
+                Sair
+              </button>
+            </>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -204,6 +285,25 @@ const Navbar = () => {
                 {link.name}
               </a>
             )
+          )}
+          {isAuthenticated && (
+            <>
+              <Link to="/funil" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+                Funil
+              </Link>
+              <Link to="/projecao" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+                Projeção
+              </Link>
+              <button 
+                onClick={() => {
+                  logout();
+                  setIsOpen(false);
+                }}
+                className="text-2xl font-bold text-white hover:text-brand-red"
+              >
+                Sair
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -999,37 +1099,257 @@ const Footer = () => (
   </footer>
 );
 
+// --- Login Page ---
+const LoginPage = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = (location.state as any)?.from?.pathname || '/funil';
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (login(username, password)) {
+      navigate(from, { replace: true });
+    } else {
+      setError('Usuário ou senha incorretos');
+    }
+  };
+
+  return (
+    <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+      <Navbar />
+      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+        {/* Background with overlay */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={ASSETS.heroBg} 
+            alt="Background" 
+            className="w-full h-full object-cover opacity-20"
+            loading="eager"
+            fetchpriority="high"
+            width="1200"
+            height="800"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/80 to-brand-dark"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10 flex justify-center items-center">
+          <div className="w-full max-w-md">
+            <div className="bg-brand-gray border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-red/10 rounded-full mb-4 border border-brand-red/20">
+                  <LogIn className="text-brand-red" size={32} />
+                </div>
+                <h1 className="text-3xl md:text-4xl font-black font-heading mb-2">
+                  Área do Cliente
+                </h1>
+                <p className="text-gray-400">Faça login para acessar</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+                    Usuário
+                  </label>
+                  <input
+                    type="text"
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+                    placeholder="Digite seu usuário"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                    Senha
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+                    placeholder="Digite sua senha"
+                  />
+                </div>
+
+                {error && (
+                  <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 text-red-300 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 flex items-center justify-center gap-2"
+                >
+                  <LogIn size={20} />
+                  Entrar
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </div>
+  );
+};
+
+// --- Funil Page ---
+const FunilPage = () => {
+  return (
+    <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+      <Navbar />
+      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+        {/* Background with overlay */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={ASSETS.heroBg} 
+            alt="Background" 
+            className="w-full h-full object-cover opacity-20"
+            loading="eager"
+            fetchpriority="high"
+            width="1200"
+            height="800"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/80 to-brand-dark"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto">
+            <SectionTitle 
+              title="Funil" 
+              subtitle="Visualize e gerencie seu funil de vendas" 
+              centered 
+            />
+            <div className="bg-brand-gray border border-white/10 rounded-2xl p-8 md:p-10 mt-8">
+              <p className="text-gray-400 text-center">
+                Conteúdo do funil será exibido aqui.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </div>
+  );
+};
+
+// --- Projecao Page ---
+const ProjecaoPage = () => {
+  return (
+    <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+      <Navbar />
+      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+        {/* Background with overlay */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={ASSETS.heroBg} 
+            alt="Background" 
+            className="w-full h-full object-cover opacity-20"
+            loading="eager"
+            fetchpriority="high"
+            width="1200"
+            height="800"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/80 to-brand-dark"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto">
+            <SectionTitle 
+              title="Projeção" 
+              subtitle="Acompanhe suas projeções e métricas" 
+              centered 
+            />
+            <div className="bg-brand-gray border border-white/10 rounded-2xl p-8 md:p-10 mt-8">
+              <p className="text-gray-400 text-center">
+                Conteúdo da projeção será exibido aqui.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </div>
+  );
+};
+
+// --- Home Page Layout ---
+const HomePage = () => (
+  <>
+    <Hero />
+    <ClientMarquee />
+    <GrowthType />
+    <Solutions />
+    <Methodology />
+    <Cases />
+    <Testimonials /> 
+    <FAQ />
+    <ContactForm />
+  </>
+);
+
 // --- Main App ---
 function App() {
   return (
-    <HashRouter>
-      <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
-        <Navbar />
-        <main>
-          <Hero />
-          <ClientMarquee />
-          <GrowthType />
-          <Solutions />
-          <Methodology />
-          <Cases />
-          <Testimonials /> 
-          <FAQ />
-          <ContactForm />
-        </main>
-        <Footer />
-        
-        {/* Floating WhatsApp Button */}
-        <a 
-          href="https://wa.me/5511971490549" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
-          aria-label="Falar no WhatsApp"
-        >
-          <Phone size={28} fill="currentColor" />
-        </a>
-      </div>
-    </HashRouter>
+    <AuthProvider>
+      <HashRouter>
+        <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+          <Routes>
+            <Route path="/" element={
+              <>
+                <Navbar />
+                <main>
+                  <HomePage />
+                </main>
+                <Footer />
+                {/* Floating WhatsApp Button */}
+                <a 
+                  href="https://wa.me/5511971490549" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
+                  aria-label="Falar no WhatsApp"
+                >
+                  <Phone size={28} fill="currentColor" />
+                </a>
+              </>
+            } />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/funil" element={
+              <ProtectedRoute>
+                <Navbar />
+                <main>
+                  <FunilPage />
+                </main>
+                <Footer />
+              </ProtectedRoute>
+            } />
+            <Route path="/projecao" element={
+              <ProtectedRoute>
+                <Navbar />
+                <main>
+                  <ProjecaoPage />
+                </main>
+                <Footer />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </div>
+      </HashRouter>
+    </AuthProvider>
   );
 }
 
