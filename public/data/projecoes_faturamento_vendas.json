@@ -488,5 +488,72 @@
         }
       ]
     }
-  ]
+  ],
+  "dadosAdicionais": {
+    "funil": {
+      "taxaConversaoLeads": 0.45,
+      "tendencias": {
+        "leads": {
+          "valor": 6.4,
+          "positiva": true
+        },
+        "conversoes": {
+          "valor": 3.2,
+          "positiva": true
+        },
+        "cpa": {
+          "valor": -8.6,
+          "positiva": false
+        },
+        "mensagensEnviadas": {
+          "valor": 12.4,
+          "positiva": true
+        }
+      },
+      "mensagensEnviadas": {
+        "valor": 1280,
+        "periodo": "vs. período anterior"
+      },
+      "origemLeads": [
+        {
+          "nome": "WhatsApp",
+          "percentual": 45,
+          "cor": "#E50914"
+        },
+        {
+          "nome": "Formulário Web",
+          "percentual": 25,
+          "cor": "#FF4444"
+        },
+        {
+          "nome": "Google Ads",
+          "percentual": 20,
+          "cor": "#FF6B6B"
+        },
+        {
+          "nome": "Indicações",
+          "percentual": 10,
+          "cor": "#FF8E8E"
+        }
+      ]
+    },
+    "projecao": {
+      "ctr": {
+        "valor": 1.87,
+        "unidade": "%",
+        "descricao": "Taxa de cliques frente ao total de impressões."
+      },
+      "cpa": {
+        "descricao": "Custo por aquisição médio por dia."
+      },
+      "conversao": {
+        "descricao": "Taxa de conversão das campanhas ativas."
+      }
+    },
+    "periodos": {
+      "leads": "12 meses",
+      "conversoes": "12 meses",
+      "cpa": "Médio"
+    }
+  }
 }

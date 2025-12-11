@@ -16,7 +16,10 @@ import {
   Legend,
   XAxis,
   YAxis,
-  CartesianGrid
+  CartesianGrid,
+  FunnelChart,
+  Funnel,
+  LabelList
 } from 'recharts';
 
 // --- Assets Configuration ---
@@ -1251,6 +1254,7 @@ const useProjecoesData = () => {
   }, []);
 
   const cenarioBase = data?.cenarios?.find((c: any) => c.nome === 'Base');
+  const dadosAdicionais = data?.dadosAdicionais;
   
   const calcularAgregados = () => {
     if (!cenarioBase) return null;
@@ -1264,14 +1268,19 @@ const useProjecoesData = () => {
     return { totalLeads, totalVendas, totalTrafego, cpaMedio };
   };
 
-  return { data: cenarioBase, agregados: calcularAgregados(), loading };
+  return { 
+    data: cenarioBase, 
+    agregados: calcularAgregados(), 
+    dadosAdicionais,
+    loading 
+  };
 };
 
 // --- Funil Vexin Page ---
 const FunilVexinPage = () => {
-  const { data, agregados, loading } = useProjecoesData();
+  const { data, agregados, dadosAdicionais, loading } = useProjecoesData();
 
-  if (loading || !agregados || !data) {
+  if (loading || !agregados || !data || !dadosAdicionais) {
     return (
       <div className="font-sans bg-brand-dark min-h-screen text-white">
         <Navbar />
@@ -1282,53 +1291,62 @@ const FunilVexinPage = () => {
     );
   }
 
-  // KPIs
+  // KPIs - dados do JSON
+  const tendencias = dadosAdicionais.funil.tendencias;
+  const periodos = dadosAdicionais.periodos;
+  const mensagensEnviadas = dadosAdicionais.funil.mensagensEnviadas;
+  
   const kpis = [
     {
       label: 'Leads',
       value: agregados.totalLeads.toLocaleString('pt-BR'),
-      periodo: '12 meses',
-      trend: 6.4,
-      positive: true
+      periodo: periodos.leads,
+      trend: tendencias.leads.valor,
+      positive: tendencias.leads.positiva
     },
     {
       label: 'Conversões',
       value: agregados.totalVendas.toLocaleString('pt-BR'),
-      periodo: '12 meses',
-      trend: 3.2,
-      positive: true
+      periodo: periodos.conversoes,
+      trend: tendencias.conversoes.valor,
+      positive: tendencias.conversoes.positiva
     },
     {
       label: 'CPA',
       value: `R$ ${agregados.cpaMedio.toFixed(2)}`,
-      periodo: 'Médio',
-      trend: -8.6,
-      positive: false
+      periodo: periodos.cpa,
+      trend: tendencias.cpa.valor,
+      positive: tendencias.cpa.positiva
     },
     {
       label: 'Mensagens enviadas',
-      value: '1.280',
-      periodo: 'vs. período anterior',
-      trend: 12.4,
-      positive: true
+      value: mensagensEnviadas.valor.toLocaleString('pt-BR'),
+      periodo: mensagensEnviadas.periodo,
+      trend: tendencias.mensagensEnviadas.valor,
+      positive: tendencias.mensagensEnviadas.positiva
     }
   ];
 
-  // Funil de conversão
+  // Funil de conversão - calculando valores intermediários
+  const trafegoTotal = agregados.totalTrafego;
+  const leads = agregados.totalLeads;
+  const taxaConversaoLeads = dadosAdicionais.funil.taxaConversaoLeads;
+  const conversoes = Math.floor(agregados.totalLeads * taxaConversaoLeads);
+  const vendas = agregados.totalVendas;
+  
   const funilData = [
-    { name: 'Tráfego Total', value: agregados.totalTrafego },
-    { name: 'Leads', value: agregados.totalLeads },
-    { name: 'Conversões', value: Math.floor(agregados.totalLeads * 0.45) },
-    { name: 'Vendas', value: agregados.totalVendas }
+    { name: 'Tráfego Total', value: trafegoTotal },
+    { name: 'Leads', value: leads },
+    { name: 'Conversões', value: conversoes },
+    { name: 'Vendas', value: vendas }
   ];
 
-  // Origem dos leads (mock - baseado no anexo)
-  const origemLeads = [
-    { name: 'WhatsApp', value: 45, color: '#E50914' },
-    { name: 'Formulário Web', value: 25, color: '#FF4444' },
-    { name: 'Google Ads', value: 20, color: '#FF6B6B' },
-    { name: 'Indicações', value: 10, color: '#FF8E8E' }
-  ];
+  // Origem dos leads - dados do JSON
+  const origemLeads = dadosAdicionais.funil.origemLeads.map((item: any) => ({
+    name: item.nome,
+    value: item.percentual,
+    color: item.cor
+  }));
 
   return (
     <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
@@ -1362,40 +1380,34 @@ const FunilVexinPage = () => {
             {/* Funil de Conversão */}
             <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
               <h3 className="text-lg font-bold mb-6 text-white">FUNIL DE CONVERSÃO</h3>
-              <div className="space-y-4">
-                {funilData.map((etapa, index) => {
-                  const maxValue = funilData[0].value;
-                  const porcentagem = (etapa.value / maxValue) * 100;
-                  const taxaConversao = index > 0 
-                    ? ((etapa.value / funilData[index - 1].value) * 100).toFixed(1)
-                    : '100';
-                  
-                  return (
-                    <div key={etapa.name} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-300 font-medium">{etapa.name}</span>
-                        <span className="text-white font-bold text-lg">
-                          {etapa.value.toLocaleString('pt-BR')}
-                        </span>
-                      </div>
-                      <div className="relative h-12 rounded-lg overflow-hidden bg-gray-800/50 border border-gray-700/50">
-                        <div
-                          className="h-full transition-all duration-500 flex items-center justify-end pr-4"
-                          style={{
-                            width: `${porcentagem}%`,
-                            background: `linear-gradient(90deg, #E50914 0%, #FF4444 100%)`,
-                            boxShadow: `0 0 20px rgba(229, 9, 20, 0.4)`
-                          }}
-                        >
-                          <span className="text-white font-bold text-sm">
-                            {porcentagem.toFixed(1)}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <FunnelChart>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1f2937',
+                      border: '1px solid rgba(229, 9, 20, 0.3)',
+                      borderRadius: '0.5rem',
+                      color: '#fff'
+                    }}
+                    formatter={(value: number) => value.toLocaleString('pt-BR')}
+                  />
+                  <Funnel
+                    dataKey="value"
+                    data={funilData}
+                    isAnimationActive
+                    stroke="#E50914"
+                    fill="#E50914"
+                  >
+                    <LabelList
+                      position="right"
+                      fill="#fff"
+                      stroke="none"
+                      dataKey="value"
+                      formatter={(value: number) => value.toLocaleString('pt-BR')}
+                    />
+                  </Funnel>
+                </FunnelChart>
+              </ResponsiveContainer>
             </div>
 
             {/* Leads por Canal */}
@@ -1441,9 +1453,9 @@ const FunilVexinPage = () => {
 
 // --- Projecao Vexin Page ---
 const ProjecaoVexinPage = () => {
-  const { data, agregados, loading } = useProjecoesData();
+  const { data, agregados, dadosAdicionais, loading } = useProjecoesData();
 
-  if (loading || !agregados || !data) {
+  if (loading || !agregados || !data || !dadosAdicionais) {
     return (
       <div className="font-sans bg-brand-dark min-h-screen text-white">
         <Navbar />
@@ -1462,24 +1474,28 @@ const ProjecaoVexinPage = () => {
     Conversao: mes.taxaConversao
   }));
 
-  // KPIs
+  // KPIs - dados do JSON
+  const projecao = dadosAdicionais.projecao;
+  const ctr = projecao.ctr;
+  const conversaoMedia = ((agregados.totalVendas / agregados.totalLeads) * 100).toFixed(1);
+  
   const kpis = [
     {
       title: 'CPA',
       value: `R$ ${agregados.cpaMedio.toFixed(2)}`,
-      description: 'Custo por aquisição médio por dia.',
+      description: projecao.cpa.descricao,
       color: '#E50914'
     },
     {
       title: 'CTR',
-      value: '1.87%',
-      description: 'Taxa de cliques frente ao total de impressões.',
+      value: `${ctr.valor}${ctr.unidade}`,
+      description: ctr.descricao,
       color: '#FF4444'
     },
     {
       title: 'CONVERSÃO',
-      value: `${((agregados.totalVendas / agregados.totalLeads) * 100).toFixed(1)}%`,
-      description: 'Taxa de conversão das campanhas ativas.',
+      value: `${conversaoMedia}%`,
+      description: projecao.conversao.descricao,
       color: '#FF6B6B'
     }
   ];
