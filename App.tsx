@@ -2,9 +2,22 @@ import React, { useState, useEffect, useRef, createContext, useContext } from 'r
 import { HashRouter, Link, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
-  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock
+  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import {
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+  XAxis,
+  YAxis,
+  CartesianGrid
+} from 'recharts';
 
 // --- Assets Configuration ---
 const ASSETS = {
@@ -90,6 +103,7 @@ const TESTIMONIALS = [
 // --- Authentication Context ---
 interface AuthContextType {
   isAuthenticated: boolean;
+  username: string | null;
   login: (username: string, password: string) => boolean;
   logout: () => void;
 }
@@ -108,11 +122,16 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('isAuthenticated') === 'true';
   });
+  const [username, setUsername] = useState<string | null>(() => {
+    return localStorage.getItem('username');
+  });
 
   const login = (username: string, password: string): boolean => {
     if (username === 'vexin' && password === '@v3xiN!') {
       setIsAuthenticated(true);
+      setUsername('vexin');
       localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('username', 'vexin');
       return true;
     }
     return false;
@@ -120,11 +139,13 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   const logout = () => {
     setIsAuthenticated(false);
+    setUsername(null);
     localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('username');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, username, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -184,7 +205,7 @@ const SectionTitle = ({ title, subtitle, centered = false }: { title: string, su
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, username, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -204,14 +225,24 @@ const Navbar = () => {
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-6'}`}>
       <div className="container mx-auto px-4 flex justify-between items-center">
-        {/* Botão Área do Cliente - Lado Esquerdo */}
-        <Link 
-          to="/login" 
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 flex items-center gap-2 relative z-50"
-        >
-          <Lock size={16} />
-          Área do Cliente
-        </Link>
+        {/* Botão Área do Cliente / Sair - Lado Esquerdo */}
+        {isAuthenticated && username === 'vexin' ? (
+          <button
+            onClick={logout}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 flex items-center gap-2 relative z-50"
+          >
+            <X size={16} />
+            Sair
+          </button>
+        ) : (
+          <Link 
+            to="/login" 
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 flex items-center gap-2 relative z-50"
+          >
+            <Lock size={16} />
+            Área do Cliente
+          </Link>
+        )}
 
         <Link to="/" className="relative z-50 block">
            <img 
@@ -226,38 +257,33 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => 
-            link.external ? (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider"
-              >
-                {link.name}
-              </a>
-            ) : (
-              <a key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
-                {link.name}
-              </a>
-            )
-          )}
-          {isAuthenticated && (
+          {isAuthenticated && username === 'vexin' ? (
             <>
-              <Link to="/funil" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+              <Link to="/funil_vexin" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Funil
               </Link>
-              <Link to="/projecao" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+              <Link to="/projecao_vexin" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Projeção
               </Link>
-              <button 
-                onClick={logout}
-                className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider"
-              >
-                Sair
-              </button>
             </>
+          ) : (
+            navLinks.map((link) => 
+              link.external ? (
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider"
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <a key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+                  {link.name}
+                </a>
+              )
+            )
           )}
         </div>
 
@@ -268,42 +294,34 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         <div className={`fixed inset-0 bg-black z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-          {navLinks.map((link) => 
-            link.external ? (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={() => setIsOpen(false)} 
-                className="text-2xl font-bold text-white hover:text-brand-red"
-              >
-                {link.name}
-              </a>
-            ) : (
-              <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
-                {link.name}
-              </a>
-            )
-          )}
-          {isAuthenticated && (
+          {isAuthenticated && username === 'vexin' ? (
             <>
-              <Link to="/funil" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+              <Link to="/funil_vexin" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
                 Funil
               </Link>
-              <Link to="/projecao" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+              <Link to="/projecao_vexin" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
                 Projeção
               </Link>
-              <button 
-                onClick={() => {
-                  logout();
-                  setIsOpen(false);
-                }}
-                className="text-2xl font-bold text-white hover:text-brand-red"
-              >
-                Sair
-              </button>
             </>
+          ) : (
+            navLinks.map((link) => 
+              link.external ? (
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={() => setIsOpen(false)} 
+                  className="text-2xl font-bold text-white hover:text-brand-red"
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+                  {link.name}
+                </a>
+              )
+            )
           )}
         </div>
       </div>
@@ -1108,14 +1126,19 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = (location.state as any)?.from?.pathname || '/funil';
+  const from = (location.state as any)?.from?.pathname;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     if (login(username, password)) {
-      navigate(from, { replace: true });
+      // Se usuário for vexin, redirecionar para funil_vexin
+      if (username === 'vexin') {
+        navigate('/funil_vexin', { replace: true });
+      } else {
+        navigate(from || '/', { replace: true });
+      }
     } else {
       setError('Usuário ou senha incorretos');
     }
@@ -1206,82 +1229,380 @@ const LoginPage = () => {
   );
 };
 
-// --- Funil Page ---
-const FunilPage = () => {
+
+// Hook para carregar dados de projeções
+const useProjecoesData = () => {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await fetch('/data/projecoes_faturamento_vendas.json');
+        const jsonData = await response.json();
+        setData(jsonData);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const cenarioBase = data?.cenarios?.find((c: any) => c.nome === 'Base');
+  
+  const calcularAgregados = () => {
+    if (!cenarioBase) return null;
+    
+    const totalLeads = cenarioBase.dadosMensais.reduce((sum: number, m: any) => sum + m.leads, 0);
+    const totalVendas = cenarioBase.dadosMensais.reduce((sum: number, m: any) => sum + m.vendas, 0);
+    const totalTrafego = cenarioBase.dadosMensais.reduce((sum: number, m: any) => sum + m.trafego, 0);
+    const totalInvestimento = cenarioBase.dadosMensais.reduce((sum: number, m: any) => sum + m.investimentoMidia, 0);
+    const cpaMedio = totalInvestimento / totalVendas || 0;
+    
+    return { totalLeads, totalVendas, totalTrafego, cpaMedio };
+  };
+
+  return { data: cenarioBase, agregados: calcularAgregados(), loading };
+};
+
+// --- Funil Vexin Page ---
+const FunilVexinPage = () => {
+  const { data, agregados, loading } = useProjecoesData();
+
+  if (loading || !agregados || !data) {
+    return (
+      <div className="font-sans bg-brand-dark min-h-screen text-white">
+        <Navbar />
+        <div className="pt-24 md:pt-28 p-8">
+          <div className="animate-pulse">Carregando...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // KPIs
+  const kpis = [
+    {
+      label: 'Leads',
+      value: agregados.totalLeads.toLocaleString('pt-BR'),
+      periodo: '12 meses',
+      trend: 6.4,
+      positive: true
+    },
+    {
+      label: 'Conversões',
+      value: agregados.totalVendas.toLocaleString('pt-BR'),
+      periodo: '12 meses',
+      trend: 3.2,
+      positive: true
+    },
+    {
+      label: 'CPA',
+      value: `R$ ${agregados.cpaMedio.toFixed(2)}`,
+      periodo: 'Médio',
+      trend: -8.6,
+      positive: false
+    },
+    {
+      label: 'Mensagens enviadas',
+      value: '1.280',
+      periodo: 'vs. período anterior',
+      trend: 12.4,
+      positive: true
+    }
+  ];
+
+  // Funil de conversão
+  const funilData = [
+    { name: 'Tráfego Total', value: agregados.totalTrafego },
+    { name: 'Leads', value: agregados.totalLeads },
+    { name: 'Conversões', value: Math.floor(agregados.totalLeads * 0.45) },
+    { name: 'Vendas', value: agregados.totalVendas }
+  ];
+
+  // Origem dos leads (mock - baseado no anexo)
+  const origemLeads = [
+    { name: 'WhatsApp', value: 45, color: '#E50914' },
+    { name: 'Formulário Web', value: 25, color: '#FF4444' },
+    { name: 'Google Ads', value: 20, color: '#FF6B6B' },
+    { name: 'Indicações', value: 10, color: '#FF8E8E' }
+  ];
+
   return (
     <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
       <Navbar />
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Background with overlay */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={ASSETS.heroBg} 
-            alt="Background" 
-            className="w-full h-full object-cover opacity-20"
-            loading="eager"
-            fetchpriority="high"
-            width="1200"
-            height="800"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/80 to-brand-dark"></div>
-        </div>
+      <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* KPIs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {kpis.map((kpi, idx) => (
+              <div
+                key={idx}
+                className="bg-[#121212] border border-white/10 rounded-xl p-6 hover:border-red-500/50 transition-all"
+              >
+                <div className="text-sm text-gray-400 mb-2">{kpi.label}</div>
+                <div className="text-3xl font-bold text-white mb-1">{kpi.value}</div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">{kpi.periodo}</span>
+                  <span className={`text-sm font-semibold flex items-center gap-1 ${
+                    kpi.positive ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {kpi.positive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                    {Math.abs(kpi.trend)}%
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto">
-            <SectionTitle 
-              title="Funil" 
-              subtitle="Visualize e gerencie seu funil de vendas" 
-              centered 
-            />
-            <div className="bg-brand-gray border border-white/10 rounded-2xl p-8 md:p-10 mt-8">
-              <p className="text-gray-400 text-center">
-                Conteúdo do funil será exibido aqui.
-              </p>
+          {/* Gráficos */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Funil de Conversão */}
+            <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+              <h3 className="text-lg font-bold mb-6 text-white">FUNIL DE CONVERSÃO</h3>
+              <div className="space-y-4">
+                {funilData.map((etapa, index) => {
+                  const maxValue = funilData[0].value;
+                  const porcentagem = (etapa.value / maxValue) * 100;
+                  const taxaConversao = index > 0 
+                    ? ((etapa.value / funilData[index - 1].value) * 100).toFixed(1)
+                    : '100';
+                  
+                  return (
+                    <div key={etapa.name} className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-300 font-medium">{etapa.name}</span>
+                        <span className="text-white font-bold text-lg">
+                          {etapa.value.toLocaleString('pt-BR')}
+                        </span>
+                      </div>
+                      <div className="relative h-12 rounded-lg overflow-hidden bg-gray-800/50 border border-gray-700/50">
+                        <div
+                          className="h-full transition-all duration-500 flex items-center justify-end pr-4"
+                          style={{
+                            width: `${porcentagem}%`,
+                            background: `linear-gradient(90deg, #E50914 0%, #FF4444 100%)`,
+                            boxShadow: `0 0 20px rgba(229, 9, 20, 0.4)`
+                          }}
+                        >
+                          <span className="text-white font-bold text-sm">
+                            {porcentagem.toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Leads por Canal */}
+            <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+              <h3 className="text-lg font-bold mb-6 text-white">LEADS POR CANAL</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={origemLeads}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {origemLeads.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1f2937',
+                      border: '1px solid rgba(229, 9, 20, 0.3)',
+                      borderRadius: '0.5rem',
+                      color: '#fff'
+                    }}
+                  />
+                  <Legend
+                    wrapperStyle={{ color: '#cbd5e1', fontSize: '12px' }}
+                    iconType="circle"
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
-      </section>
-      <Footer />
+      </div>
     </div>
   );
 };
 
-// --- Projecao Page ---
-const ProjecaoPage = () => {
+// --- Projecao Vexin Page ---
+const ProjecaoVexinPage = () => {
+  const { data, agregados, loading } = useProjecoesData();
+
+  if (loading || !agregados || !data) {
+    return (
+      <div className="font-sans bg-brand-dark min-h-screen text-white">
+        <Navbar />
+        <div className="pt-24 md:pt-28 p-8">
+          <div className="animate-pulse">Carregando...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Preparar dados para o gráfico
+  const chartData = data.dadosMensais.map((mes: any) => ({
+    mes: mes.mes.replace('Mês ', ''),
+    CPA: mes.cac,
+    ROAS: mes.roas,
+    Conversao: mes.taxaConversao
+  }));
+
+  // KPIs
+  const kpis = [
+    {
+      title: 'CPA',
+      value: `R$ ${agregados.cpaMedio.toFixed(2)}`,
+      description: 'Custo por aquisição médio por dia.',
+      color: '#E50914'
+    },
+    {
+      title: 'CTR',
+      value: '1.87%',
+      description: 'Taxa de cliques frente ao total de impressões.',
+      color: '#FF4444'
+    },
+    {
+      title: 'CONVERSÃO',
+      value: `${((agregados.totalVendas / agregados.totalLeads) * 100).toFixed(1)}%`,
+      description: 'Taxa de conversão das campanhas ativas.',
+      color: '#FF6B6B'
+    }
+  ];
+
   return (
     <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
       <Navbar />
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Background with overlay */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={ASSETS.heroBg} 
-            alt="Background" 
-            className="w-full h-full object-cover opacity-20"
-            loading="eager"
-            fetchpriority="high"
-            width="1200"
-            height="800"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/80 to-brand-dark"></div>
-        </div>
+      <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* KPIs */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {kpis.map((kpi, idx) => (
+              <div
+                key={idx}
+                className="bg-[#121212] border border-white/10 rounded-xl p-6 hover:border-red-500/50 transition-all"
+              >
+                <div className="text-sm text-gray-400 mb-2">{kpi.title}</div>
+                <div className="text-3xl font-bold mb-2" style={{ color: kpi.color }}>
+                  {kpi.value}
+                </div>
+                <div className="text-xs text-gray-500">{kpi.description}</div>
+              </div>
+            ))}
+          </div>
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto">
-            <SectionTitle 
-              title="Projeção" 
-              subtitle="Acompanhe suas projeções e métricas" 
-              centered 
-            />
-            <div className="bg-brand-gray border border-white/10 rounded-2xl p-8 md:p-10 mt-8">
-              <p className="text-gray-400 text-center">
-                Conteúdo da projeção será exibido aqui.
-              </p>
-            </div>
+          {/* Gráfico de Evolução */}
+          <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-bold mb-6 text-white">EVOLUÇÃO DOS KPIS</h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={chartData}>
+                <defs>
+                  <linearGradient id="cpaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#E50914" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="#E50914" stopOpacity={0.1} />
+                  </linearGradient>
+                  <linearGradient id="roasGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FF4444" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="#FF4444" stopOpacity={0.1} />
+                  </linearGradient>
+                  <linearGradient id="conversaoGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FF6B6B" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="#FF6B6B" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                <XAxis
+                  dataKey="mes"
+                  stroke="#9ca3af"
+                  tickLine={false}
+                  axisLine={false}
+                  style={{ fontSize: '12px' }}
+                />
+                <YAxis
+                  yAxisId="left"
+                  stroke="#9ca3af"
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `R$ ${value}`}
+                  style={{ fontSize: '12px' }}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  stroke="#9ca3af"
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${value}%`}
+                  style={{ fontSize: '12px' }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: '1px solid rgba(229, 9, 20, 0.3)',
+                    borderRadius: '0.5rem',
+                    color: '#fff'
+                  }}
+                  formatter={(value: number, name: string) => {
+                    if (name === 'CPA') return [`R$ ${value.toFixed(2)}`, 'CPA'];
+                    if (name === 'ROAS') return [`${value.toFixed(2)}x`, 'ROAS'];
+                    return [`${value.toFixed(2)}%`, 'Conversão'];
+                  }}
+                />
+                <Legend
+                  wrapperStyle={{ color: '#cbd5e1', paddingTop: '20px' }}
+                  iconType="line"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="CPA"
+                  stroke="#E50914"
+                  strokeWidth={3}
+                  dot={{ fill: '#E50914', r: 4 }}
+                  activeDot={{ r: 6 }}
+                  yAxisId="left"
+                  name="CPA (R$)"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="ROAS"
+                  stroke="#FF4444"
+                  strokeWidth={3}
+                  dot={{ fill: '#FF4444', r: 4 }}
+                  activeDot={{ r: 6 }}
+                  strokeDasharray="5 5"
+                  yAxisId="left"
+                  name="ROAS (x)"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="Conversao"
+                  stroke="#FF6B6B"
+                  strokeWidth={3}
+                  dot={{ fill: '#FF6B6B', r: 4 }}
+                  activeDot={{ r: 6 }}
+                  strokeDasharray="2 2"
+                  yAxisId="right"
+                  name="Conversão (%)"
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      </section>
-      <Footer />
+      </div>
     </div>
   );
 };
@@ -1328,22 +1649,20 @@ function App() {
               </>
             } />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/funil" element={
+            <Route path="/funil_vexin" element={
               <ProtectedRoute>
                 <Navbar />
                 <main>
-                  <FunilPage />
+                  <FunilVexinPage />
                 </main>
-                <Footer />
               </ProtectedRoute>
             } />
-            <Route path="/projecao" element={
+            <Route path="/projecao_vexin" element={
               <ProtectedRoute>
                 <Navbar />
                 <main>
-                  <ProjecaoPage />
+                  <ProjecaoVexinPage />
                 </main>
-                <Footer />
               </ProtectedRoute>
             } />
           </Routes>
