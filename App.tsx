@@ -1467,17 +1467,18 @@ const ProjecaoVexinPage = () => {
   }
 
   // Preparar dados para o gráfico
+  // ROAS será multiplicado por 100 para aparecer no eixo direito (escala 0-100 similar a porcentagem)
   const chartData = data.dadosMensais.map((mes: any) => ({
     mes: mes.mes.replace('Mês ', ''),
     CPA: mes.cac,
-    ROAS: mes.roas,
+    ROAS: mes.roas * 100, // Multiplica por 100 para usar eixo direito (0-100)
     Conversao: mes.taxaConversao
   }));
 
   // KPIs - dados do JSON
   const projecao = dadosAdicionais.projecao;
   const ctr = projecao.ctr;
-  const conversaoMedia = ((agregados.totalVendas / agregados.totalLeads) * 100).toFixed(1);
+  const conversaoMedia = (agregados.totalVendas / agregados.totalLeads).toFixed(3);
   
   const kpis = [
     {
@@ -1565,6 +1566,17 @@ const ProjecaoVexinPage = () => {
                   tickFormatter={(value) => `${value}%`}
                   style={{ fontSize: '12px' }}
                 />
+                <YAxis
+                  yAxisId="roas"
+                  orientation="right"
+                  stroke="#FF4444"
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${(value / 100).toFixed(2)}x`}
+                  style={{ fontSize: '12px' }}
+                  domain={[50, 100]}
+                  width={60}
+                />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: '#1f2937',
@@ -1574,7 +1586,7 @@ const ProjecaoVexinPage = () => {
                   }}
                   formatter={(value: number, name: string) => {
                     if (name === 'CPA') return [`R$ ${value.toFixed(2)}`, 'CPA'];
-                    if (name === 'ROAS') return [`${value.toFixed(2)}x`, 'ROAS'];
+                    if (name === 'ROAS') return [`${(value / 100).toFixed(2)}x`, 'ROAS'];
                     return [`${value.toFixed(2)}%`, 'Conversão'];
                   }}
                 />
@@ -1600,7 +1612,7 @@ const ProjecaoVexinPage = () => {
                   dot={{ fill: '#FF4444', r: 4 }}
                   activeDot={{ r: 6 }}
                   strokeDasharray="5 5"
-                  yAxisId="left"
+                  yAxisId="roas"
                   name="ROAS (x)"
                 />
                 <Line
