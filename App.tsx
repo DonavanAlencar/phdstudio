@@ -1607,6 +1607,61 @@ const ProjecaoVexinPage = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-3">{planoAtual.objetivo}</p>
               </div>
+
+              {/* Detalhamento Expandível */}
+              {planoAtual.setupDetalhado && (
+                <details className="mt-6 group">
+                  <summary className="cursor-pointer flex items-center justify-between text-sm font-semibold text-gray-300 hover:text-white transition-colors">
+                    <span>Ver Detalhamento do Setup</span>
+                    <ChevronDown className="transform group-open:rotate-180 transition-transform text-red-400" size={18} />
+                  </summary>
+                  <div className="mt-4 space-y-3 pt-4 border-t border-white/10">
+                    {planoAtual.setupDetalhado.itens.map((item: any, idx: number) => (
+                      <div key={idx} className="bg-white/5 rounded-lg p-3">
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="text-white text-sm font-medium">{item.nome}</span>
+                          {item.valor > 0 && (
+                            <span className="text-gray-400 text-xs">R$ {item.valor.toLocaleString('pt-BR')}</span>
+                          )}
+                          {item.incluso && (
+                            <span className="text-green-400 text-xs bg-green-400/20 px-2 py-0.5 rounded">Incluído</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500">{item.descricao}</p>
+                      </div>
+                    ))}
+                    <div className="border-t border-white/10 pt-2 mt-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300 font-semibold">Total Setup</span>
+                        <span className="text-red-400 font-bold">R$ {planoAtual.setupDetalhado.total.toLocaleString('pt-BR')}</span>
+                      </div>
+                    </div>
+                  </div>
+                </details>
+              )}
+
+              {/* Detalhamento Fee Mensal */}
+              {planoAtual.feeMensalDetalhado && (
+                <details className="mt-4 group">
+                  <summary className="cursor-pointer flex items-center justify-between text-sm font-semibold text-gray-300 hover:text-white transition-colors">
+                    <span>Ver Detalhamento da Gestão Mensal</span>
+                    <ChevronDown className="transform group-open:rotate-180 transition-transform text-red-400" size={18} />
+                  </summary>
+                  <div className="mt-4 space-y-3 pt-4 border-t border-white/10">
+                    {planoAtual.feeMensalDetalhado.itens.map((item: any, idx: number) => (
+                      <div key={idx} className="bg-white/5 rounded-lg p-3">
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="text-white text-sm font-medium">{item.nome}</span>
+                          {item.incluso && (
+                            <span className="text-green-400 text-xs bg-green-400/20 px-2 py-0.5 rounded">Incluído</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500">{item.descricao}</p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
             </div>
 
             {/* Comparação de Planos */}
@@ -1681,9 +1736,9 @@ const ProjecaoVexinPage = () => {
             ))}
           </div>
 
-          {/* Fases do Projeto */}
+          {/* Fases do Projeto - Conceitual */}
           <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
-            <h3 className="text-lg font-bold text-white mb-6">Fases do Projeto</h3>
+            <h3 className="text-lg font-bold text-white mb-6">Fases do Projeto (Conceitual)</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {Object.values(fases).map((fase: any, idx: number) => (
                 <div key={idx} className="bg-white/5 rounded-lg p-4 border border-white/10">
@@ -1695,6 +1750,107 @@ const ProjecaoVexinPage = () => {
                   <p className="text-xs text-gray-500">{fase.foco}</p>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Cronograma Detalhado do Plano Atual */}
+          {planoAtual.atividades && (
+            <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-white">Cronograma Detalhado - Plano {planoAtual.nome}</h3>
+                <span className="text-xs text-gray-400 bg-white/5 px-3 py-1 rounded">
+                  {planoAtual.atividades.length} fases
+                </span>
+              </div>
+              <div className="space-y-4">
+                {planoAtual.atividades.map((fase: any, idx: number) => (
+                  <details key={idx} className="group bg-white/5 rounded-lg border border-white/10">
+                    <summary className="cursor-pointer p-4 flex items-center justify-between hover:bg-white/10 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400 font-bold text-sm">
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <h4 className="text-white font-semibold">{fase.fase}</h4>
+                          <p className="text-xs text-gray-400">{fase.duracao}</p>
+                        </div>
+                      </div>
+                      <ChevronDown className="transform group-open:rotate-180 transition-transform text-gray-400" size={20} />
+                    </summary>
+                    <div className="px-4 pb-4 pt-2 space-y-3">
+                      <div>
+                        <p className="text-xs text-gray-400 mb-2 font-semibold">ATIVIDADES:</p>
+                        <ul className="space-y-1.5">
+                          {fase.atividades.map((atividade: string, actIdx: number) => (
+                            <li key={actIdx} className="text-sm text-gray-300 flex items-start gap-2">
+                              <Check size={16} className="text-green-400 mt-0.5 flex-shrink-0" />
+                              <span>{atividade}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="pt-2 border-t border-white/10">
+                        <p className="text-xs text-gray-400 mb-2 font-semibold">RESPONSÁVEIS:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {fase.responsaveis.map((resp: string, respIdx: number) => (
+                            <span key={respIdx} className="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded">
+                              {resp}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Comparação Completa de Planos */}
+          <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-white mb-6">Comparação Completa dos Planos</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 text-gray-400 font-semibold">Item</th>
+                    <th className="text-center py-3 px-4 text-red-400 font-semibold">START</th>
+                    <th className="text-center py-3 px-4 text-red-400 font-semibold">PREMIUM</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-300">
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4">Setup Inicial</td>
+                    <td className="py-3 px-4 text-center">R$ {planos.start.setupInicial.toLocaleString('pt-BR')}</td>
+                    <td className="py-3 px-4 text-center">R$ {planos.premium.setupInicial.toLocaleString('pt-BR')}</td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4">Fee Mensal (Gestão)</td>
+                    <td className="py-3 px-4 text-center">R$ {planos.start.gestaoMensal.toLocaleString('pt-BR')}</td>
+                    <td className="py-3 px-4 text-center">R$ {planos.premium.gestaoMensal.toLocaleString('pt-BR')}</td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4">Mídia Mensal Recomendada</td>
+                    <td className="py-3 px-4 text-center">R$ {planos.start.midiaMensal.toLocaleString('pt-BR')}</td>
+                    <td className="py-3 px-4 text-center">R$ {planos.premium.midiaMensal.toLocaleString('pt-BR')}</td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4 font-semibold">Total Mensal</td>
+                    <td className="py-3 px-4 text-center font-bold text-red-400">R$ {planos.start.totalMensal.toLocaleString('pt-BR')}</td>
+                    <td className="py-3 px-4 text-center font-bold text-red-400">R$ {planos.premium.totalMensal.toLocaleString('pt-BR')}</td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-3 px-4">Tempo Mínimo Recomendado</td>
+                    <td className="py-3 px-4 text-center">{planos.start.tempoMinimo} meses</td>
+                    <td className="py-3 px-4 text-center">{planos.premium.tempoMinimo} meses</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-4">Objetivo</td>
+                    <td className="py-3 px-4 text-center text-xs">{planos.start.objetivo}</td>
+                    <td className="py-3 px-4 text-center text-xs">{planos.premium.objetivo}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 

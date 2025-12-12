@@ -562,7 +562,120 @@
         "totalMensal": 6500,
         "tempoMinimo": 6,
         "objetivo": "Validar o funil com risco reduzido e gerar as primeiras vendas",
-        "cenario": "Conservador"
+        "cenario": "Conservador",
+        "setupDetalhado": {
+          "itens": [
+            {
+              "nome": "Branding Essencial",
+              "descricao": "Logo/identidade visual básica e aplicações digitais",
+              "valor": 0,
+              "incluso": true
+            },
+            {
+              "nome": "LP do Curso + Integrações",
+              "descricao": "Criação da landing page, integrações com automação/CRM e tracking",
+              "valor": 0,
+              "incluso": true
+            },
+            {
+              "nome": "Setup de Funil e Automação Básica",
+              "descricao": "Configuração de CRM, sequência de e-mails, tags, pixel, GA4, chatbot inicial",
+              "valor": 0,
+              "incluso": true
+            }
+          ],
+          "total": 7500
+        },
+        "feeMensalDetalhado": {
+          "itens": [
+            {
+              "nome": "Gestão de Conteúdo e Mídias Sociais",
+              "descricao": "Planejamento, criação e postagem de conteúdo estratégico (volume START)",
+              "valor": 0,
+              "incluso": true
+            },
+            {
+              "nome": "Gestão de Tráfego Pago (Meta/Google)",
+              "descricao": "Operação, otimização, análise de campanhas de validação",
+              "valor": 0,
+              "incluso": true
+            },
+            {
+              "nome": "Suporte Técnico e Automação",
+              "descricao": "Manutenção de integrações, funil, chatbot e ajustes pontuais",
+              "valor": 0,
+              "incluso": true
+            },
+            {
+              "nome": "Relatórios e Reuniões",
+              "descricao": "Relatório mensal + reunião de alinhamento",
+              "valor": 0,
+              "incluso": true
+            }
+          ],
+          "total": 5000
+        },
+        "atividades": [
+          {
+            "fase": "Fase 1 - Descoberta e Planejamento",
+            "duracao": "Semanas 1-2",
+            "atividades": [
+              "Reunião de briefing com a Vexin",
+              "Definição de objetivos (metas de leads, primeiras vendas)",
+              "Escolha do modelo de funil mais adequado"
+            ],
+            "responsaveis": [
+              "Marcelo (lead)",
+              "Donavan",
+              "Phelipe"
+            ]
+          },
+          {
+            "fase": "Fase 2 - Setup e Infraestrutura Essencial",
+            "duracao": "Semanas 2-4",
+            "atividades": [
+              "Identidade visual (logo/ajustes, paleta, padrões)",
+              "Criação da LP do curso e integrações de captura",
+              "Setup de automação mínima (boas-vindas + sequência curta)",
+              "Configuração de GA4, pixels e tags"
+            ],
+            "responsaveis": [
+              "Phelipe (Branding)",
+              "Donavan (Técnico)",
+              "Marcelo (Copy/Funil)"
+            ]
+          },
+          {
+            "fase": "Fase 3 - Aquecimento e Tráfego Inicial",
+            "duracao": "Semanas 5-8",
+            "atividades": [
+              "Início dos posts regulares no Instagram",
+              "Lançamento de campanhas de tráfego (Meta + Google)",
+              "Primeiras otimizações (CPL, CTR, conversão)",
+              "Ajustes em LP, mensagens e criativos"
+            ],
+            "responsaveis": [
+              "Phelipe (Conteúdo)",
+              "Marcelo (Tráfego)",
+              "Donavan (Ajustes Técnicos)"
+            ]
+          },
+          {
+            "fase": "Fase 4 - Consolidação e Otimização",
+            "duracao": "Semanas 9-12",
+            "atividades": [
+              "Ajuste fino das campanhas com base nos dados",
+              "Fortalecimento da automação",
+              "Implementação/ajuste do chatbot",
+              "Relatório de validação (CPL, CAC, potencial de escala)"
+            ],
+            "responsaveis": [
+              "Marcelo (Estratégia)",
+              "Donavan (Técnico)",
+              "Phelipe (Criativos)"
+            ]
+          }
+        ]
       },
       "premium": {
         "nome": "PREMIUM",
@@ -573,7 +686,133 @@
         "totalMensal": 9500,
         "tempoMinimo": 12,
         "objetivo": "Construir uma máquina de aquisição e autoridade completa",
-        "cenario": "Base"
+        "cenario": "Base",
+        "setupDetalhado": {
+          "itens": [
+            {
+              "nome": "Branding e Posicionamento",
+              "descricao": "Logo final, paleta, tipografia, tom de voz, diretrizes de comunicação",
+              "valor": 3000,
+              "incluso": false
+            },
+            {
+              "nome": "Criação de Site/LPs",
+              "descricao": "Site B2B institucional + 2 LPs de alta conversão com tracking completo",
+              "valor": 7500,
+              "incluso": false
+            },
+            {
+              "nome": "Setup de Funil e Automação",
+              "descricao": "CRM, e-mail marketing, GA4, pixels, chatbot inteligente, integrações",
+              "valor": 5000,
+              "incluso": false
+            }
+          ],
+          "total": 15500
+        },
+        "feeMensalDetalhado": {
+          "itens": [
+            {
+              "nome": "Gestão de Tráfego Pago",
+              "descricao": "Operação completa das campanhas em Meta e Google, otimização diária e testes A/B",
+              "valor": 0,
+              "incluso": true
+            },
+            {
+              "nome": "Gestão de Conteúdo e Mídias Sociais",
+              "descricao": "Planejamento e produção de 15-20 peças/mês, postagens, roteiros de vídeo",
+              "valor": 0,
+              "incluso": true
+            },
+            {
+              "nome": "Estratégia, Relatórios e Reuniões",
+              "descricao": "Reuniões quinzenais, relatórios mensais com foco em ROI, CAC, desempenho por canal",
+              "valor": 0,
+              "incluso": true
+            },
+            {
+              "nome": "Suporte Técnico e Automação",
+              "descricao": "Manutenção da infraestrutura, funis, chatbot e integrações",
+              "valor": 0,
+              "incluso": true
+            }
+          ],
+          "total": 7500
+        },
+        "atividades": [
+          {
+            "fase": "Fase 1 - Descoberta e Planejamento Estratégico",
+            "duracao": "Semanas 1-2",
+            "atividades": [
+              "Reunião de diagnóstico aprofundado",
+              "Definição de metas de 6-12 meses",
+              "Escolha do modelo de funil (híbrido recomendado)"
+            ],
+            "responsaveis": [
+              "Marcelo",
+              "Donavan",
+              "Phelipe"
+            ]
+          },
+          {
+            "fase": "Fase 2 - Setup de Branding, Site e Infraestrutura",
+            "duracao": "Semanas 2-4",
+            "atividades": [
+              "Criação/conclusão da identidade visual completa",
+              "Desenvolvimento do site institucional + 2 LPs",
+              "Configuração de ferramentas (CRM, automação, GA4, anúncios)",
+              "Setup inicial do chatbot inteligente"
+            ],
+            "responsaveis": [
+              "Phelipe (Branding)",
+              "Donavan (Desenvolvimento)",
+              "Marcelo (Estratégia)"
+            ]
+          },
+          {
+            "fase": "Fase 3 - Produção de Conteúdo e Aquecimento",
+            "duracao": "Semanas 5-8",
+            "atividades": [
+              "Conteúdo consistente em Instagram, YouTube e LinkedIn orgânico",
+              "Captação de leads via lead magnets ou pré-evento",
+              "Tráfego pago para aquecimento (topo e meio de funil)"
+            ],
+            "responsaveis": [
+              "Phelipe (Conteúdo)",
+              "Marcelo (Tráfego/Estratégia)",
+              "Donavan (Integrações)"
+            ]
+          },
+          {
+            "fase": "Fase 4 - Execução de Lançamento",
+            "duracao": "Semanas 9-12",
+            "atividades": [
+              "Realização de evento (webinar, masterclass, série de aulas)",
+              "Abertura de carrinho por 5-7 dias",
+              "Suporte intensivo (chatbot + atendimento humano)",
+              "Análise de resultados (vendas do curso, leads para consultoria)"
+            ],
+            "responsaveis": [
+              "Marcelo (Coordenação)",
+              "Phelipe (Materiais)",
+              "Donavan (Técnico)"
+            ]
+          },
+          {
+            "fase": "Fase 5 - Perpétuo e Escala",
+            "duracao": "Mês 4 em diante",
+            "atividades": [
+              "Funil perpétuo rodando com campanhas sempre ativas",
+              "Uso de depoimentos e dados para otimização",
+              "Planejamento de novos ciclos de lançamento"
+            ],
+            "responsaveis": [
+              "Marcelo (Estratégia)",
+              "Donavan (Automação)",
+              "Phelipe (Conteúdo)"
+            ]
+          }
+        ]
       }
     },
     "estruturaCanais": {
