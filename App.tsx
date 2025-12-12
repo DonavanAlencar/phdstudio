@@ -1295,6 +1295,12 @@ const FunilVexinPage = () => {
   const tendencias = dadosAdicionais.funil.tendencias;
   const periodos = dadosAdicionais.periodos;
   const mensagensEnviadas = dadosAdicionais.funil.mensagensEnviadas;
+  const planos = dadosAdicionais.planos;
+  const estruturaCanais = dadosAdicionais.estruturaCanais;
+  
+  // Determinar qual plano está sendo visualizado baseado no cenário atual
+  const cenarioAtual = data?.nome || 'Base';
+  const planoAtual = cenarioAtual === 'Conservador' ? planos.start : planos.premium;
   
   const kpis = [
     {
@@ -1353,6 +1359,23 @@ const FunilVexinPage = () => {
       <Navbar />
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
+          {/* Informações do Plano */}
+          <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 rounded-xl p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Plano {planoAtual.nome} - {planoAtual.descricao}</h2>
+                <p className="text-gray-300 text-sm">{planoAtual.objetivo}</p>
+              </div>
+              <div className="bg-[#121212] rounded-lg p-4 border border-white/10">
+                <div className="text-xs text-gray-400 mb-1">Investimento Mensal</div>
+                <div className="text-2xl font-bold text-red-400">R$ {planoAtual.totalMensal.toLocaleString('pt-BR')}</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Gestão: R$ {planoAtual.gestaoMensal.toLocaleString('pt-BR')} + Mídia: R$ {planoAtual.midiaMensal.toLocaleString('pt-BR')}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* KPIs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {kpis.map((kpi, idx) => (
@@ -1445,6 +1468,43 @@ const FunilVexinPage = () => {
               </ResponsiveContainer>
             </div>
           </div>
+
+          {/* Resumo da Estratégia de Canais */}
+          <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-white mb-4">Detalhamento da Estratégia de Canais</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-semibold">Meta Ads (Instagram/Facebook)</span>
+                  <span className="text-red-400 font-bold text-lg">{estruturaCanais.metaAds.percentual}%</span>
+                </div>
+                <div className="text-xs text-gray-400 mb-2">
+                  Investimento: R$ {Math.round(planoAtual.midiaMensal * estruturaCanais.metaAds.percentual / 100).toLocaleString('pt-BR')}/mês
+                </div>
+                <p className="text-xs text-gray-500">{estruturaCanais.metaAds.objetivo}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-semibold">Google Ads (Rede de Pesquisa)</span>
+                  <span className="text-red-400 font-bold text-lg">{estruturaCanais.googleAds.percentual}%</span>
+                </div>
+                <div className="text-xs text-gray-400 mb-2">
+                  Investimento: R$ {Math.round(planoAtual.midiaMensal * estruturaCanais.googleAds.percentual / 100).toLocaleString('pt-BR')}/mês
+                </div>
+                <p className="text-xs text-gray-500">{estruturaCanais.googleAds.objetivo}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-semibold">Remarketing</span>
+                  <span className="text-red-400 font-bold text-lg">{estruturaCanais.remarketing.percentual}%</span>
+                </div>
+                <div className="text-xs text-gray-400 mb-2">
+                  Investimento: R$ {Math.round(planoAtual.midiaMensal * estruturaCanais.remarketing.percentual / 100).toLocaleString('pt-BR')}/mês
+                </div>
+                <p className="text-xs text-gray-500">{estruturaCanais.remarketing.objetivo}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1479,6 +1539,13 @@ const ProjecaoVexinPage = () => {
   const projecao = dadosAdicionais.projecao;
   const ctr = projecao.ctr;
   const conversaoMedia = (agregados.totalVendas / agregados.totalLeads).toFixed(3);
+  const planos = dadosAdicionais.planos;
+  const estruturaCanais = dadosAdicionais.estruturaCanais;
+  const fases = dadosAdicionais.fases;
+  
+  // Determinar qual plano está sendo visualizado baseado no cenário atual
+  const cenarioAtual = data?.nome || 'Base';
+  const planoAtual = cenarioAtual === 'Conservador' ? planos.start : planos.premium;
   
   const kpis = [
     {
@@ -1506,6 +1573,98 @@ const ProjecaoVexinPage = () => {
       <Navbar />
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
+          {/* Card de Plano Atual e Comparação */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Plano Atual */}
+            <div className="bg-[#121212] border border-red-500/30 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-white">Plano {planoAtual.nome}</h3>
+                  <p className="text-sm text-gray-400 mt-1">{planoAtual.descricao}</p>
+                </div>
+                <div className="bg-red-500/20 px-3 py-1 rounded-lg">
+                  <span className="text-red-400 text-xs font-semibold">ATIVO</span>
+                </div>
+              </div>
+              <div className="space-y-3 mt-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-sm">Setup Inicial</span>
+                  <span className="text-white font-semibold">R$ {planoAtual.setupInicial.toLocaleString('pt-BR')}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-sm">Gestão Mensal</span>
+                  <span className="text-white font-semibold">R$ {planoAtual.gestaoMensal.toLocaleString('pt-BR')}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-sm">Mídia Mensal</span>
+                  <span className="text-white font-semibold">R$ {planoAtual.midiaMensal.toLocaleString('pt-BR')}</span>
+                </div>
+                <div className="border-t border-white/10 pt-3 mt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300 font-medium">Total Mensal</span>
+                    <span className="text-red-400 text-xl font-bold">R$ {planoAtual.totalMensal.toLocaleString('pt-BR')}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-3">{planoAtual.objetivo}</p>
+              </div>
+            </div>
+
+            {/* Comparação de Planos */}
+            <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+              <h3 className="text-lg font-bold text-white mb-4">Comparação de Planos</h3>
+              <div className="space-y-4">
+                {Object.values(planos).map((plano: any) => (
+                  <div
+                    key={plano.nome}
+                    className={`p-4 rounded-lg border ${
+                      plano.nome === planoAtual.nome
+                        ? 'border-red-500/50 bg-red-500/10'
+                        : 'border-white/10 bg-white/5'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-white">{plano.nome}</span>
+                      <span className="text-sm text-gray-400">R$ {plano.totalMensal.toLocaleString('pt-BR')}/mês</span>
+                    </div>
+                    <div className="text-xs text-gray-500 space-y-1">
+                      <div>Setup: R$ {plano.setupInicial.toLocaleString('pt-BR')}</div>
+                      <div>Mídia: R$ {plano.midiaMensal.toLocaleString('pt-BR')}/mês</div>
+                      <div>Mínimo: {plano.tempoMinimo} meses</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Estratégia de Canais */}
+          <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-white mb-6">Estratégia de Distribuição de Mídia</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-semibold">Meta Ads</span>
+                  <span className="text-red-400 font-bold">{estruturaCanais.metaAds.percentual}%</span>
+                </div>
+                <p className="text-xs text-gray-400">{estruturaCanais.metaAds.objetivo}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-semibold">Google Ads</span>
+                  <span className="text-red-400 font-bold">{estruturaCanais.googleAds.percentual}%</span>
+                </div>
+                <p className="text-xs text-gray-400">{estruturaCanais.googleAds.objetivo}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-semibold">Remarketing</span>
+                  <span className="text-red-400 font-bold">{estruturaCanais.remarketing.percentual}%</span>
+                </div>
+                <p className="text-xs text-gray-400">{estruturaCanais.remarketing.objetivo}</p>
+              </div>
+            </div>
+          </div>
+
           {/* KPIs */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {kpis.map((kpi, idx) => (
@@ -1520,6 +1679,23 @@ const ProjecaoVexinPage = () => {
                 <div className="text-xs text-gray-500">{kpi.description}</div>
               </div>
             ))}
+          </div>
+
+          {/* Fases do Projeto */}
+          <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-white mb-6">Fases do Projeto</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {Object.values(fases).map((fase: any, idx: number) => (
+                <div key={idx} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                    <span className="text-white font-semibold">{fase.nome}</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-2">{fase.duracao}</p>
+                  <p className="text-xs text-gray-500">{fase.foco}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Gráfico de Evolução */}
