@@ -1615,9 +1615,11 @@ const ProjecaoVexinPage = () => {
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Comparação de Planos - TOPO */}
-          <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
-            <h3 className="text-lg font-bold text-white mb-4">Comparação de Planos</h3>
-            <p className="text-xs text-gray-400 mb-4">Clique em um plano para visualizar seus dados</p>
+          <div className="bg-gradient-to-br from-[#1a1a1a] to-[#121212] border border-white/10 rounded-2xl p-6 shadow-2xl">
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold text-white mb-2">Comparação de Planos</h3>
+              <p className="text-sm text-gray-400">Clique em um plano para visualizar seus dados</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.entries(planos).map(([key, plano]: [string, any]) => {
                 const isAtivo = key === planoSelecionado;
@@ -1625,25 +1627,51 @@ const ProjecaoVexinPage = () => {
                   <div
                     key={plano.nome}
                     onClick={() => setPlanoSelecionado(key as 'start' | 'premium')}
-                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] ${
+                    className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] overflow-hidden ${
                       isAtivo
-                        ? 'border-red-500/50 bg-red-500/10 shadow-lg shadow-red-500/20'
-                        : 'border-white/10 bg-white/5 hover:border-white/20'
+                        ? 'border-red-500 bg-gradient-to-br from-red-500/20 to-red-900/10 shadow-2xl shadow-red-500/30'
+                        : 'border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10'
                     }`}
                   >
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white">{plano.nome}</span>
-                        {isAtivo && (
-                          <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">ATIVO</span>
-                        )}
+                    {isAtivo && (
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                    )}
+                    <div className="relative z-10">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${isAtivo ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`}></div>
+                          <span className="text-xl font-bold text-white">{plano.nome}</span>
+                          {isAtivo && (
+                            <span className="text-xs bg-red-500 text-white px-3 py-1 rounded-full font-semibold shadow-lg">ATIVO</span>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-2xl font-bold ${isAtivo ? 'text-red-400' : 'text-gray-300'}`}>
+                            R$ {plano.totalMensal.toLocaleString('pt-BR')}
+                          </div>
+                          <div className="text-xs text-gray-400">/mês</div>
+                        </div>
                       </div>
-                      <span className="text-sm text-gray-400">R$ {plano.totalMensal.toLocaleString('pt-BR')}/mês</span>
-                    </div>
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <div>Setup: R$ {plano.setupInicial.toLocaleString('pt-BR')}</div>
-                      <div>Mídia: R$ {plano.midiaMensal.toLocaleString('pt-BR')}/mês</div>
-                      <div>Mínimo: {plano.tempoMinimo} meses</div>
+                      <div className="space-y-2.5 pt-3 border-t border-white/10">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-400">Setup</span>
+                          <span className={`text-sm font-semibold ${isAtivo ? 'text-white' : 'text-gray-300'}`}>
+                            R$ {plano.setupInicial.toLocaleString('pt-BR')}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-400">Mídia</span>
+                          <span className={`text-sm font-semibold ${isAtivo ? 'text-white' : 'text-gray-300'}`}>
+                            R$ {plano.midiaMensal.toLocaleString('pt-BR')}/mês
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-400">Mínimo</span>
+                          <span className={`text-sm font-semibold ${isAtivo ? 'text-white' : 'text-gray-300'}`}>
+                            {plano.tempoMinimo} meses
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );
@@ -1654,92 +1682,111 @@ const ProjecaoVexinPage = () => {
           {/* Card de Plano Atual */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Plano Atual */}
-            <div className="bg-[#121212] border border-red-500/30 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-white">Plano {planoAtual.nome}</h3>
-                  <p className="text-sm text-gray-400 mt-1">{planoAtual.descricao}</p>
-                </div>
-                <div className="bg-red-500/20 px-3 py-1 rounded-lg">
-                  <span className="text-red-400 text-xs font-semibold">ATIVO</span>
-                </div>
-              </div>
-              <div className="space-y-3 mt-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Setup Inicial</span>
-                  <span className="text-white font-semibold">R$ {planoAtual.setupInicial.toLocaleString('pt-BR')}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Gestão Mensal</span>
-                  <span className="text-white font-semibold">R$ {planoAtual.gestaoMensal.toLocaleString('pt-BR')}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Mídia Mensal</span>
-                  <span className="text-white font-semibold">R$ {planoAtual.midiaMensal.toLocaleString('pt-BR')}</span>
-                </div>
-                <div className="border-t border-white/10 pt-3 mt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300 font-medium">Total Mensal</span>
-                    <span className="text-red-400 text-xl font-bold">R$ {planoAtual.totalMensal.toLocaleString('pt-BR')}</span>
+            <div className="bg-gradient-to-br from-red-500/10 via-[#1a1a1a] to-[#121212] border-2 border-red-500/30 rounded-2xl p-6 shadow-2xl shadow-red-500/20 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-2xl font-bold text-white">Plano {planoAtual.nome}</h3>
+                      <span className="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg">ATIVO</span>
+                    </div>
+                    <p className="text-base text-gray-300 font-medium">{planoAtual.descricao}</p>
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-3">{planoAtual.objetivo}</p>
-              </div>
-
-              {/* Detalhamento Expandível */}
-              {planoAtual.setupDetalhado && (
-                <details className="mt-6 group">
-                  <summary className="cursor-pointer flex items-center justify-between text-sm font-semibold text-gray-300 hover:text-white transition-colors">
-                    <span>Ver Detalhamento do Setup</span>
-                    <ChevronDown className="transform group-open:rotate-180 transition-transform text-red-400" size={18} />
-                  </summary>
-                  <div className="mt-4 space-y-3 pt-4 border-t border-white/10">
-                    {planoAtual.setupDetalhado.itens.map((item: any, idx: number) => (
-                      <div key={idx} className="bg-white/5 rounded-lg p-3">
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="text-white text-sm font-medium">{item.nome}</span>
-                          {item.valor > 0 && (
-                            <span className="text-gray-400 text-xs">R$ {item.valor.toLocaleString('pt-BR')}</span>
-                          )}
-                          {item.incluso && (
-                            <span className="text-green-400 text-xs bg-green-400/20 px-2 py-0.5 rounded">Incluído</span>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500">{item.descricao}</p>
-                      </div>
-                    ))}
-                    <div className="border-t border-white/10 pt-2 mt-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300 font-semibold">Total Setup</span>
-                        <span className="text-red-400 font-bold">R$ {planoAtual.setupDetalhado.total.toLocaleString('pt-BR')}</span>
-                      </div>
+                <div className="space-y-4 mt-6">
+                  <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/10">
+                    <span className="text-gray-300 text-sm font-medium">Setup Inicial</span>
+                    <span className="text-white font-bold text-lg">R$ {planoAtual.setupInicial.toLocaleString('pt-BR')}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/10">
+                    <span className="text-gray-300 text-sm font-medium">Gestão Mensal</span>
+                    <span className="text-white font-bold text-lg">R$ {planoAtual.gestaoMensal.toLocaleString('pt-BR')}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/10">
+                    <span className="text-gray-300 text-sm font-medium">Mídia Mensal</span>
+                    <span className="text-white font-bold text-lg">R$ {planoAtual.midiaMensal.toLocaleString('pt-BR')}</span>
+                  </div>
+                  <div className="border-t-2 border-red-500/30 pt-4 mt-4 bg-gradient-to-r from-red-500/10 to-transparent p-4 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-200 font-semibold text-base">Total Mensal</span>
+                      <span className="text-red-400 text-3xl font-bold">R$ {planoAtual.totalMensal.toLocaleString('pt-BR')}</span>
                     </div>
                   </div>
-                </details>
-              )}
-
-              {/* Detalhamento Fee Mensal */}
-              {planoAtual.feeMensalDetalhado && (
-                <details className="mt-4 group">
-                  <summary className="cursor-pointer flex items-center justify-between text-sm font-semibold text-gray-300 hover:text-white transition-colors">
-                    <span>Ver Detalhamento da Gestão Mensal</span>
-                    <ChevronDown className="transform group-open:rotate-180 transition-transform text-red-400" size={18} />
-                  </summary>
-                  <div className="mt-4 space-y-3 pt-4 border-t border-white/10">
-                    {planoAtual.feeMensalDetalhado.itens.map((item: any, idx: number) => (
-                      <div key={idx} className="bg-white/5 rounded-lg p-3">
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="text-white text-sm font-medium">{item.nome}</span>
-                          {item.incluso && (
-                            <span className="text-green-400 text-xs bg-green-400/20 px-2 py-0.5 rounded">Incluído</span>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500">{item.descricao}</p>
-                      </div>
-                    ))}
+                  <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                    <p className="text-xs text-gray-400 leading-relaxed">{planoAtual.objetivo}</p>
                   </div>
-                </details>
-              )}
+                </div>
+
+                {/* Detalhamento Expandível */}
+                {planoAtual.setupDetalhado && (
+                  <details className="mt-6 group">
+                    <summary className="cursor-pointer flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 text-sm font-semibold text-gray-300 hover:text-white transition-all">
+                      <span className="flex items-center gap-2">
+                        <Target size={16} className="text-red-400" />
+                        Ver Detalhamento do Setup
+                      </span>
+                      <ChevronDown className="transform group-open:rotate-180 transition-transform text-red-400" size={18} />
+                    </summary>
+                    <div className="mt-4 space-y-3 pt-4 border-t border-white/10">
+                      {planoAtual.setupDetalhado.itens.map((item: any, idx: number) => (
+                        <div key={idx} className="bg-gradient-to-r from-white/5 to-white/0 rounded-lg p-4 border border-white/10 hover:border-red-500/30 transition-colors">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              <Check size={16} className="text-green-400 flex-shrink-0" />
+                              <span className="text-white text-sm font-medium">{item.nome}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {item.valor > 0 && (
+                                <span className="text-gray-300 text-xs font-semibold">R$ {item.valor.toLocaleString('pt-BR')}</span>
+                              )}
+                              {item.incluso && (
+                                <span className="text-green-400 text-xs bg-green-400/20 px-2 py-1 rounded-full font-semibold">Incluído</span>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-6 leading-relaxed">{item.descricao}</p>
+                        </div>
+                      ))}
+                      <div className="border-t-2 border-red-500/30 pt-3 mt-3 bg-gradient-to-r from-red-500/10 to-transparent p-3 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-200 font-semibold">Total Setup</span>
+                          <span className="text-red-400 font-bold text-lg">R$ {planoAtual.setupDetalhado.total.toLocaleString('pt-BR')}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                )}
+
+                {/* Detalhamento Fee Mensal */}
+                {planoAtual.feeMensalDetalhado && (
+                  <details className="mt-4 group">
+                    <summary className="cursor-pointer flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 text-sm font-semibold text-gray-300 hover:text-white transition-all">
+                      <span className="flex items-center gap-2">
+                        <BarChart3 size={16} className="text-red-400" />
+                        Ver Detalhamento da Gestão Mensal
+                      </span>
+                      <ChevronDown className="transform group-open:rotate-180 transition-transform text-red-400" size={18} />
+                    </summary>
+                    <div className="mt-4 space-y-3 pt-4 border-t border-white/10">
+                      {planoAtual.feeMensalDetalhado.itens.map((item: any, idx: number) => (
+                        <div key={idx} className="bg-gradient-to-r from-white/5 to-white/0 rounded-lg p-4 border border-white/10 hover:border-red-500/30 transition-colors">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              <Check size={16} className="text-green-400 flex-shrink-0" />
+                              <span className="text-white text-sm font-medium">{item.nome}</span>
+                            </div>
+                            {item.incluso && (
+                              <span className="text-green-400 text-xs bg-green-400/20 px-2 py-1 rounded-full font-semibold">Incluído</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-400 ml-6 leading-relaxed">{item.descricao}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </div>
             </div>
 
           </div>
@@ -2012,6 +2059,23 @@ const ProjecaoVexinPage = () => {
                 />
               </LineChart>
             </ResponsiveContainer>
+            {/* Legendas das Siglas */}
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div className="text-center">
+                  <div className="text-white font-semibold mb-1">CPA (R$)</div>
+                  <div className="text-gray-400">Custo por Aquisição</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-white font-semibold mb-1">Conversão (%)</div>
+                  <div className="text-gray-400">Taxa de Conversão</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-white font-semibold mb-1">ROAS (x)</div>
+                  <div className="text-gray-400">Retorno sobre Investimento em Publicidade</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
