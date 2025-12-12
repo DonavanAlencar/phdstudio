@@ -1234,7 +1234,7 @@ const LoginPage = () => {
 
 
 // Hook para carregar dados de projeções
-const useProjecoesData = () => {
+const useProjecoesData = (planoSelecionado: 'start' | 'premium' = 'premium') => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -1253,32 +1253,36 @@ const useProjecoesData = () => {
     loadData();
   }, []);
 
-  const cenarioBase = data?.cenarios?.find((c: any) => c.nome === 'Base');
+  // Determinar qual cenário usar baseado no plano selecionado
+  const nomeCenario = planoSelecionado === 'start' ? 'Conservador' : 'Base';
+  const cenarioAtivo = data?.cenarios?.find((c: any) => c.nome === nomeCenario) || data?.cenarios?.find((c: any) => c.nome === 'Base');
   const dadosAdicionais = data?.dadosAdicionais;
   
   const calcularAgregados = () => {
-    if (!cenarioBase) return null;
+    if (!cenarioAtivo) return null;
     
-    const totalLeads = cenarioBase.dadosMensais.reduce((sum: number, m: any) => sum + m.leads, 0);
-    const totalVendas = cenarioBase.dadosMensais.reduce((sum: number, m: any) => sum + m.vendas, 0);
-    const totalTrafego = cenarioBase.dadosMensais.reduce((sum: number, m: any) => sum + m.trafego, 0);
-    const totalInvestimento = cenarioBase.dadosMensais.reduce((sum: number, m: any) => sum + m.investimentoMidia, 0);
+    const totalLeads = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.leads, 0);
+    const totalVendas = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.vendas, 0);
+    const totalTrafego = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.trafego, 0);
+    const totalInvestimento = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.investimentoMidia, 0);
     const cpaMedio = totalInvestimento / totalVendas || 0;
     
     return { totalLeads, totalVendas, totalTrafego, cpaMedio };
   };
 
   return { 
-    data: cenarioBase, 
+    data: cenarioAtivo, 
     agregados: calcularAgregados(), 
     dadosAdicionais,
-    loading 
+    loading,
+    todosOsCenarios: data?.cenarios || []
   };
 };
 
 // --- Funil Vexin Page ---
 const FunilVexinPage = () => {
-  const { data, agregados, dadosAdicionais, loading } = useProjecoesData();
+  const [planoSelecionado, setPlanoSelecionado] = useState<'start' | 'premium'>('premium');
+  const { data, agregados, dadosAdicionais, loading } = useProjecoesData(planoSelecionado);
 
   if (loading || !agregados || !data || !dadosAdicionais) {
     return (
@@ -1298,9 +1302,8 @@ const FunilVexinPage = () => {
   const planos = dadosAdicionais.planos;
   const estruturaCanais = dadosAdicionais.estruturaCanais;
   
-  // Determinar qual plano está sendo visualizado baseado no cenário atual
-  const cenarioAtual = data?.nome || 'Base';
-  const planoAtual = cenarioAtual === 'Conservador' ? planos.start : planos.premium;
+  // Usar plano selecionado pelo usuário
+  const planoAtual = planos[planoSelecionado];
   
   const kpis = [
     {
@@ -1359,12 +1362,50 @@ const FunilVexinPage = () => {
       <Navbar />
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
+          {/* Comparação de Planos - TOPO */}
+          <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-white mb-4">Comparação de Planos</h3>
+            <p className="text-xs text-gray-400 mb-4">Clique em um plano para visualizar seus dados</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(planos).map(([key, plano]: [string, any]) => {
+                const isAtivo = key === planoSelecionado;
+                return (
+                  <div
+                    key={plano.nome}
+                    onClick={() => setPlanoSelecionado(key as 'start' | 'premium')}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] ${
+                      isAtivo
+                        ? 'border-red-500/50 bg-red-500/10 shadow-lg shadow-red-500/20'
+                        : 'border-white/10 bg-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">{plano.nome}</span>
+                        {isAtivo && (
+                          <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">ATIVO</span>
+                        )}
+                      </div>
+                      <span className="text-sm text-gray-400">R$ {plano.totalMensal.toLocaleString('pt-BR')}/mês</span>
+                    </div>
+                    <div className="text-xs text-gray-500 space-y-1">
+                      <div>Setup: R$ {plano.setupInicial.toLocaleString('pt-BR')}</div>
+                      <div>Mídia: R$ {plano.midiaMensal.toLocaleString('pt-BR')}/mês</div>
+                      <div>Mínimo: {plano.tempoMinimo} meses</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Informações do Plano */}
           <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 rounded-xl p-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-bold text-white mb-2">Plano {planoAtual.nome} - {planoAtual.descricao}</h2>
-                <p className="text-gray-300 text-sm">{planoAtual.objetivo}</p>
+                <p className="text-gray-300 text-sm mb-1">{planoAtual.objetivo}</p>
+                <p className="text-xs text-gray-400">Use os cards abaixo para alternar entre os planos</p>
               </div>
               <div className="bg-[#121212] rounded-lg p-4 border border-white/10">
                 <div className="text-xs text-gray-400 mb-1">Investimento Mensal</div>
@@ -1513,7 +1554,8 @@ const FunilVexinPage = () => {
 
 // --- Projecao Vexin Page ---
 const ProjecaoVexinPage = () => {
-  const { data, agregados, dadosAdicionais, loading } = useProjecoesData();
+  const [planoSelecionado, setPlanoSelecionado] = useState<'start' | 'premium'>('premium');
+  const { data, agregados, dadosAdicionais, loading } = useProjecoesData(planoSelecionado);
 
   if (loading || !agregados || !data || !dadosAdicionais) {
     return (
@@ -1543,9 +1585,8 @@ const ProjecaoVexinPage = () => {
   const estruturaCanais = dadosAdicionais.estruturaCanais;
   const fases = dadosAdicionais.fases;
   
-  // Determinar qual plano está sendo visualizado baseado no cenário atual
-  const cenarioAtual = data?.nome || 'Base';
-  const planoAtual = cenarioAtual === 'Conservador' ? planos.start : planos.premium;
+  // Usar plano selecionado pelo usuário
+  const planoAtual = planos[planoSelecionado];
   
   const kpis = [
     {
@@ -1573,7 +1614,44 @@ const ProjecaoVexinPage = () => {
       <Navbar />
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
-          {/* Card de Plano Atual e Comparação */}
+          {/* Comparação de Planos - TOPO */}
+          <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-white mb-4">Comparação de Planos</h3>
+            <p className="text-xs text-gray-400 mb-4">Clique em um plano para visualizar seus dados</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(planos).map(([key, plano]: [string, any]) => {
+                const isAtivo = key === planoSelecionado;
+                return (
+                  <div
+                    key={plano.nome}
+                    onClick={() => setPlanoSelecionado(key as 'start' | 'premium')}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] ${
+                      isAtivo
+                        ? 'border-red-500/50 bg-red-500/10 shadow-lg shadow-red-500/20'
+                        : 'border-white/10 bg-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">{plano.nome}</span>
+                        {isAtivo && (
+                          <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">ATIVO</span>
+                        )}
+                      </div>
+                      <span className="text-sm text-gray-400">R$ {plano.totalMensal.toLocaleString('pt-BR')}/mês</span>
+                    </div>
+                    <div className="text-xs text-gray-500 space-y-1">
+                      <div>Setup: R$ {plano.setupInicial.toLocaleString('pt-BR')}</div>
+                      <div>Mídia: R$ {plano.midiaMensal.toLocaleString('pt-BR')}/mês</div>
+                      <div>Mínimo: {plano.tempoMinimo} meses</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Card de Plano Atual */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Plano Atual */}
             <div className="bg-[#121212] border border-red-500/30 rounded-xl p-6">
@@ -1664,32 +1742,6 @@ const ProjecaoVexinPage = () => {
               )}
             </div>
 
-            {/* Comparação de Planos */}
-            <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-bold text-white mb-4">Comparação de Planos</h3>
-              <div className="space-y-4">
-                {Object.values(planos).map((plano: any) => (
-                  <div
-                    key={plano.nome}
-                    className={`p-4 rounded-lg border ${
-                      plano.nome === planoAtual.nome
-                        ? 'border-red-500/50 bg-red-500/10'
-                        : 'border-white/10 bg-white/5'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold text-white">{plano.nome}</span>
-                      <span className="text-sm text-gray-400">R$ {plano.totalMensal.toLocaleString('pt-BR')}/mês</span>
-                    </div>
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <div>Setup: R$ {plano.setupInicial.toLocaleString('pt-BR')}</div>
-                      <div>Mídia: R$ {plano.midiaMensal.toLocaleString('pt-BR')}/mês</div>
-                      <div>Mínimo: {plano.tempoMinimo} meses</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Estratégia de Canais */}
