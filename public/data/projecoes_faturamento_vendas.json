@@ -15,13 +15,13 @@
           "investimentoMidia": 1500,
           "trafego": 180,
           "leads": 60,
-          "cpl": 25.0,
+          "cpl": 25,
           "vendas": 1,
-          "taxaConversao": 1.0,
+          "taxaConversao": 1,
           "faturamento": 599,
           "roi": -60.1,
           "roas": 0.4,
-          "cac": 1500.0
+          "cac": 1500
         },
         {
           "mes": "Mês 2",
@@ -97,7 +97,7 @@
           "vendas": 1,
           "taxaConversao": 1.4,
           "faturamento": 599,
-          "roi": -64.0,
+          "roi": -64,
           "roas": 0.51,
           "cac": 1278.44
         },
@@ -158,15 +158,23 @@
           "investimentoMidia": 1800,
           "trafego": 250,
           "leads": 90,
-          "cpl": 20.0,
+          "cpl": 20,
           "vendas": 1,
           "taxaConversao": 1.5,
           "faturamento": 599,
           "roi": -66.7,
           "roas": 0.55,
-          "cac": 1200.0
+          "cac": 1200
         }
-      ]
+      ],
+      "agregados": {
+        "totalLeads": 845,
+        "totalVendas": 12,
+        "totalTrafego": 2452,
+        "totalInvestimento": 19800,
+        "cpaMedio": 1650,
+        "conversaoMedia": 1.42
+      }
     },
     {
       "nome": "Base",
@@ -176,13 +184,13 @@
           "investimentoMidia": 2000,
           "trafego": 333,
           "leads": 111,
-          "cpl": 18.0,
+          "cpl": 18,
           "vendas": 2,
-          "taxaConversao": 2.0,
+          "taxaConversao": 2,
           "faturamento": 1198,
           "roi": -40.1,
           "roas": 0.6,
-          "cac": 1000.0
+          "cac": 1000
         },
         {
           "mes": "Mês 2",
@@ -258,7 +266,7 @@
           "vendas": 3,
           "taxaConversao": 2.6,
           "faturamento": 1797,
-          "roi": -19.0,
+          "roi": -19,
           "roas": 0.78,
           "cac": 815.36
         },
@@ -297,7 +305,7 @@
           "vendas": 4,
           "taxaConversao": 2.7,
           "faturamento": 2396,
-          "roi": 3.0,
+          "roi": 3,
           "roas": 0.83,
           "cac": 773.87
         },
@@ -325,9 +333,17 @@
           "faturamento": 2995,
           "roi": 24.8,
           "roas": 0.85,
-          "cac": 750.0
+          "cac": 750
         }
-      ]
+      ],
+      "agregados": {
+        "totalLeads": 1620,
+        "totalVendas": 41,
+        "totalTrafego": 4695,
+        "totalInvestimento": 26400,
+        "cpaMedio": 643.9,
+        "conversaoMedia": 2.531
+      }
     },
     {
       "nome": "Otimista",
@@ -337,9 +353,9 @@
           "investimentoMidia": 2500,
           "trafego": 625,
           "leads": 208,
-          "cpl": 12.0,
+          "cpl": 12,
           "vendas": 6,
-          "taxaConversao": 3.0,
+          "taxaConversao": 3,
           "faturamento": 3594,
           "roi": 43.8,
           "roas": 1.44,
@@ -376,7 +392,7 @@
           "investimentoMidia": 2636,
           "trafego": 653,
           "leads": 219,
-          "cpl": 12.0,
+          "cpl": 12,
           "vendas": 8,
           "taxaConversao": 3.6,
           "faturamento": 4792,
@@ -419,7 +435,7 @@
           "vendas": 10,
           "taxaConversao": 3.9,
           "faturamento": 5990,
-          "roi": 116.0,
+          "roi": 116,
           "roas": 1.74,
           "cac": 330.5
         },
@@ -430,7 +446,7 @@
           "leads": 266,
           "cpl": 10.6,
           "vendas": 11,
-          "taxaConversao": 4.0,
+          "taxaConversao": 4,
           "faturamento": 6589,
           "roi": 133.8,
           "roas": 1.77,
@@ -443,7 +459,7 @@
           "leads": 283,
           "cpl": 10.1,
           "vendas": 11,
-          "taxaConversao": 4.0,
+          "taxaConversao": 4,
           "faturamento": 6589,
           "roi": 130.1,
           "roas": 1.79,
@@ -486,9 +502,17 @@
           "faturamento": 8985,
           "roi": 199.5,
           "roas": 1.85,
-          "cac": 300.0
+          "cac": 300
         }
-      ]
+      ],
+      "agregados": {
+        "totalLeads": 3090,
+        "totalVendas": 117,
+        "totalTrafego": 9068,
+        "totalInvestimento": 33000,
+        "cpaMedio": 282.05,
+        "conversaoMedia": 3.786
+      }
     }
   ],
   "dadosAdicionais": {
@@ -532,7 +556,21 @@
           "percentual": 10,
           "cor": "#FF6B6B"
         }
-      ]
+      ],
+      "valoresFunil": {
+        "start": {
+          "trafegoTotal": 2452,
+          "leads": 845,
+          "conversoes": 380,
+          "vendas": 12
+        },
+        "premium": {
+          "trafegoTotal": 4695,
+          "leads": 1620,
+          "conversoes": 729,
+          "vendas": 41
+        }
+      }
     },
     "projecao": {
       "ctr": {
@@ -544,7 +582,11 @@
         "descricao": "Custo por aquisição médio por dia."
       },
       "conversao": {
-        "descricao": "Taxa de conversão das campanhas ativas."
+        "descricao": "Taxa de conversão das campanhas ativas.",
+        "valoresPorPlano": {
+          "start": 1.42,
+          "premium": 2.531
+        }
       }
     },
     "periodos": {
@@ -818,15 +860,27 @@
     "estruturaCanais": {
       "metaAds": {
         "percentual": 60,
-        "objetivo": "Alcance, tráfego para landing page, captação de leads e remarketing"
+        "objetivo": "Alcance, tráfego para landing page, captação de leads e remarketing",
+        "investimentoPorPlano": {
+          "start": 900,
+          "premium": 1200
+        }
       },
       "googleAds": {
         "percentual": 30,
-        "objetivo": "Capturar intenção ativa (inteligência de mercado, estudos de mercado, pricing)"
+        "objetivo": "Capturar intenção ativa (inteligência de mercado, estudos de mercado, pricing)",
+        "investimentoPorPlano": {
+          "start": 450,
+          "premium": 600
+        }
       },
       "remarketing": {
         "percentual": 10,
-        "objetivo": "Reimpactar quem visitou página, assistiu vídeos ou engajou com conteúdo"
+        "objetivo": "Reimpactar quem visitou página, assistiu vídeos ou engajou com conteúdo",
+        "investimentoPorPlano": {
+          "start": 150,
+          "premium": 200
+        }
       }
     },
     "fases": {

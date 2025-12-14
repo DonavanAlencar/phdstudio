@@ -1261,6 +1261,17 @@ const useProjecoesData = (planoSelecionado: 'start' | 'premium' = 'premium') => 
   const calcularAgregados = () => {
     if (!cenarioAtivo) return null;
     
+    // Usar agregados do JSON se disponíveis, senão calcular
+    if (cenarioAtivo.agregados) {
+      return {
+        totalLeads: cenarioAtivo.agregados.totalLeads,
+        totalVendas: cenarioAtivo.agregados.totalVendas,
+        totalTrafego: cenarioAtivo.agregados.totalTrafego,
+        cpaMedio: cenarioAtivo.agregados.cpaMedio
+      };
+    }
+    
+    // Fallback: calcular se não estiver no JSON
     const totalLeads = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.leads, 0);
     const totalVendas = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.vendas, 0);
     const totalTrafego = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.trafego, 0);
@@ -1336,12 +1347,12 @@ const FunilVexinPage = () => {
     }
   ];
 
-  // Funil de conversão - calculando valores intermediários
-  const trafegoTotal = agregados.totalTrafego;
-  const leads = agregados.totalLeads;
-  const taxaConversaoLeads = dadosAdicionais.funil.taxaConversaoLeads;
-  const conversoes = Math.floor(agregados.totalLeads * taxaConversaoLeads);
-  const vendas = agregados.totalVendas;
+  // Funil de conversão - usar valores do JSON se disponíveis
+  const valoresFunil = dadosAdicionais.funil.valoresFunil?.[planoSelecionado];
+  const trafegoTotal = valoresFunil?.trafegoTotal || agregados.totalTrafego;
+  const leads = valoresFunil?.leads || agregados.totalLeads;
+  const conversoes = valoresFunil?.conversoes || Math.floor(agregados.totalLeads * dadosAdicionais.funil.taxaConversaoLeads);
+  const vendas = valoresFunil?.vendas || agregados.totalVendas;
   
   const funilData = [
     { name: 'Tráfego Total', value: trafegoTotal },
@@ -1520,7 +1531,7 @@ const FunilVexinPage = () => {
                   <span className="text-red-400 font-bold text-lg">{estruturaCanais.metaAds.percentual}%</span>
                 </div>
                 <div className="text-xs text-gray-400 mb-2">
-                  Investimento: R$ {Math.round(planoAtual.midiaMensal * estruturaCanais.metaAds.percentual / 100).toLocaleString('pt-BR')}/mês
+                  Investimento: R$ {(estruturaCanais.metaAds.investimentoPorPlano?.[planoSelecionado] || Math.round(planoAtual.midiaMensal * estruturaCanais.metaAds.percentual / 100)).toLocaleString('pt-BR')}/mês
                 </div>
                 <p className="text-xs text-gray-500">{estruturaCanais.metaAds.objetivo}</p>
               </div>
@@ -1530,7 +1541,7 @@ const FunilVexinPage = () => {
                   <span className="text-red-400 font-bold text-lg">{estruturaCanais.googleAds.percentual}%</span>
                 </div>
                 <div className="text-xs text-gray-400 mb-2">
-                  Investimento: R$ {Math.round(planoAtual.midiaMensal * estruturaCanais.googleAds.percentual / 100).toLocaleString('pt-BR')}/mês
+                  Investimento: R$ {(estruturaCanais.googleAds.investimentoPorPlano?.[planoSelecionado] || Math.round(planoAtual.midiaMensal * estruturaCanais.googleAds.percentual / 100)).toLocaleString('pt-BR')}/mês
                 </div>
                 <p className="text-xs text-gray-500">{estruturaCanais.googleAds.objetivo}</p>
               </div>
@@ -1540,7 +1551,7 @@ const FunilVexinPage = () => {
                   <span className="text-red-400 font-bold text-lg">{estruturaCanais.remarketing.percentual}%</span>
                 </div>
                 <div className="text-xs text-gray-400 mb-2">
-                  Investimento: R$ {Math.round(planoAtual.midiaMensal * estruturaCanais.remarketing.percentual / 100).toLocaleString('pt-BR')}/mês
+                  Investimento: R$ {(estruturaCanais.remarketing.investimentoPorPlano?.[planoSelecionado] || Math.round(planoAtual.midiaMensal * estruturaCanais.remarketing.percentual / 100)).toLocaleString('pt-BR')}/mês
                 </div>
                 <p className="text-xs text-gray-500">{estruturaCanais.remarketing.objetivo}</p>
               </div>
@@ -1580,7 +1591,10 @@ const ProjecaoVexinPage = () => {
   // KPIs - dados do JSON
   const projecao = dadosAdicionais.projecao;
   const ctr = projecao.ctr;
-  const conversaoMedia = (agregados.totalVendas / agregados.totalLeads).toFixed(3);
+  // Usar valor do JSON se disponível, senão calcular
+  const conversaoMedia = projecao.conversao.valoresPorPlano?.[planoSelecionado] 
+    ? projecao.conversao.valoresPorPlano[planoSelecionado].toFixed(3)
+    : (agregados.totalVendas / agregados.totalLeads * 100).toFixed(3);
   const planos = dadosAdicionais.planos;
   const estruturaCanais = dadosAdicionais.estruturaCanais;
   const fases = dadosAdicionais.fases;
@@ -1800,21 +1814,30 @@ const ProjecaoVexinPage = () => {
                   <span className="text-white font-semibold">Meta Ads</span>
                   <span className="text-red-400 font-bold">{estruturaCanais.metaAds.percentual}%</span>
                 </div>
-                <p className="text-xs text-gray-400">{estruturaCanais.metaAds.objetivo}</p>
+                <div className="text-xs text-gray-400 mb-2">
+                  Investimento: R$ {(estruturaCanais.metaAds.investimentoPorPlano?.[planoSelecionado] || Math.round(planoAtual.midiaMensal * estruturaCanais.metaAds.percentual / 100)).toLocaleString('pt-BR')}/mês
+                </div>
+                <p className="text-xs text-gray-500">{estruturaCanais.metaAds.objetivo}</p>
               </div>
               <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-white font-semibold">Google Ads</span>
                   <span className="text-red-400 font-bold">{estruturaCanais.googleAds.percentual}%</span>
                 </div>
-                <p className="text-xs text-gray-400">{estruturaCanais.googleAds.objetivo}</p>
+                <div className="text-xs text-gray-400 mb-2">
+                  Investimento: R$ {(estruturaCanais.googleAds.investimentoPorPlano?.[planoSelecionado] || Math.round(planoAtual.midiaMensal * estruturaCanais.googleAds.percentual / 100)).toLocaleString('pt-BR')}/mês
+                </div>
+                <p className="text-xs text-gray-500">{estruturaCanais.googleAds.objetivo}</p>
               </div>
               <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-white font-semibold">Remarketing</span>
                   <span className="text-red-400 font-bold">{estruturaCanais.remarketing.percentual}%</span>
                 </div>
-                <p className="text-xs text-gray-400">{estruturaCanais.remarketing.objetivo}</p>
+                <div className="text-xs text-gray-400 mb-2">
+                  Investimento: R$ {(estruturaCanais.remarketing.investimentoPorPlano?.[planoSelecionado] || Math.round(planoAtual.midiaMensal * estruturaCanais.remarketing.percentual / 100)).toLocaleString('pt-BR')}/mês
+                </div>
+                <p className="text-xs text-gray-500">{estruturaCanais.remarketing.objetivo}</p>
               </div>
             </div>
           </div>
