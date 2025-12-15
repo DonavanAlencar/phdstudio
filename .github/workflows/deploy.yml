@@ -1,4 +1,4 @@
-name: Deploy to Easypanel
+name: Deploy to Server
 
 on:
   push:
@@ -20,11 +20,12 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     
-    - name: Deploy to server
+    - name: Deploy to server (Docker / Traefik)
       run: |
         ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_HOST }} '
           cd /root/phdstudio &&
-          bash deploy-easypanel.sh
+          chmod +x deploy-remote.sh &&
+          ./deploy-remote.sh
         '
     
     - name: Notify deployment

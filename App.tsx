@@ -232,7 +232,7 @@ const Navbar = () => {
         {isAuthenticated && username === 'vexin' ? (
           <button
             onClick={logout}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 flex items-center gap-2 relative z-50"
+            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
           >
             <X size={16} />
             Sair
@@ -240,7 +240,7 @@ const Navbar = () => {
         ) : (
           <Link 
             to="/login" 
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 flex items-center gap-2 relative z-50"
+            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
           >
             <Lock size={16} />
             Área do Cliente
@@ -307,24 +307,35 @@ const Navbar = () => {
               </Link>
             </>
           ) : (
-            navLinks.map((link) => 
-              link.external ? (
-                <a 
-                  key={link.name} 
-                  href={link.href} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  onClick={() => setIsOpen(false)} 
-                  className="text-2xl font-bold text-white hover:text-brand-red"
-                >
-                  {link.name}
-                </a>
-              ) : (
-                <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
-                  {link.name}
-                </a>
-              )
-            )
+            <>
+              <Link 
+                to="/login" 
+                onClick={() => setIsOpen(false)} 
+                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
+              >
+                <Lock size={20} />
+                Área do Cliente
+              </Link>
+
+              {navLinks.map((link) => 
+                link.external ? (
+                  <a 
+                    key={link.name} 
+                    href={link.href} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={() => setIsOpen(false)} 
+                    className="text-2xl font-bold text-white hover:text-brand-red"
+                  >
+                    {link.name}
+                  </a>
+                ) : (
+                  <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+                    {link.name}
+                  </a>
+                )
+              )}
+            </>
           )}
         </div>
       </div>
