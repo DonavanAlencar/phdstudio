@@ -1642,37 +1642,26 @@ const FunilVexinPage = () => {
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
           onClick={() => setShowVideoModal(false)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              setShowVideoModal(false);
-            }
-          }}
         >
           <div 
             className="relative w-full max-w-4xl mx-4"
             onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
           >
-            {/* Botão de Fechar - Fora do container do vídeo */}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowVideoModal(false);
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              className="absolute -top-12 right-0 z-[60] bg-black/90 hover:bg-black text-white rounded-full p-3 transition-colors shadow-lg pointer-events-auto"
-              aria-label="Fechar modal"
-              type="button"
-            >
-              <X size={24} />
-            </button>
-            
             {/* Container do Vídeo */}
             <div className="relative w-full bg-[#121212] rounded-xl overflow-hidden border border-white/20 shadow-2xl">
+              {/* Botão de Fechar */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowVideoModal(false);
+                }}
+                className="absolute top-4 right-4 z-50 bg-black/80 hover:bg-black text-white rounded-full p-2 transition-colors shadow-lg"
+                aria-label="Fechar modal"
+                type="button"
+              >
+                <X size={20} />
+              </button>
+              
               <video
                 className="w-full h-auto"
                 src="https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Vexin.mp4"
@@ -1680,7 +1669,6 @@ const FunilVexinPage = () => {
                 controls
                 controlsList="nodownload"
                 playsInline
-                onEnded={() => setShowVideoModal(false)}
                 onClick={(e) => e.stopPropagation()}
               >
                 Seu navegador não suporta a reprodução de vídeos.
