@@ -1553,14 +1553,6 @@ const useProjecoesData = (planoSelecionado: 'start' | 'premium' = 'premium') => 
 const FunilVexinPage = () => {
   const [planoSelecionado, setPlanoSelecionado] = useState<'start' | 'premium'>('premium');
   const { data, agregados, dadosAdicionais, loading } = useProjecoesData(planoSelecionado);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-
-  // Exibir modal de vídeo quando a página carregar
-  useEffect(() => {
-    if (!loading && agregados && data && dadosAdicionais) {
-      setShowVideoModal(true);
-    }
-  }, [loading, agregados, data, dadosAdicionais]);
 
   if (loading || !agregados || !data || !dadosAdicionais) {
     return (
@@ -1637,50 +1629,22 @@ const FunilVexinPage = () => {
 
   return (
     <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
-      {/* Modal de Vídeo do GitHub */}
-      {showVideoModal && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-          onClick={() => setShowVideoModal(false)}
-        >
-          <div 
-            className="relative w-full max-w-4xl mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Container do Vídeo */}
-            <div className="relative w-full bg-[#121212] rounded-xl overflow-hidden border border-white/20 shadow-2xl">
-              {/* Botão de Fechar */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowVideoModal(false);
-                }}
-                className="absolute top-4 right-4 z-50 bg-black/80 hover:bg-black text-white rounded-full p-2 transition-colors shadow-lg"
-                aria-label="Fechar modal"
-                type="button"
-              >
-                <X size={20} />
-              </button>
-              
-              <video
-                className="w-full h-auto"
-                src="https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Vexin.mp4"
-                autoPlay
-                controls
-                controlsList="nodownload"
-                playsInline
-                onClick={(e) => e.stopPropagation()}
-              >
-                Seu navegador não suporta a reprodução de vídeos.
-              </video>
-            </div>
-          </div>
-        </div>
-      )}
-      
       <Navbar />
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
+          {/* Vídeo no topo */}
+          <div className="bg-[#121212] rounded-xl overflow-hidden border border-white/20 shadow-2xl">
+            <video
+              className="w-full h-auto"
+              src="https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Vexin.mp4"
+              autoPlay
+              controls
+              controlsList="nodownload"
+              playsInline
+            >
+              Seu navegador não suporta a reprodução de vídeos.
+            </video>
+          </div>
           {/* Link para Download da Proposta */}
           <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
