@@ -70,18 +70,80 @@ Aplicação React/Vite com deploy automatizado via Docker e Traefik.
 
 ## 🔧 Deploy
 
-### Deploy Manual
+### Deploy Manual (servidor)
 
 ```bash
 cd /root/phdstudio
 docker compose up -d --build
 ```
 
-### Deploy via Script
+### Deploy via Script Local (servidor)
 
 ```bash
 cd /root/phdstudio
 ./deploy.sh
+```
+
+### Deploy Automatizado (GitHub Actions → servidor) ✅
+
+Fluxo atual (sem Easypanel):
+
+1. **Servidor** (`srv934629`):
+   - Projeto clonado em `/root/phdstudio`
+   - Docker + Docker Compose instalados
+   - Script `deploy-remote.sh` presente no diretório do projeto
+2. **GitHub** (repositório `DonavanAlencar/phdstudio`):
+   - Secret `SSH_PRIVATE_KEY` configurado com a chave privada `id_ed25519_phdstudio`
+   - Secret `SERVER_HOST` configurado com o IP/host do servidor (ex.: `148.230.79.105`)
+   - Workflow `.github/workflows/deploy.yml` habilitado
+
+Quando houver **push na branch `main` ou `master`**, o GitHub:
+
+- Abre conexão SSH com `root@${SERVER_HOST}`
+- Entra em `/root/phdstudio`
+- Executa:
+
+```bash
+./deploy-remote.sh
+```
+
+O script `deploy-remote.sh` faz:
+
+- `git fetch` / `git pull origin main`  
+- Carrega variáveis do `.env` (se existir)  
+- Para e remove o container antigo `phdstudio-app`  
+- `docker compose build`  
+- `docker compose up -d`  
+- `docker image prune -f`  
+
+#### Como testar o deploy automatizado
+
+1. Confirme que você consegue acessar o servidor com a mesma chave usada no GitHub:
+
+```bash
+ssh -i ~/.ssh/id_ed25519_phdstudio root@148.230.79.105
+```
+
+2. No GitHub, verifique em **Settings → Secrets and variables → Actions**:
+   - `SSH_PRIVATE_KEY` preenchido com o conteúdo de `~/.ssh/id_ed25519_phdstudio`
+   - `SERVER_HOST` = `148.230.79.105`
+
+3. Faça uma pequena alteração no código (por exemplo, comentário em `App.tsx`), faça commit e push na **`main`**:
+
+```bash
+git add .
+git commit -m "teste: deploy automatizado"
+git push origin main
+```
+
+4. Acesse a aba **Actions → Deploy to Server** no GitHub e acompanhe o job:
+   - As etapas **Checkout code**, **Setup SSH** e **Deploy to server (Docker / Traefik)** devem ficar verdes
+
+5. No servidor, valide:
+
+```bash
+docker ps | grep phdstudio-app
+docker logs -f phdstudio-app
 ```
 
 ### Verificar Status

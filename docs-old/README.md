@@ -21,3 +21,4 @@ Consulte `/root/phdstudio/README.md` para a documentação completa e atualizada
 
 Data de consolidação: 15/12/2025
 
+
