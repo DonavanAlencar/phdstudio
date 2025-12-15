@@ -1637,28 +1637,59 @@ const FunilVexinPage = () => {
 
   return (
     <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
-      {/* Modal de Vídeo do YouTube */}
+      {/* Modal de Vídeo do GitHub */}
       {showVideoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={(e) => {
+            // Fechar ao clicar no overlay (fora do vídeo)
+            if (e.target === e.currentTarget) {
+              setShowVideoModal(false);
+            }
+          }}
+        >
           <div className="relative w-full max-w-4xl mx-4">
-            {/* Botão de Fechar - Fora da área do vídeo */}
+            {/* Botão de Fechar - Posicionado sobre o vídeo */}
             <button
-              onClick={() => setShowVideoModal(false)}
-              className="absolute -top-12 right-0 z-20 bg-black/80 hover:bg-black text-white rounded-full p-3 transition-colors shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowVideoModal(false);
+              }}
+              className="absolute -top-12 right-0 z-30 bg-black/90 hover:bg-black text-white rounded-full p-3 transition-colors shadow-lg cursor-pointer"
               aria-label="Fechar modal"
+              type="button"
             >
               <X size={24} />
             </button>
             
             {/* Container do Vídeo */}
-            <div className="relative w-full bg-[#121212] rounded-xl overflow-hidden border border-white/20 shadow-2xl" style={{ paddingBottom: '56.25%' }}>
-              <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src="https://www.youtube.com/embed/lleFYJF7gi8?autoplay=1"
-                title="Vídeo Vexin"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+            <div 
+              className="relative w-full bg-[#121212] rounded-xl overflow-hidden border border-white/20 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <video
+                className="w-full h-auto"
+                src="https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Vexin.mp4"
+                autoPlay
+                controls
+                playsInline
+                onEnded={() => setShowVideoModal(false)}
+              >
+                Seu navegador não suporta a reprodução de vídeos.
+              </video>
+              
+              {/* Botão de Fechar dentro do container (alternativo) */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowVideoModal(false);
+                }}
+                className="absolute top-4 right-4 z-20 bg-black/80 hover:bg-black/90 text-white rounded-full p-2 transition-colors shadow-lg cursor-pointer"
+                aria-label="Fechar modal"
+                type="button"
+              >
+                <X size={20} />
+              </button>
             </div>
           </div>
         </div>
