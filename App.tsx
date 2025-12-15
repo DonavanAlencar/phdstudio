@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
-import { HashRouter, Link, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Link, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
   TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown
@@ -151,6 +151,53 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     <AuthContext.Provider value={{ isAuthenticated, username, login, logout }}>
       {children}
     </AuthContext.Provider>
+  );
+};
+
+// --- Cookie Banner ---
+const COOKIE_STORAGE_KEY = 'phdstudio_cookies_accepted';
+
+const CookieBanner = () => {
+  const [accepted, setAccepted] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    return localStorage.getItem(COOKIE_STORAGE_KEY) === 'true';
+  });
+
+  const handleAccept = () => {
+    localStorage.setItem(COOKIE_STORAGE_KEY, 'true');
+    setAccepted(true);
+  };
+
+  if (accepted) return null;
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-50">
+      <div className="mx-auto max-w-4xl mb-4 px-4">
+        <div className="bg-black/90 border border-white/10 rounded-2xl p-4 md:p-5 shadow-2xl backdrop-blur">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4">
+            <div className="flex-1">
+              <p className="text-xs md:text-sm text-gray-300">
+                Usamos cookies e tecnologias semelhantes para melhorar sua experiência, analisar desempenho
+                e personalizar conteúdos e anúncios. Ao continuar navegando, você concorda com nossa{' '}
+                <Link
+                  to="/politica-de-privacidade"
+                  className="underline underline-offset-2 text-brand-red hover:text-red-400"
+                >
+                  Política de Privacidade
+                </Link>
+                .
+              </p>
+            </div>
+            <button
+              onClick={handleAccept}
+              className="mt-2 md:mt-0 px-5 py-2 rounded-lg bg-brand-red text-white text-xs md:text-sm font-semibold uppercase tracking-wide hover:bg-red-700 transition-colors"
+            >
+              Aceitar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -1041,23 +1088,41 @@ const ContactForm = () => {
             />
           </div>
           
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Enviando...
-              </>
-            ) : (
-              'Enviar solicitação'
-            )}
-          </button>
+          <div className="space-y-3">
+            <div className="flex items-start gap-2 text-xs text-gray-500">
+              <input
+                id="lgpd-consent"
+                type="checkbox"
+                required
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-brand-gray text-brand-red focus:ring-brand-red"
+              />
+              <label htmlFor="lgpd-consent">
+                Autorizo o uso dos meus dados para contato comercial e envio de comunicações da PHD Studio.
+                Li e concordo com a{' '}
+                <Link to="/politica-de-privacidade" className="underline underline-offset-2 hover:text-brand-red">
+                  Política de Privacidade
+                </Link>.
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Enviando...
+                </>
+              ) : (
+                'Enviar solicitação'
+              )}
+            </button>
+          </div>
 
           {/* Mensagens de feedback - Sucesso */}
           {submitStatus === 'success' && (
@@ -1121,40 +1186,198 @@ const Footer = () => (
     <div className="container mx-auto px-4">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
         <div className="text-center md:text-left">
-           <img 
-             src={ASSETS.logo} 
-             alt="PHD Studio" 
-             className="h-16 w-auto object-contain mx-auto md:mx-0 mb-6"
-             width="200"
-             height="48"
-             loading="lazy"
-             decoding="async"
-           />
+          <img
+            src={ASSETS.logo}
+            alt="PHD Studio"
+            className="h-16 w-auto object-contain mx-auto md:mx-0 mb-6"
+            width="200"
+            height="48"
+            loading="lazy"
+            decoding="async"
+          />
           <p className="text-gray-400 max-w-sm">
             Agência híbrida de Marketing + IA + Tecnologia. Transformamos estratégias em vendas recorrentes e lançamentos de sucesso.
           </p>
         </div>
-        
+
         <div className="bg-brand-gray p-8 rounded-2xl border border-white/10 text-center md:text-right w-full md:w-auto">
           <h4 className="text-xl font-bold mb-2">Pronto para escalar?</h4>
           <p className="text-gray-400 mb-6 text-sm">Receba um diagnóstico gratuito em 48h.</p>
-          <a href="#contato" className="bg-brand-red text-white w-full px-8 py-4 rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 text-center block">
+          <a
+            href="#contato"
+            className="bg-brand-red text-white w-full px-8 py-4 rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 text-center block"
+          >
             QUERO MEU DIAGNÓSTICO
           </a>
         </div>
       </div>
-      
-      <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-        <p>&copy; 2024 PHD Studio. Todos os direitos reservados.</p>
-        <div className="flex gap-6 mt-4 md:mt-0">
-          <a href="#" className="hover:text-white transition-colors">Instagram</a>
-          <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
-          <a href="#" className="hover:text-white transition-colors">WhatsApp</a>
+
+      <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4">
+        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+          <p>&copy; 2024 PHD Studio. Todos os direitos reservados.</p>
+          <Link
+            to="/politica-de-privacidade"
+            className="text-xs md:text-sm text-gray-500 hover:text-white underline underline-offset-4"
+          >
+            Política de Privacidade
+          </Link>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="uppercase tracking-wider text-xs text-gray-500 hidden md:inline">Siga a PHD</span>
+          <div className="flex gap-4">
+            <a
+              href="https://www.instagram.com/phdstudiooficial"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram PHD Studio"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm0 2h10c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3zm9 1a1 1 0 100 2 1 1 0 000-2zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z" />
+              </svg>
+            </a>
+            <a
+              href="https://www.facebook.com/PHDStudioOficial"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook PHD Studio"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M13 3h4a1 1 0 110 2h-3v3h2.5a1 1 0 01.97 1.243l-.5 2A1 1 0 0115 12h-1v8a1 1 0 01-1 1h-2a1 1 0 01-1-1v-8H8a1 1 0 01-1-1V9a1 1 0 011-1h2V5a2 2 0 012-2z" />
+              </svg>
+            </a>
+            <a
+              href="https://www.tiktok.com/@phdstudiooficial"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="TikTok PHD Studio"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M16 3a1 1 0 01.89.55 4.4 4.4 0 003.11 2.3A1 1 0 0120 7v3a1 1 0 01-1.18.98A6.4 6.4 0 0116 10.5V15a5 5 0 11-5-5 1 1 0 010 2 3 3 0 103 3V4a1 1 0 011-1z" />
+              </svg>
+            </a>
+            <a
+              href="https://www.youtube.com/@phdstudiobr"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube PHD Studio"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M10 9.5l4.5 2.5L10 14.5v-5z" />
+                <path d="M5 4h14a3 3 0 013 3v10a3 3 0 01-3 3H5a3 3 0 01-3-3V7a3 3 0 013-3zm0 2a1 1 0 00-1 1v10a1 1 0 001 1h14a1 1 0 001-1V7a1 1 0 00-1-1H5z" />
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </footer>
 );
+
+// --- Privacy Policy Page ---
+const PrivacyPolicyPage = () => {
+  return (
+    <section className="pt-24 pb-20 bg-brand-dark">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <h1 className="text-3xl md:text-4xl font-black font-heading mb-6">
+          Política de Privacidade – PHD Studio
+        </h1>
+        <p className="text-gray-400 mb-8 text-sm md:text-base">
+          Esta Política de Privacidade explica como a PHD Studio coleta, usa e protege os dados pessoais
+          de visitantes e clientes em seus sites, landing pages, campanhas de marketing e canais digitais.
+        </p>
+
+        <div className="space-y-8 text-gray-300 text-sm md:text-base leading-relaxed">
+          <div>
+            <h2 className="text-xl font-bold mb-2">1. Dados que coletamos</h2>
+            <p>
+              Coletamos informações fornecidas diretamente por você, como nome, e-mail, telefone,
+              empresa e outras informações que você insere em formulários, chats, páginas de captura
+              ou ao solicitar contato com nossa equipe.
+            </p>
+            <p className="mt-2">
+              Também podemos coletar dados de navegação de forma automática, como IP, tipo de
+              dispositivo, navegador, páginas acessadas e interações com nossos conteúdos – sempre
+              de forma agregada e com foco em analytics e melhoria de performance.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold mb-2">2. Como usamos seus dados</h2>
+            <p>Utilizamos seus dados para:</p>
+            <ul className="list-disc list-inside mt-2 space-y-1">
+              <li>Responder solicitações de contato, propostas e diagnósticos;</li>
+              <li>Enviar conteúdos, materiais educativos e comunicações de marketing;</li>
+              <li>Melhorar a experiência em nossos sites e campanhas;</li>
+              <li>Mensurar resultados de campanhas e funis de vendas;</li>
+              <li>Cumprir obrigações legais e regulatórias, quando aplicável.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold mb-2">3. Cookies e tecnologias similares</h2>
+            <p>
+              Utilizamos cookies, pixels e tecnologias semelhantes (como Google Analytics, Meta Pixel
+              e outras ferramentas de mensuração) para entender o comportamento de navegação e
+              melhorar campanhas e conteúdos. Você pode gerenciar cookies diretamente nas
+              configurações do seu navegador.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold mb-2">4. Compartilhamento de informações</h2>
+            <p>
+              Não vendemos seus dados pessoais. Podemos compartilhá-los com parceiros de
+              tecnologia e prestadores de serviço (por exemplo: ferramentas de e-mail marketing,
+              CRM, automação, anúncios) apenas quando necessário para a entrega dos serviços
+              contratados ou para execução de nossas estratégias de marketing.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold mb-2">5. Direitos do titular de dados</h2>
+            <p>
+              Você pode solicitar, a qualquer momento, a atualização, correção ou exclusão de seus
+              dados, bem como a revogação de consentimentos de comunicação. Para isso, basta
+              entrar em contato pelos canais oficiais da PHD Studio.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold mb-2">6. Segurança das informações</h2>
+            <p>
+              Adotamos boas práticas de segurança para proteger seus dados contra acessos não
+              autorizados, alterações indevidas ou destruição. Ainda assim, nenhum ambiente digital é
+              100% isento de riscos, e recomendamos que você também proteja seus dispositivos e
+              credenciais de acesso.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold mb-2">7. Atualizações desta política</h2>
+            <p>
+              Esta Política de Privacidade pode ser atualizada periodicamente para refletir ajustes
+              legais, técnicos ou operacionais. A versão mais recente estará sempre disponível neste
+              endereço.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold mb-2">8. Contato</h2>
+            <p>
+              Em caso de dúvidas sobre esta política ou sobre o uso dos seus dados pessoais, você
+              pode entrar em contato com a PHD Studio pelos canais oficiais disponíveis em nosso
+              site e redes sociais.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 // --- Login Page ---
 const LoginPage = () => {
@@ -2161,48 +2384,70 @@ const HomePage = () => (
 function App() {
   return (
     <AuthProvider>
-      <HashRouter>
+      <BrowserRouter>
         <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+          <CookieBanner />
           <Routes>
-            <Route path="/" element={
-              <>
-                <Navbar />
-                <main>
-                  <HomePage />
-                </main>
-                <Footer />
-                {/* Floating WhatsApp Button */}
-                <a 
-                  href="https://wa.me/5511971490549" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
-                  aria-label="Falar no WhatsApp"
-                >
-                  <Phone size={28} fill="currentColor" />
-                </a>
-              </>
-            } />
+            <Route
+              path="/"
+              element={
+                <>
+                  <Navbar />
+                  <main>
+                    <HomePage />
+                  </main>
+                  <Footer />
+                  {/* Floating WhatsApp Button */}
+                  <a
+                    href="https://wa.me/5511971490549"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
+                    aria-label="Falar no WhatsApp"
+                  >
+                    <Phone size={28} fill="currentColor" />
+                  </a>
+                </>
+              }
+            />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/funil_vexin" element={
-              <ProtectedRoute>
-                <Navbar />
-                <main>
-                  <FunilVexinPage />
-                </main>
-              </ProtectedRoute>
-            } />
-            <Route path="/projecao_vexin" element={
-              <ProtectedRoute>
-                <Navbar />
-                <main>
-                  <ProjecaoVexinPage />
-                </main>
-              </ProtectedRoute>
-            } />
+            <Route
+              path="/politica-de-privacidade"
+              element={
+                <>
+                  <Navbar />
+                  <main>
+                    <PrivacyPolicyPage />
+                  </main>
+                  <Footer />
+                </>
+              }
+            />
+            <Route
+              path="/funil_vexin"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <main>
+                    <FunilVexinPage />
+                  </main>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/projecao_vexin"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <main>
+                    <ProjecaoVexinPage />
+                  </main>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
-      </HashRouter>
+      </BrowserRouter>
     </AuthProvider>
   );
 }
