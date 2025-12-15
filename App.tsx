@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, createContext, useContext } from 'r
 import { BrowserRouter, Link, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
-  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown
+  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown, Download
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import {
@@ -1640,18 +1640,18 @@ const FunilVexinPage = () => {
       {/* Modal de Vídeo do YouTube */}
       {showVideoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
-          <div className="relative w-full max-w-4xl mx-4 bg-[#121212] rounded-xl overflow-hidden border border-white/20 shadow-2xl">
-            {/* Botão de Fechar */}
+          <div className="relative w-full max-w-4xl mx-4">
+            {/* Botão de Fechar - Fora da área do vídeo */}
             <button
               onClick={() => setShowVideoModal(false)}
-              className="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 transition-colors"
+              className="absolute -top-12 right-0 z-20 bg-black/80 hover:bg-black text-white rounded-full p-3 transition-colors shadow-lg"
               aria-label="Fechar modal"
             >
               <X size={24} />
             </button>
             
             {/* Container do Vídeo */}
-            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            <div className="relative w-full bg-[#121212] rounded-xl overflow-hidden border border-white/20 shadow-2xl" style={{ paddingBottom: '56.25%' }}>
               <iframe
                 className="absolute top-0 left-0 w-full h-full"
                 src="https://www.youtube.com/embed/lleFYJF7gi8?autoplay=1"
@@ -1667,6 +1667,22 @@ const FunilVexinPage = () => {
       <Navbar />
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
+          {/* Link para Download da Proposta */}
+          <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-white mb-1">Proposta Completa</h3>
+              <p className="text-sm text-gray-300">Acesse a proposta detalhada com escopo completo dos planos</p>
+            </div>
+            <a
+              href="/PHD Studio Proposta 15_12_2025.pdf"
+              download="PHD Studio Proposta 15_12_2025.pdf"
+              className="bg-brand-red hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-brand-red/20 flex items-center gap-2"
+            >
+              <Download size={20} />
+              Baixar Proposta PDF
+            </a>
+          </div>
+
           {/* Comparação de Planos - TOPO */}
           <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
             <h3 className="text-lg font-bold text-white mb-4">Comparação de Planos</h3>
@@ -1922,6 +1938,22 @@ const ProjecaoVexinPage = () => {
       <Navbar />
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
+          {/* Link para Download da Proposta */}
+          <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/30 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-white mb-1">Proposta Completa</h3>
+              <p className="text-sm text-gray-300">Acesse a proposta detalhada com escopo completo dos planos</p>
+            </div>
+            <a
+              href="/PHD Studio Proposta 15_12_2025.pdf"
+              download="PHD Studio Proposta 15_12_2025.pdf"
+              className="bg-brand-red hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-brand-red/20 flex items-center gap-2"
+            >
+              <Download size={20} />
+              Baixar Proposta PDF
+            </a>
+          </div>
+
           {/* Comparação de Planos - TOPO */}
           <div className="bg-gradient-to-br from-[#1a1a1a] to-[#121212] border border-white/10 rounded-2xl p-6 shadow-2xl">
             <div className="mb-6">
