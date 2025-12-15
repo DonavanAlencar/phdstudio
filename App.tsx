@@ -1652,7 +1652,7 @@ const FunilVexinPage = () => {
               <p className="text-sm text-gray-300">Acesse a proposta detalhada com escopo completo dos planos</p>
             </div>
             <a
-              href="/PHD Studio Proposta 15_12_2025.pdf"
+              href="/proposta-vexin-15-12-2025.pdf"
               download="PHD Studio Proposta 15_12_2025.pdf"
               className="bg-brand-red hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-brand-red/20 flex items-center gap-2"
             >
@@ -1923,7 +1923,7 @@ const ProjecaoVexinPage = () => {
               <p className="text-sm text-gray-300">Acesse a proposta detalhada com escopo completo dos planos</p>
             </div>
             <a
-              href="/PHD Studio Proposta 15_12_2025.pdf"
+              href="/proposta-vexin-15-12-2025.pdf"
               download="PHD Studio Proposta 15_12_2025.pdf"
               className="bg-brand-red hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-brand-red/20 flex items-center gap-2"
             >
