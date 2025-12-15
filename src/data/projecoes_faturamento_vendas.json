@@ -15,13 +15,13 @@
           "investimentoMidia": 1500,
           "trafego": 180,
           "leads": 60,
-          "cpl": 25.0,
+          "cpl": 25,
           "vendas": 1,
-          "taxaConversao": 1.0,
+          "taxaConversao": 1,
           "faturamento": 599,
           "roi": -60.1,
           "roas": 0.4,
-          "cac": 1500.0
+          "cac": 1500
         },
         {
           "mes": "Mês 2",
@@ -97,7 +97,7 @@
           "vendas": 1,
           "taxaConversao": 1.4,
           "faturamento": 599,
-          "roi": -64.0,
+          "roi": -64,
           "roas": 0.51,
           "cac": 1278.44
         },
@@ -158,15 +158,23 @@
           "investimentoMidia": 1800,
           "trafego": 250,
           "leads": 90,
-          "cpl": 20.0,
+          "cpl": 20,
           "vendas": 1,
           "taxaConversao": 1.5,
           "faturamento": 599,
           "roi": -66.7,
           "roas": 0.55,
-          "cac": 1200.0
+          "cac": 1200
         }
-      ]
+      ],
+      "agregados": {
+        "totalLeads": 845,
+        "totalVendas": 12,
+        "totalTrafego": 2452,
+        "totalInvestimento": 19800,
+        "cpaMedio": 1650,
+        "conversaoMedia": 1.42
+      }
     },
     {
       "nome": "Base",
@@ -176,13 +184,13 @@
           "investimentoMidia": 2000,
           "trafego": 333,
           "leads": 111,
-          "cpl": 18.0,
+          "cpl": 18,
           "vendas": 2,
-          "taxaConversao": 2.0,
+          "taxaConversao": 2,
           "faturamento": 1198,
           "roi": -40.1,
           "roas": 0.6,
-          "cac": 1000.0
+          "cac": 1000
         },
         {
           "mes": "Mês 2",
@@ -258,7 +266,7 @@
           "vendas": 3,
           "taxaConversao": 2.6,
           "faturamento": 1797,
-          "roi": -19.0,
+          "roi": -19,
           "roas": 0.78,
           "cac": 815.36
         },
@@ -297,7 +305,7 @@
           "vendas": 4,
           "taxaConversao": 2.7,
           "faturamento": 2396,
-          "roi": 3.0,
+          "roi": 3,
           "roas": 0.83,
           "cac": 773.87
         },
@@ -325,9 +333,17 @@
           "faturamento": 2995,
           "roi": 24.8,
           "roas": 0.85,
-          "cac": 750.0
+          "cac": 750
         }
-      ]
+      ],
+      "agregados": {
+        "totalLeads": 1620,
+        "totalVendas": 41,
+        "totalTrafego": 4695,
+        "totalInvestimento": 26400,
+        "cpaMedio": 643.9,
+        "conversaoMedia": 2.531
+      }
     },
     {
       "nome": "Otimista",
@@ -337,9 +353,9 @@
           "investimentoMidia": 2500,
           "trafego": 625,
           "leads": 208,
-          "cpl": 12.0,
+          "cpl": 12,
           "vendas": 6,
-          "taxaConversao": 3.0,
+          "taxaConversao": 3,
           "faturamento": 3594,
           "roi": 43.8,
           "roas": 1.44,
@@ -376,7 +392,7 @@
           "investimentoMidia": 2636,
           "trafego": 653,
           "leads": 219,
-          "cpl": 12.0,
+          "cpl": 12,
           "vendas": 8,
           "taxaConversao": 3.6,
           "faturamento": 4792,
@@ -419,7 +435,7 @@
           "vendas": 10,
           "taxaConversao": 3.9,
           "faturamento": 5990,
-          "roi": 116.0,
+          "roi": 116,
           "roas": 1.74,
           "cac": 330.5
         },
@@ -430,7 +446,7 @@
           "leads": 266,
           "cpl": 10.6,
           "vendas": 11,
-          "taxaConversao": 4.0,
+          "taxaConversao": 4,
           "faturamento": 6589,
           "roi": 133.8,
           "roas": 1.77,
@@ -443,7 +459,7 @@
           "leads": 283,
           "cpl": 10.1,
           "vendas": 11,
-          "taxaConversao": 4.0,
+          "taxaConversao": 4,
           "faturamento": 6589,
           "roi": 130.1,
           "roas": 1.79,
@@ -486,9 +502,17 @@
           "faturamento": 8985,
           "roi": 199.5,
           "roas": 1.85,
-          "cac": 300.0
+          "cac": 300
         }
-      ]
+      ],
+      "agregados": {
+        "totalLeads": 3090,
+        "totalVendas": 117,
+        "totalTrafego": 9068,
+        "totalInvestimento": 33000,
+        "cpaMedio": 282.05,
+        "conversaoMedia": 3.786
+      }
     }
   ],
   "dadosAdicionais": {
@@ -532,7 +556,21 @@
           "percentual": 10,
           "cor": "#FF6B6B"
         }
-      ]
+      ],
+      "valoresFunil": {
+        "start": {
+          "trafegoTotal": 2452,
+          "leads": 845,
+          "conversoes": 380,
+          "vendas": 12
+        },
+        "premium": {
+          "trafegoTotal": 4695,
+          "leads": 1620,
+          "conversoes": 729,
+          "vendas": 41
+        }
+      }
     },
     "projecao": {
       "ctr": {
@@ -544,7 +582,11 @@
         "descricao": "Custo por aquisição médio por dia."
       },
       "conversao": {
-        "descricao": "Taxa de conversão das campanhas ativas."
+        "descricao": "Taxa de conversão das campanhas ativas.",
+        "valoresPorPlano": {
+          "start": 1.42,
+          "premium": 2.531
+        }
       }
     },
     "periodos": {
@@ -567,19 +609,19 @@
           "itens": [
             {
               "nome": "Branding Essencial",
-              "descricao": "Logo/identidade visual básica e aplicações digitais",
+              "descricao": "Identidade visual essencial (logo/ajustes básicos, paleta e aplicações iniciais). Diretrizes simples de tom de voz.",
               "valor": 0,
               "incluso": true
             },
             {
               "nome": "LP do Curso + Integrações",
-              "descricao": "Criação da landing page, integrações com automação/CRM e tracking",
+              "descricao": "Criação de 1 Landing Page principal focada no infoproduto de R$ 599. Integração básica com ferramenta de captura (formulário/WhatsApp) e tracking.",
               "valor": 0,
               "incluso": true
             },
             {
               "nome": "Setup de Funil e Automação Básica",
-              "descricao": "Configuração de CRM, sequência de e-mails, tags, pixel, GA4, chatbot inicial",
+              "descricao": "Funil mínimo viável: sequência curta de e-mails (3-5 mensagens), automações básicas (boas-vindas, oferta inicial). Configuração de GA4 e pixels essenciais. Chatbot simples em 1 canal (WhatsApp ou site) com respostas básicas.",
               "valor": 0,
               "incluso": true
             }
@@ -590,25 +632,25 @@
           "itens": [
             {
               "nome": "Gestão de Conteúdo e Mídias Sociais",
-              "descricao": "Planejamento, criação e postagem de conteúdo estratégico (volume START)",
+              "descricao": "Presença consistente em 1 canal principal (Instagram). Volume enxuto, focado em conteúdo educativo básico, posicionamento inicial e divulgação do curso. Edição básica de vídeos curtos (reels, stories).",
               "valor": 0,
               "incluso": true
             },
             {
               "nome": "Gestão de Tráfego Pago (Meta/Google)",
-              "descricao": "Operação, otimização, análise de campanhas de validação",
+              "descricao": "Campanhas de validação em Meta Ads e Google Ads com investimento reduzido. Estrutura de funil simplificada (topo, meio e remarketing básico). Otimização voltada para encontrar primeiros números confiáveis (CPL, taxa de conversão).",
               "valor": 0,
               "incluso": true
             },
             {
               "nome": "Suporte Técnico e Automação",
-              "descricao": "Manutenção de integrações, funil, chatbot e ajustes pontuais",
+              "descricao": "Manutenção de integrações, funil básico, chatbot simples e ajustes pontuais. Envolvimento focado em colocar a estrutura básica no ar e fazer otimizações pontuais.",
               "valor": 0,
               "incluso": true
             },
             {
               "nome": "Relatórios e Reuniões",
-              "descricao": "Relatório mensal + reunião de alinhamento",
+              "descricao": "Configuração de GA4 e pixels essenciais. Relatório mensal simplificado, com KPIs principais (tráfego, leads, vendas, CPL, CAC).",
               "valor": 0,
               "incluso": true
             }
@@ -634,10 +676,13 @@
             "fase": "Fase 2 - Setup e Infraestrutura Essencial",
             "duracao": "Semanas 2-4",
             "atividades": [
-              "Identidade visual (logo/ajustes, paleta, padrões)",
-              "Criação da LP do curso e integrações de captura",
-              "Setup de automação mínima (boas-vindas + sequência curta)",
-              "Configuração de GA4, pixels e tags"
+              "Identidade visual essencial (logo/ajustes básicos, paleta e aplicações iniciais)",
+              "Diretrizes simples de tom de voz",
+              "Criação de 1 Landing Page principal focada no infoproduto de R$ 599",
+              "Integração básica com ferramenta de captura (formulário/WhatsApp) e tracking",
+              "Setup de automação mínima (sequência curta de 3-5 e-mails, boas-vindas, oferta inicial)",
+              "Configuração de GA4 e pixels essenciais",
+              "Chatbot simples em 1 canal (WhatsApp ou site) com respostas básicas"
             ],
             "responsaveis": [
               "Phelipe (Branding)",
@@ -649,9 +694,12 @@
             "fase": "Fase 3 - Aquecimento e Tráfego Inicial",
             "duracao": "Semanas 5-8",
             "atividades": [
-              "Início dos posts regulares no Instagram",
-              "Lançamento de campanhas de tráfego (Meta + Google)",
-              "Primeiras otimizações (CPL, CTR, conversão)",
+              "Presença consistente em 1 canal principal (Instagram)",
+              "Conteúdo educativo básico, posicionamento inicial e divulgação do curso",
+              "Edição básica de vídeos curtos (reels, stories) para apoiar posts e anúncios",
+              "Campanhas de validação em Meta Ads e Google Ads com investimento reduzido",
+              "Estrutura de funil simplificada (topo, meio e remarketing básico)",
+              "Primeiras otimizações para encontrar números confiáveis (CPL, taxa de conversão)",
               "Ajustes em LP, mensagens e criativos"
             ],
             "responsaveis": [
@@ -664,10 +712,12 @@
             "fase": "Fase 4 - Consolidação e Otimização",
             "duracao": "Semanas 9-12",
             "atividades": [
-              "Ajuste fino das campanhas com base nos dados",
-              "Fortalecimento da automação",
-              "Implementação/ajuste do chatbot",
-              "Relatório de validação (CPL, CAC, potencial de escala)"
+              "Ajuste fino das campanhas com base nos dados coletados",
+              "Validação da tese de funil e entendimento das conversões",
+              "Fortalecimento da automação básica",
+              "Implementação/ajuste do chatbot simples",
+              "Relatório de validação simplificado (CPL, CAC, potencial de escala)",
+              "Otimizações pontuais para melhorar resultados"
             ],
             "responsaveis": [
               "Marcelo (Estratégia)",
@@ -691,19 +741,19 @@
           "itens": [
             {
               "nome": "Branding e Posicionamento",
-              "descricao": "Logo final, paleta, tipografia, tom de voz, diretrizes de comunicação",
+              "descricao": "Branding completo: logo final, paleta, tipografia, aplicações em materiais, mini manual de marca. Posicionamento detalhado (proposta de valor, narrativa, diferenciais, exemplos de uso em campanhas).",
               "valor": 3000,
               "incluso": false
             },
             {
               "nome": "Criação de Site/LPs",
-              "descricao": "Site B2B institucional + 2 LPs de alta conversão com tracking completo",
+              "descricao": "Criação de site institucional B2B completo (quem somos, serviços, provas, contato). Criação de 2 LPs de alta conversão: LP do infoproduto (R$ 599) e LP do serviço premium (R$ 14.900). Tracking avançado (GA4, pixels, eventos personalizados) em todas as páginas.",
               "valor": 7500,
               "incluso": false
             },
             {
               "nome": "Setup de Funil e Automação",
-              "descricao": "CRM, e-mail marketing, GA4, pixels, chatbot inteligente, integrações",
+              "descricao": "Funil híbrido completo (lançamentos + perpétuo): planejamento de campanhas de lançamento, funis automáticos com lead magnet, fluxos de nutrição por interesse, recuperação de carrinho, reativação, pós-venda, upsell para consultoria. CRM, e-mail marketing, GA4, pixels, chatbot inteligente integrado com CRM e funis, integrações avançadas.",
               "valor": 5000,
               "incluso": false
             }
@@ -714,25 +764,25 @@
           "itens": [
             {
               "nome": "Gestão de Tráfego Pago",
-              "descricao": "Operação completa das campanhas em Meta e Google, otimização diária e testes A/B",
+              "descricao": "Operação full funnel em Meta Ads + Google Ads (e possibilidade de testar outros canais). Múltiplas campanhas simultâneas (topo, meio, fundo, remarketing, testagem de criativos). Otimização constante de ROAS e CAC, com testes A/B recorrentes e ajustes finos.",
               "valor": 0,
               "incluso": true
             },
             {
               "nome": "Gestão de Conteúdo e Mídias Sociais",
-              "descricao": "Planejamento e produção de 15-20 peças/mês, postagens, roteiros de vídeo",
+              "descricao": "Conteúdo contínuo em Instagram, YouTube (e eventualmente LinkedIn). Volume maior (15-20 peças/mês + roteiros de vídeo). Conteúdo mais denso e técnico, com foco em autoridade, cases, prova social e educação de mercado. Roteirização e edição de vídeos didáticos, aulas, vídeos de autoridade e criativos avançados para anúncios.",
               "valor": 0,
               "incluso": true
             },
             {
               "nome": "Estratégia, Relatórios e Reuniões",
-              "descricao": "Reuniões quinzenais, relatórios mensais com foco em ROI, CAC, desempenho por canal",
+              "descricao": "Web Analytics completo (GA4, Search Console, tags, eventos de funil detalhados). Dashboard online em tempo quase real para acompanhamento de marketing e vendas. Relatórios mensais profundos, com leitura estratégica, insights de otimização e plano de ação para o próximo ciclo. Reuniões quinzenais.",
               "valor": 0,
               "incluso": true
             },
             {
               "nome": "Suporte Técnico e Automação",
-              "descricao": "Manutenção da infraestrutura, funis, chatbot e integrações",
+              "descricao": "Envolvimento intenso e contínuo nas frentes de estratégia, conteúdo, tráfego, automação, chatbot, dados e relatórios. Manutenção da infraestrutura completa (site, LPs, CRM, e-mail, chatbot, pixels, integrações). Chatbot avançado integrado com CRM e funis, capaz de qualificar leads, responder dúvidas complexas, disparar ofertas e suportar picos de demanda (lançamentos).",
               "valor": 0,
               "incluso": true
             }
@@ -744,9 +794,10 @@
             "fase": "Fase 1 - Descoberta e Planejamento Estratégico",
             "duracao": "Semanas 1-2",
             "atividades": [
-              "Reunião de diagnóstico aprofundado",
-              "Definição de metas de 6-12 meses",
-              "Escolha do modelo de funil (híbrido recomendado)"
+              "Reunião de diagnóstico aprofundado com a Vexin",
+              "Definição de metas de 6-12 meses (faturamento, leads, vendas do curso e consultoria)",
+              "Escolha do modelo de funil híbrido (lançamentos + perpétuo)",
+              "Planejamento estratégico completo de posicionamento e autoridade B2B"
             ],
             "responsaveis": [
               "Marcelo",
@@ -758,10 +809,13 @@
             "fase": "Fase 2 - Setup de Branding, Site e Infraestrutura",
             "duracao": "Semanas 2-4",
             "atividades": [
-              "Criação/conclusão da identidade visual completa",
-              "Desenvolvimento do site institucional + 2 LPs",
-              "Configuração de ferramentas (CRM, automação, GA4, anúncios)",
-              "Setup inicial do chatbot inteligente"
+              "Branding completo: logo final, paleta, tipografia, aplicações em materiais, mini manual de marca",
+              "Posicionamento detalhado (proposta de valor, narrativa, diferenciais, exemplos de uso em campanhas)",
+              "Desenvolvimento do site institucional B2B completo (quem somos, serviços, provas, contato)",
+              "Criação de 2 LPs de alta conversão: LP do infoproduto (R$ 599) e LP do serviço premium (R$ 14.900)",
+              "Tracking avançado (GA4, pixels, eventos personalizados) em todas as páginas",
+              "Configuração completa de ferramentas (CRM, automação avançada, GA4, Search Console, tags)",
+              "Setup do chatbot inteligente integrado com CRM e funis, capaz de qualificar leads e responder dúvidas complexas"
             ],
             "responsaveis": [
               "Phelipe (Branding)",
@@ -773,9 +827,14 @@
             "fase": "Fase 3 - Produção de Conteúdo e Aquecimento",
             "duracao": "Semanas 5-8",
             "atividades": [
-              "Conteúdo consistente em Instagram, YouTube e LinkedIn orgânico",
+              "Conteúdo contínuo em Instagram, YouTube (e eventualmente LinkedIn)",
+              "Volume maior (15-20 peças/mês + roteiros de vídeo)",
+              "Conteúdo mais denso e técnico, com foco em autoridade, cases, prova social e educação de mercado",
+              "Roteirização e edição de vídeos didáticos, aulas, vídeos de autoridade e criativos avançados para anúncios",
               "Captação de leads via lead magnets ou pré-evento",
-              "Tráfego pago para aquecimento (topo e meio de funil)"
+              "Operação full funnel em Meta Ads + Google Ads (múltiplas campanhas simultâneas)",
+              "Tráfego pago para aquecimento (topo, meio, fundo, remarketing, testagem de criativos)",
+              "Otimização constante de ROAS e CAC, com testes A/B recorrentes"
             ],
             "responsaveis": [
               "Phelipe (Conteúdo)",
@@ -787,10 +846,15 @@
             "fase": "Fase 4 - Execução de Lançamento",
             "duracao": "Semanas 9-12",
             "atividades": [
+              "Planejamento de campanha de lançamento completa",
               "Realização de evento (webinar, masterclass, série de aulas)",
               "Abertura de carrinho por 5-7 dias",
-              "Suporte intensivo (chatbot + atendimento humano)",
-              "Análise de resultados (vendas do curso, leads para consultoria)"
+              "Funis automáticos com lead magnet ativos",
+              "Fluxos de nutrição por interesse, recuperação de carrinho, reativação, pós-venda, upsell para consultoria",
+              "Suporte intensivo (chatbot avançado + atendimento humano)",
+              "Chatbot suportando picos de demanda (lançamentos)",
+              "Análise de resultados (vendas do curso, leads para consultoria)",
+              "Dashboard online em tempo quase real para acompanhamento"
             ],
             "responsaveis": [
               "Marcelo (Coordenação)",
@@ -802,9 +866,13 @@
             "fase": "Fase 5 - Perpétuo e Escala",
             "duracao": "Mês 4 em diante",
             "atividades": [
-              "Funil perpétuo rodando com campanhas sempre ativas",
-              "Uso de depoimentos e dados para otimização",
-              "Planejamento de novos ciclos de lançamento"
+              "Funil perpétuo rodando com campanhas sempre ativas (topo, meio, fundo, remarketing)",
+              "Automação avançada segmentada (boas-vindas, nutrição, recuperação de carrinho, reativação, pós-venda, upsell)",
+              "Uso de depoimentos e dados para otimização contínua",
+              "Relatórios mensais profundos com leitura estratégica, insights de otimização e plano de ação",
+              "Planejamento de novos ciclos de lançamento",
+              "Otimização constante de ROAS e CAC com ajustes finos",
+              "Envolvimento intenso e contínuo nas frentes de estratégia, conteúdo, tráfego, automação, chatbot, dados e relatórios"
             ],
             "responsaveis": [
               "Marcelo (Estratégia)",
@@ -818,15 +886,27 @@
     "estruturaCanais": {
       "metaAds": {
         "percentual": 60,
-        "objetivo": "Alcance, tráfego para landing page, captação de leads e remarketing"
+        "objetivo": "Alcance, tráfego para landing page, captação de leads e remarketing",
+        "investimentoPorPlano": {
+          "start": 900,
+          "premium": 1200
+        }
       },
       "googleAds": {
         "percentual": 30,
-        "objetivo": "Capturar intenção ativa (inteligência de mercado, estudos de mercado, pricing)"
+        "objetivo": "Capturar intenção ativa (inteligência de mercado, estudos de mercado, pricing)",
+        "investimentoPorPlano": {
+          "start": 450,
+          "premium": 600
+        }
       },
       "remarketing": {
         "percentual": 10,
-        "objetivo": "Reimpactar quem visitou página, assistiu vídeos ou engajou com conteúdo"
+        "objetivo": "Reimpactar quem visitou página, assistiu vídeos ou engajou com conteúdo",
+        "investimentoPorPlano": {
+          "start": 150,
+          "premium": 200
+        }
       }
     },
     "fases": {
