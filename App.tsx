@@ -299,12 +299,30 @@ const Navbar = () => {
         <div className={`fixed inset-0 bg-black z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           {isAuthenticated && username === 'vexin' ? (
             <>
-              <Link to="/funil_vexin" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+              <Link
+                to="/funil_vexin"
+                onClick={() => setIsOpen(false)}
+                className="text-2xl font-bold text-white hover:text-brand-red"
+              >
                 Funil
               </Link>
-              <Link to="/projecao_vexin" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+              <Link
+                to="/projecao_vexin"
+                onClick={() => setIsOpen(false)}
+                className="text-2xl font-bold text-white hover:text-brand-red"
+              >
                 Projeção
               </Link>
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  logout();
+                }}
+                className="mt-4 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
+              >
+                <X size={20} />
+                Sair
+              </button>
             </>
           ) : (
             <>
@@ -418,26 +436,33 @@ const Hero = () => {
 };
 
 const ClientMarquee = () => {
-  const logos = [...ASSETS.clientLogos, ...ASSETS.clientLogos];
+  // Repetimos o array várias vezes para garantir que não haja “buracos” na animação,
+  // mesmo em telas muito largas.
+  const logos = Array(4).fill(ASSETS.clientLogos).flat();
 
   return (
     <div className="bg-brand-gray border-y border-white/5 py-8 overflow-hidden relative group">
-       <div className="absolute left-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-r from-brand-gray to-transparent"></div>
-       <div className="absolute right-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-l from-brand-gray to-transparent"></div>
-       
-       <div className="flex gap-16 animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
-         {logos.map((logo, index) => (
-           <div key={index} className="flex-shrink-0 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300">
-            <img 
-              src={logo} 
-              alt={`Cliente ${index}`} 
-              className="h-12 w-auto object-contain brightness-0 invert" 
+      {/* Gradientes de borda */}
+      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-brand-gray to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-brand-gray to-transparent" />
+
+      {/* Faixa contínua de logos */}
+      <div className="flex items-center animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
+        {logos.map((logo, index) => (
+          <div
+            key={`${logo}-${index}`}
+            className="flex-shrink-0 px-10 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300"
+          >
+            <img
+              src={logo}
+              alt={`Logomarca de cliente ${index + 1}`}
+              className="h-12 w-auto object-contain brightness-0 invert"
               loading="lazy"
               decoding="async"
             />
-           </div>
-         ))}
-       </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
