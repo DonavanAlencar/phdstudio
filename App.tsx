@@ -833,38 +833,23 @@ const ContactForm = () => {
   const RECIPIENT_EMAIL = import.meta.env.VITE_RECIPIENT_EMAIL || '';
 
   // Configurações do EmailJS (configure uma vez no painel e copie aqui)
-  // Ou deixe vazio e configure via variáveis de ambiente
+  // Configuração do EmailJS
+  // Primeiro tenta ler das variáveis de ambiente;
+  // se não existir, usa os valores padrão informados para este projeto.
   const EMAILJS_CONFIG = {
-    serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || '',
-    templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '',
-    publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '',
+    serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_3toywye',
+    templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_phf6gte',
+    publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'IvD3AihpfgwOnoJMI',
   };
 
   useEffect(() => {
-    // Log das configurações ao montar o componente (apenas em desenvolvimento)
-    console.log('🔍 Verificando configurações EmailJS ao montar:', {
-      serviceId: EMAILJS_CONFIG.serviceId || 'NÃO CONFIGURADO',
-      templateId: EMAILJS_CONFIG.templateId || 'NÃO CONFIGURADO',
-      publicKey: EMAILJS_CONFIG.publicKey ? `${EMAILJS_CONFIG.publicKey.substring(0, 5)}...` : 'NÃO CONFIGURADO',
-      recipientEmail: RECIPIENT_EMAIL || 'NÃO CONFIGURADO',
-      envVars: {
-        VITE_EMAILJS_SERVICE_ID: import.meta.env.VITE_EMAILJS_SERVICE_ID || 'não definida',
-        VITE_EMAILJS_TEMPLATE_ID: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'não definida',
-        VITE_EMAILJS_PUBLIC_KEY: import.meta.env.VITE_EMAILJS_PUBLIC_KEY ? 'definida' : 'não definida',
-        VITE_RECIPIENT_EMAIL: import.meta.env.VITE_RECIPIENT_EMAIL || 'não definida'
-      }
-    });
-
-    // Inicializar EmailJS
+    // Inicializar EmailJS sem logs em console
     if (EMAILJS_CONFIG.publicKey) {
       try {
         emailjs.init(EMAILJS_CONFIG.publicKey);
-        console.log('✅ EmailJS inicializado com sucesso');
-      } catch (error) {
-        console.error('❌ Erro ao inicializar EmailJS:', error);
+      } catch {
+        // Falha silenciosa: o erro será tratado no envio
       }
-    } else {
-      console.warn('⚠️ Public Key do EmailJS não configurada');
     }
   }, []);
 
@@ -890,18 +875,7 @@ const ContactForm = () => {
     };
 
     try {
-      // Log das configurações (apenas em desenvolvimento)
-      console.log('🔧 Configurações EmailJS:', {
-        hasServiceId: !!EMAILJS_CONFIG.serviceId,
-        hasTemplateId: !!EMAILJS_CONFIG.templateId,
-        hasPublicKey: !!EMAILJS_CONFIG.publicKey,
-        recipientEmail: RECIPIENT_EMAIL,
-        serviceId: EMAILJS_CONFIG.serviceId,
-        templateId: EMAILJS_CONFIG.templateId,
-        publicKeyLength: EMAILJS_CONFIG.publicKey?.length || 0
-      });
-
-      // Verificar configurações
+      // Verificar configurações necessárias
       if (!EMAILJS_CONFIG.serviceId || !EMAILJS_CONFIG.templateId || !EMAILJS_CONFIG.publicKey) {
         const missing = [];
         if (!EMAILJS_CONFIG.serviceId) missing.push('VITE_EMAILJS_SERVICE_ID');
@@ -909,27 +883,16 @@ const ContactForm = () => {
         if (!EMAILJS_CONFIG.publicKey) missing.push('VITE_EMAILJS_PUBLIC_KEY');
         
         const errorMsg = `EmailJS não configurado. Variáveis faltando: ${missing.join(', ')}`;
-        console.error('❌', errorMsg);
         throw new Error(errorMsg);
       }
-
-      console.log('📧 Enviando e-mail com parâmetros:', {
-        serviceId: EMAILJS_CONFIG.serviceId,
-        templateId: EMAILJS_CONFIG.templateId,
-        templateParams: templateParams,
-        recipientEmail: RECIPIENT_EMAIL
-      });
-
       // Enviar e-mail via EmailJS
-      const response = await emailjs.send(
+      await emailjs.send(
         EMAILJS_CONFIG.serviceId,
         EMAILJS_CONFIG.templateId,
         templateParams
       );
-
-      console.log('✅ E-mail enviado com sucesso:', response);
       
-      // Enviar evento de conversão para Google Analytics
+      // Enviar evento de conversão para Google Analytics (sem logs adicionais)
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'form_submission', {
           event_category: 'Contact Form',
@@ -945,8 +908,6 @@ const ContactForm = () => {
           event_label: 'Contact Form',
           value: 1
         });
-        
-        console.log('📊 Evento de conversão enviado para Google Analytics');
       }
       
       setSubmitStatus('success');
@@ -956,42 +917,17 @@ const ContactForm = () => {
         setSubmitStatus('idle');
       }, 5000);
     } catch (error: any) {
-      // Log detalhado do erro
-      console.error('❌ Erro ao enviar e-mail:', {
-        error,
-        message: error?.message || 'Erro desconhecido',
-        text: error?.text || 'Sem detalhes adicionais',
-        status: error?.status || 'N/A',
-        statusText: error?.statusText || 'N/A',
-        stack: error?.stack || 'Sem stack trace',
-        config: {
-          serviceId: EMAILJS_CONFIG.serviceId,
-          templateId: EMAILJS_CONFIG.templateId,
-          hasPublicKey: !!EMAILJS_CONFIG.publicKey
-        },
-        // Informações adicionais do EmailJS
-        response: error?.response || 'N/A'
-      });
-
       // Mensagem de erro mais descritiva baseada no status
       let userErrorMessage = 'Erro ao enviar. Por favor, tente novamente ou entre em contato pelo WhatsApp.';
       
       // Tratamento específico para erro 422 (Unprocessable Entity)
       if (error?.status === 422) {
         userErrorMessage = 'Erro 422: Parâmetros inválidos. Verifique se o template do EmailJS está configurado corretamente com as variáveis: from_name, from_email, phone, message, reply_to, email';
-        console.error('🔴 ERRO 422 - Possíveis causas:');
-        console.error('  1. Template do EmailJS não tem as variáveis corretas');
-        console.error('  2. Nomes das variáveis no template não correspondem aos parâmetros enviados');
-        console.error('  3. Template não está ativo ou não existe');
-        console.error('  Parâmetros enviados:', templateParams);
       } else if (error?.text) {
         userErrorMessage = error.text;
       } else if (error?.message) {
         userErrorMessage = error.message;
       }
-
-      // Mostrar erro no console para debug
-      console.error('💬 Mensagem de erro para o usuário:', userErrorMessage);
       
       setErrorMessage(userErrorMessage);
       setSubmitStatus('error');
@@ -1498,8 +1434,8 @@ const useProjecoesData = (planoSelecionado: 'start' | 'premium' = 'premium') => 
         const response = await fetch('/data/projecoes_faturamento_vendas.json');
         const jsonData = await response.json();
         setData(jsonData);
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
+      } catch {
+        // Silenciar erros de carregamento de dados no console
       } finally {
         setLoading(false);
       }
