@@ -870,11 +870,6 @@ const ContactForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!RECIPIENT_EMAIL) {
-      alert('Por favor, configure o VITE_RECIPIENT_EMAIL no arquivo .env');
-      return;
-    }
 
     setIsLoading(true);
     setSubmitStatus('idle');
@@ -890,8 +885,8 @@ const ContactForm = () => {
       phone: formData.phone,
       message: formData.message || 'Sem mensagem adicional',
       reply_to: formData.email,
-      // O template tem "To Email" com {{email}}, então enviamos como "email"
-      email: RECIPIENT_EMAIL,
+      // O template tem "To Email" configurado diretamente no EmailJS ou usa {{email}}
+      // Se o template precisar, pode usar: email: RECIPIENT_EMAIL || formData.email
     };
 
     try {
@@ -1652,8 +1647,9 @@ const FunilVexinPage = () => {
               <p className="text-sm text-gray-300">Acesse a proposta detalhada com escopo completo dos planos</p>
             </div>
             <a
-              href="/proposta-vexin-15-12-2025.pdf"
-              download="PHD Studio Proposta 15_12_2025.pdf"
+              href="https://drive.google.com/uc?export=download&id=1DfWTUmbBUPppc7OydsRmKu-eqbuGQutM"
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-brand-red hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-brand-red/20 flex items-center gap-2"
             >
               <Download size={20} />
@@ -1923,8 +1919,9 @@ const ProjecaoVexinPage = () => {
               <p className="text-sm text-gray-300">Acesse a proposta detalhada com escopo completo dos planos</p>
             </div>
             <a
-              href="/proposta-vexin-15-12-2025.pdf"
-              download="PHD Studio Proposta 15_12_2025.pdf"
+              href="https://drive.google.com/uc?export=download&id=1DfWTUmbBUPppc7OydsRmKu-eqbuGQutM"
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-brand-red hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-brand-red/20 flex items-center gap-2"
             >
               <Download size={20} />
