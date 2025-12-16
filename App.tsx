@@ -468,13 +468,16 @@ const Hero = () => {
         <div className="relative hidden md:block animate-fade-in-up" style={{animationDelay: '0.2s'}}>
           <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
-              <iframe
-                src="https://www.youtube.com/embed/doxJNgoy87E"
+              <video
+                src="https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Video%20Final_1.mp4"
                 title="PHD Studio - Marketing e Tecnologia"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-              ></iframe>
+                controls
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              ></video>
             </div>
           </div>
         </div>
