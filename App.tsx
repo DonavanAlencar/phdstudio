@@ -94,13 +94,14 @@ const TESTIMONIALS = [
     quote: "Gravei um vídeo para minhas aulas de pós-graduação com a PHD Studio e fiquei muito satisfeita! Ficou didático, com música e imagens em total harmonia. Meus alunos adoraram. Super recomendo!",
     avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fernanda.png"
   },
-  {
-    id: 4,
-    name: "Maria Eduarda Chamelete",
-    role: "Especialista em e-commerce e estratégias digitais da Ruvollo",
-    quote: "A parceria com a PHD Studio foi fundamental para o crescimento da Ruvolo Glass Company. Os vídeos promocionais ficaram impecáveis e reforçaram nossa identidade visual. A gestão de tráfego trouxe mais visibilidade e vendas. Excelente profissionalismo.",
-    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Duda.png"
-  }
+  // Depoimento comentado provisoriamente a pedido do cliente
+  // {
+  //   id: 4,
+  //   name: "Maria Eduarda Chamelete",
+  //   role: "Especialista em e-commerce e estratégias digitais da Ruvollo",
+  //   quote: "A parceria com a PHD Studio foi fundamental para o crescimento da Ruvolo Glass Company. Os vídeos promocionais ficaram impecáveis e reforçaram nossa identidade visual. A gestão de tráfego trouxe mais visibilidade e vendas. Excelente profissionalismo.",
+  //   avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Duda.png"
+  // }
 ];
 
 // --- Authentication Context ---
