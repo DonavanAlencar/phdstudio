@@ -870,8 +870,8 @@ const ContactForm = () => {
       phone: formData.phone,
       message: formData.message || 'Sem mensagem adicional',
       reply_to: formData.email,
-      // O template tem "To Email" configurado diretamente no EmailJS ou usa {{email}}
-      // Se o template precisar, pode usar: email: RECIPIENT_EMAIL || formData.email
+      // Campo usado em muitos templates como "To Email" ({{email}})
+      email: RECIPIENT_EMAIL || formData.email,
     };
 
     try {
