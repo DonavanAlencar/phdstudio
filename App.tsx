@@ -522,6 +522,9 @@ const Navbar = () => {
               <Link to="/projecao_vexin" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Projeção
               </Link>
+            </>
+          ) : isAuthenticated && username === 'phdstudioadmin' ? (
+            <>
               <Link to="/logs" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Logs
               </Link>
@@ -570,6 +573,19 @@ const Navbar = () => {
               >
                 Projeção
               </Link>
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  logout();
+                }}
+                className="mt-4 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
+              >
+                <X size={20} />
+                Sair
+              </button>
+            </>
+          ) : isAuthenticated && username === 'phdstudioadmin' ? (
+            <>
               <Link
                 to="/logs"
                 onClick={() => setIsOpen(false)}
