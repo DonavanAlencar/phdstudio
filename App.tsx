@@ -19,7 +19,9 @@ import {
   CartesianGrid,
   FunnelChart,
   Funnel,
-  LabelList
+  LabelList,
+  BarChart,
+  Bar
 } from 'recharts';
 
 // --- Assets Configuration ---
@@ -104,11 +106,170 @@ const TESTIMONIALS = [
   // }
 ];
 
+// --- Tracking & Monitoring System ---
+interface VisitorData {
+  visitorId: string;
+  firstVisit: string;
+  lastVisit: string;
+  visitCount: number;
+}
+
+interface LoginLog {
+  username: string;
+  ip: string;
+  timestamp: string;
+  userAgent: string;
+  success: boolean;
+  location?: string;
+}
+
+// Gerar ou obter Visitor ID único
+const getOrCreateVisitorId = (): string => {
+  const storageKey = 'phdstudio_visitor_id';
+  let visitorId = localStorage.getItem(storageKey);
+  
+  if (!visitorId) {
+    visitorId = `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem(storageKey, visitorId);
+  }
+  
+  return visitorId;
+};
+
+// Obter dados do visitante
+const getVisitorData = (): VisitorData => {
+  const visitorId = getOrCreateVisitorId();
+  const storageKey = `phdstudio_visitor_${visitorId}`;
+  const stored = localStorage.getItem(storageKey);
+  
+  if (stored) {
+    const data = JSON.parse(stored);
+    data.lastVisit = new Date().toISOString();
+    data.visitCount = (data.visitCount || 0) + 1;
+    localStorage.setItem(storageKey, JSON.stringify(data));
+    return data;
+  }
+  
+  const newData: VisitorData = {
+    visitorId,
+    firstVisit: new Date().toISOString(),
+    lastVisit: new Date().toISOString(),
+    visitCount: 1
+  };
+  
+  localStorage.setItem(storageKey, JSON.stringify(newData));
+  return newData;
+};
+
+// Obter IP do visitante (via API pública)
+const getVisitorIP = async (): Promise<string> => {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    return data.ip || 'unknown';
+  } catch {
+    return 'unknown';
+  }
+};
+
+// Registrar log de acesso/visita
+const logVisit = async (page: string) => {
+  const visitorData = getVisitorData();
+  const ip = await getVisitorIP();
+  const userAgent = navigator.userAgent;
+  const timestamp = new Date().toISOString();
+  
+  const logEntry = {
+    visitorId: visitorData.visitorId,
+    page,
+    ip,
+    userAgent,
+    timestamp,
+    referrer: document.referrer || 'direct'
+  };
+  
+  // Salvar no localStorage (logs locais)
+  const logsKey = 'phdstudio_access_logs';
+  const existingLogs = JSON.parse(localStorage.getItem(logsKey) || '[]');
+  existingLogs.push(logEntry);
+  
+  // Manter apenas os últimos 100 logs
+  if (existingLogs.length > 100) {
+    existingLogs.shift();
+  }
+  
+  localStorage.setItem(logsKey, JSON.stringify(existingLogs));
+  
+  // Enviar evento para Google Analytics
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'page_visit', {
+      visitor_id: visitorData.visitorId,
+      page_path: page,
+      visit_count: visitorData.visitCount,
+      custom_parameter_1: ip
+    });
+  }
+  
+  return logEntry;
+};
+
+// Registrar log de login
+const logLogin = async (username: string, success: boolean, location?: string): Promise<LoginLog> => {
+  const ip = await getVisitorIP();
+  const userAgent = navigator.userAgent;
+  const timestamp = new Date().toISOString();
+  
+  const loginLog: LoginLog = {
+    username,
+    ip,
+    timestamp,
+    userAgent,
+    success,
+    location
+  };
+  
+  // Salvar no localStorage
+  const logsKey = 'phdstudio_login_logs';
+  const existingLogs = JSON.parse(localStorage.getItem(logsKey) || '[]');
+  existingLogs.push(loginLog);
+  
+  // Manter apenas os últimos 50 logs de login
+  if (existingLogs.length > 50) {
+    existingLogs.shift();
+  }
+  
+  localStorage.setItem(logsKey, JSON.stringify(existingLogs));
+  
+  // Enviar evento para Google Analytics
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', success ? 'login_success' : 'login_failed', {
+      username: username,
+      login_ip: ip,
+      login_location: location || 'unknown',
+      custom_parameter_1: userAgent
+    });
+  }
+  
+  return loginLog;
+};
+
+// Obter logs de acesso (para visualização)
+const getAccessLogs = (): any[] => {
+  const logsKey = 'phdstudio_access_logs';
+  return JSON.parse(localStorage.getItem(logsKey) || '[]');
+};
+
+// Obter logs de login (para visualização)
+const getLoginLogs = (): LoginLog[] => {
+  const logsKey = 'phdstudio_login_logs';
+  return JSON.parse(localStorage.getItem(logsKey) || '[]');
+};
+
 // --- Authentication Context ---
 interface AuthContextType {
   isAuthenticated: boolean;
   username: string | null;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -130,14 +291,46 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     return localStorage.getItem('username');
   });
 
-  const login = (username: string, password: string): boolean => {
+  const login = async (username: string, password: string): Promise<boolean> => {
+    const location = window.location.pathname;
+    
+    // Validação admin
+    if (username === 'phdstudioadmin' && password === 'phd@studio!@admin') {
+      setIsAuthenticated(true);
+      setUsername('phdstudioadmin');
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('username', 'phdstudioadmin');
+      localStorage.setItem('userRole', 'admin');
+      
+      // Registrar login bem-sucedido com IP e dados
+      logLogin(username, true, location).catch(() => {
+        // Silenciar erros de logging
+      });
+      
+      return true;
+    }
+    
+    // Validação usuário vexin (mantido para compatibilidade)
     if (username === 'vexin' && password === '@v3xiN!') {
       setIsAuthenticated(true);
       setUsername('vexin');
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('username', 'vexin');
+      localStorage.setItem('userRole', 'client');
+      
+      // Registrar login bem-sucedido com IP e dados
+      logLogin(username, true, location).catch(() => {
+        // Silenciar erros de logging
+      });
+      
       return true;
     }
+    
+    // Registrar tentativa de login falhada
+    logLogin(username, false, location).catch(() => {
+      // Silenciar erros de logging
+    });
+    
     return false;
   };
 
@@ -146,6 +339,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     setUsername(null);
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('username');
+    localStorage.removeItem('userRole');
   };
 
   return (
@@ -212,6 +406,18 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   return <>{children}</>;
+};
+
+// Protected Admin Route Component
+const ProtectedAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, username } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated || username !== 'phdstudioadmin') {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <AdminLayout>{children}</AdminLayout>;
 };
 
 // --- Components ---
@@ -316,6 +522,9 @@ const Navbar = () => {
               <Link to="/projecao_vexin" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Projeção
               </Link>
+              <Link to="/logs" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+                Logs
+              </Link>
             </>
           ) : (
             navLinks.map((link) => 
@@ -360,6 +569,13 @@ const Navbar = () => {
                 className="text-2xl font-bold text-white hover:text-brand-red"
               >
                 Projeção
+              </Link>
+              <Link
+                to="/logs"
+                onClick={() => setIsOpen(false)}
+                className="text-2xl font-bold text-white hover:text-brand-red"
+              >
+                Logs
               </Link>
               <button
                 onClick={() => {
@@ -1325,13 +1541,19 @@ const LoginPage = () => {
 
   const from = (location.state as any)?.from?.pathname;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (login(username, password)) {
+    const success = await login(username, password);
+    
+    if (success) {
+      // Se usuário for admin, redirecionar para logs
+      if (username === 'phdstudioadmin') {
+        navigate('/logs', { replace: true });
+      }
       // Se usuário for vexin, redirecionar para funil_vexin
-      if (username === 'vexin') {
+      else if (username === 'vexin') {
         navigate('/funil_vexin', { replace: true });
       } else {
         navigate(from || '/', { replace: true });
@@ -2362,11 +2584,543 @@ const HomePage = () => (
   </>
 );
 
+// --- Visitor Tracking Component ---
+const VisitorTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Registrar visita quando a rota muda
+    const page = location.pathname || '/';
+    logVisit(page).catch(() => {
+      // Silenciar erros de tracking
+    });
+  }, [location.pathname]);
+
+  return null;
+};
+
+// --- Admin Layout with Sidebar ---
+const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/', { replace: true });
+  };
+
+  const menuItems = [
+    { path: '/logs', label: 'Dashboard & Logs', icon: BarChart3 },
+  ];
+
+  return (
+    <div className="font-sans bg-brand-dark min-h-screen text-white flex">
+      {/* Sidebar */}
+      <aside className={`bg-[#121212] border-r border-white/10 transition-all duration-300 ${
+        sidebarOpen ? 'w-64' : 'w-20'
+      }`}>
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center justify-between mb-6">
+            {sidebarOpen && (
+              <h2 className="text-xl font-black text-brand-red">Admin Panel</h2>
+            )}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Menu size={24} />
+            </button>
+          </div>
+        </div>
+
+        <nav className="p-4 space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-brand-red/20 text-brand-red border border-brand-red/30'
+                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                <Icon size={20} />
+                {sidebarOpen && <span className="font-medium">{item.label}</span>}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+          >
+            <X size={20} />
+            {sidebarOpen && <span className="font-medium">Sair</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto">
+        {children}
+      </main>
+    </div>
+  );
+};
+
+// --- Detectar logins suspeitos ---
+const detectSuspiciousLogins = (loginLogs: LoginLog[]): LoginLog[] => {
+  const suspicious: LoginLog[] = [];
+  const ipAttempts: { [key: string]: number } = {};
+  const userAttempts: { [key: string]: number } = {};
+  const recentTime = Date.now() - (15 * 60 * 1000); // Últimos 15 minutos
+
+  loginLogs.forEach((log) => {
+    const logTime = new Date(log.timestamp).getTime();
+    
+    // Múltiplas tentativas falhadas do mesmo IP
+    if (!log.success) {
+      ipAttempts[log.ip] = (ipAttempts[log.ip] || 0) + 1;
+      if (ipAttempts[log.ip] >= 5 && logTime > recentTime) {
+        if (!suspicious.find(s => s.ip === log.ip && s.timestamp === log.timestamp)) {
+          suspicious.push(log);
+        }
+      }
+    }
+
+    // Múltiplas tentativas falhadas do mesmo usuário
+    if (!log.success) {
+      userAttempts[log.username] = (userAttempts[log.username] || 0) + 1;
+      if (userAttempts[log.username] >= 3 && logTime > recentTime) {
+        if (!suspicious.find(s => s.username === log.username && s.timestamp === log.timestamp)) {
+          suspicious.push(log);
+        }
+      }
+    }
+  });
+
+  return suspicious;
+};
+
+// --- Logs Page (Melhorada) ---
+const LogsPage = () => {
+  const [activeTab, setActiveTab] = useState<'access' | 'login' | 'dashboard'>('dashboard');
+  const [accessLogs, setAccessLogs] = useState<any[]>([]);
+  const [loginLogs, setLoginLogs] = useState<LoginLog[]>([]);
+  const [filteredAccessLogs, setFilteredAccessLogs] = useState<any[]>([]);
+  const [filteredLoginLogs, setFilteredLoginLogs] = useState<LoginLog[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'success' | 'failed'>('all');
+  const [suspiciousLogins, setSuspiciousLogins] = useState<LoginLog[]>([]);
+
+  useEffect(() => {
+    const access = getAccessLogs().reverse();
+    const login = getLoginLogs().reverse();
+    setAccessLogs(access);
+    setLoginLogs(login);
+    setFilteredAccessLogs(access);
+    setFilteredLoginLogs(login);
+    setSuspiciousLogins(detectSuspiciousLogins(login));
+  }, []);
+
+  useEffect(() => {
+    // Filtrar logs de acesso
+    let filtered = [...accessLogs];
+
+    // Filtro de busca
+    if (searchTerm) {
+      filtered = filtered.filter(log =>
+        log.page.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.ip.includes(searchTerm) ||
+        log.visitorId.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filtro de data
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const filterDate = new Date();
+      
+      if (dateFilter === 'today') {
+        filterDate.setHours(0, 0, 0, 0);
+      } else if (dateFilter === 'week') {
+        filterDate.setDate(now.getDate() - 7);
+      } else if (dateFilter === 'month') {
+        filterDate.setMonth(now.getMonth() - 1);
+      }
+
+      filtered = filtered.filter(log => new Date(log.timestamp) >= filterDate);
+    }
+
+    setFilteredAccessLogs(filtered);
+  }, [searchTerm, dateFilter, accessLogs]);
+
+  useEffect(() => {
+    // Filtrar logs de login
+    let filtered = [...loginLogs];
+
+    // Filtro de busca
+    if (searchTerm) {
+      filtered = filtered.filter(log =>
+        log.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.ip.includes(searchTerm)
+      );
+    }
+
+    // Filtro de status
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(log => 
+        statusFilter === 'success' ? log.success : !log.success
+      );
+    }
+
+    // Filtro de data
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const filterDate = new Date();
+      
+      if (dateFilter === 'today') {
+        filterDate.setHours(0, 0, 0, 0);
+      } else if (dateFilter === 'week') {
+        filterDate.setDate(now.getDate() - 7);
+      } else if (dateFilter === 'month') {
+        filterDate.setMonth(now.getMonth() - 1);
+      }
+
+      filtered = filtered.filter(log => new Date(log.timestamp) >= filterDate);
+    }
+
+    setFilteredLoginLogs(filtered);
+  }, [searchTerm, statusFilter, dateFilter, loginLogs]);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
+  // Estatísticas para dashboard
+  const stats = {
+    totalVisits: accessLogs.length,
+    uniqueVisitors: new Set(accessLogs.map(log => log.visitorId)).size,
+    totalLogins: loginLogs.length,
+    successfulLogins: loginLogs.filter(log => log.success).length,
+    failedLogins: loginLogs.filter(log => !log.success).length,
+    suspiciousCount: suspiciousLogins.length,
+    visitsToday: accessLogs.filter(log => {
+      const logDate = new Date(log.timestamp);
+      const today = new Date();
+      return logDate.toDateString() === today.toDateString();
+    }).length
+  };
+
+  // Dados para gráficos
+  const visitsByHour = Array.from({ length: 24 }, (_, hour) => {
+    const count = accessLogs.filter(log => {
+      const logHour = new Date(log.timestamp).getHours();
+      return logHour === hour;
+    }).length;
+    return { hour: `${hour}h`, visits: count };
+  });
+
+  const visitsByPage = accessLogs.reduce((acc: any, log) => {
+    acc[log.page] = (acc[log.page] || 0) + 1;
+    return acc;
+  }, {});
+
+  const pageData = Object.entries(visitsByPage)
+    .map(([page, count]) => ({ page, count }))
+    .sort((a: any, b: any) => b.count - a.count)
+    .slice(0, 10);
+
+  return (
+    <div className="p-6 md:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-black font-heading mb-4">
+            Dashboard & Logs
+          </h1>
+          <p className="text-gray-400">
+            Monitoramento completo de visitas e segurança do sistema
+          </p>
+        </div>
+
+        {/* Alertas de Segurança */}
+        {suspiciousLogins.length > 0 && (
+          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <Target className="text-red-400" size={24} />
+              <h3 className="text-lg font-bold text-red-400">Alertas de Segurança</h3>
+            </div>
+            <p className="text-sm text-gray-300 mb-3">
+              {suspiciousLogins.length} tentativa(s) de login suspeita(s) detectada(s) nas últimas 15 minutos
+            </p>
+            <div className="space-y-2">
+              {suspiciousLogins.slice(0, 3).map((log, idx) => (
+                <div key={idx} className="text-xs text-gray-400 bg-black/20 p-2 rounded">
+                  IP: {log.ip} | Usuário: {log.username} | {formatDate(log.timestamp)}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tabs */}
+        <div className="flex gap-4 mb-6 border-b border-white/10">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`px-6 py-3 font-semibold transition-colors ${
+              activeTab === 'dashboard'
+                ? 'text-brand-red border-b-2 border-brand-red'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Dashboard
+          </button>
+          <button
+            onClick={() => setActiveTab('access')}
+            className={`px-6 py-3 font-semibold transition-colors ${
+              activeTab === 'access'
+                ? 'text-brand-red border-b-2 border-brand-red'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Logs de Acesso ({accessLogs.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('login')}
+            className={`px-6 py-3 font-semibold transition-colors ${
+              activeTab === 'login'
+                ? 'text-brand-red border-b-2 border-brand-red'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Logs de Login ({loginLogs.length})
+          </button>
+        </div>
+
+        {/* Dashboard */}
+        {activeTab === 'dashboard' && (
+          <div className="space-y-6">
+            {/* Estatísticas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+                <div className="text-sm text-gray-400 mb-2">Total de Visitas</div>
+                <div className="text-3xl font-bold text-white">{stats.totalVisits}</div>
+              </div>
+              <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+                <div className="text-sm text-gray-400 mb-2">Visitantes Únicos</div>
+                <div className="text-3xl font-bold text-white">{stats.uniqueVisitors}</div>
+              </div>
+              <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+                <div className="text-sm text-gray-400 mb-2">Visitas Hoje</div>
+                <div className="text-3xl font-bold text-white">{stats.visitsToday}</div>
+              </div>
+              <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+                <div className="text-sm text-gray-400 mb-2">Logins Falhados</div>
+                <div className="text-3xl font-bold text-red-400">{stats.failedLogins}</div>
+              </div>
+            </div>
+
+            {/* Gráficos */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+                <h3 className="text-lg font-bold mb-4">Visitas por Hora</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={visitsByHour}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                    <XAxis dataKey="hour" stroke="#999" />
+                    <YAxis stroke="#999" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#1f2937',
+                        border: '1px solid rgba(229, 9, 20, 0.3)',
+                        borderRadius: '0.5rem',
+                        color: '#fff'
+                      }}
+                    />
+                    <Line type="monotone" dataKey="visits" stroke="#E50914" strokeWidth={2} dot={{ fill: '#E50914' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="bg-[#121212] border border-white/10 rounded-xl p-6">
+                <h3 className="text-lg font-bold mb-4">Páginas Mais Visitadas</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={pageData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                    <XAxis dataKey="page" stroke="#999" angle={-45} textAnchor="end" height={100} />
+                    <YAxis stroke="#999" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#1f2937',
+                        border: '1px solid rgba(229, 9, 20, 0.3)',
+                        borderRadius: '0.5rem',
+                        color: '#fff'
+                      }}
+                    />
+                    <Bar dataKey="count" fill="#E50914" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Filtros e Busca */}
+        {(activeTab === 'access' || activeTab === 'login') && (
+          <div className="mb-6 bg-[#121212] border border-white/10 rounded-xl p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">Buscar</label>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="IP, página, usuário..."
+                  className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">Período</label>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value as any)}
+                  className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-red"
+                >
+                  <option value="all">Todos</option>
+                  <option value="today">Hoje</option>
+                  <option value="week">Última Semana</option>
+                  <option value="month">Último Mês</option>
+                </select>
+              </div>
+              {activeTab === 'login' && (
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Status</label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as any)}
+                    className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-red"
+                  >
+                    <option value="all">Todos</option>
+                    <option value="success">Sucesso</option>
+                    <option value="failed">Falha</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Access Logs */}
+        {activeTab === 'access' && (
+          <div className="bg-[#121212] border border-white/10 rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-white/5">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Data/Hora</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Página</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">IP</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Visitor ID</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Referrer</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {filteredAccessLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
+                        Nenhum log encontrado com os filtros aplicados
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredAccessLogs.map((log, idx) => (
+                      <tr key={idx} className="hover:bg-white/5 transition-colors">
+                        <td className="px-6 py-4 text-sm text-gray-300">{formatDate(log.timestamp)}</td>
+                        <td className="px-6 py-4 text-sm text-white font-mono">{log.page}</td>
+                        <td className="px-6 py-4 text-sm text-gray-300 font-mono">{log.ip}</td>
+                        <td className="px-6 py-4 text-sm text-gray-400 font-mono text-xs">{log.visitorId}</td>
+                        <td className="px-6 py-4 text-sm text-gray-400 text-xs max-w-xs truncate">{log.referrer || 'Direct'}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Login Logs */}
+        {activeTab === 'login' && (
+          <div className="bg-[#121212] border border-white/10 rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-white/5">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Data/Hora</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Usuário</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">IP</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Status</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Localização</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {filteredLoginLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
+                        Nenhum log encontrado com os filtros aplicados
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLoginLogs.map((log, idx) => (
+                      <tr key={idx} className="hover:bg-white/5 transition-colors">
+                        <td className="px-6 py-4 text-sm text-gray-300">{formatDate(log.timestamp)}</td>
+                        <td className="px-6 py-4 text-sm text-white font-mono">{log.username}</td>
+                        <td className="px-6 py-4 text-sm text-gray-300 font-mono">{log.ip}</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            log.success
+                              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                              : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                          }`}>
+                            {log.success ? 'Sucesso' : 'Falha'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-400">{log.location || 'N/A'}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // --- Main App ---
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <VisitorTracker />
         <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
           <CookieBanner />
           <Routes>
@@ -2425,6 +3179,14 @@ function App() {
                     <ProjecaoVexinPage />
                   </main>
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/logs"
+              element={
+                <ProtectedAdminRoute>
+                  <LogsPage />
+                </ProtectedAdminRoute>
               }
             />
           </Routes>
