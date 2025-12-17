@@ -288,13 +288,51 @@ const ChatDiagnostic: React.FC = () => {
             <h3 className="font-bold text-red-400 mb-2">⚠️ Problemas Detectados</h3>
             <p className="text-gray-300 mb-4">
               Foram encontrados problemas que impedem o funcionamento do chat. 
-              As soluções mais comuns são:
             </p>
-            <ul className="list-disc list-inside space-y-2 text-gray-300">
-              <li>Mixed Content: Configure o webhook para usar HTTPS ou use um proxy reverso</li>
-              <li>CORS: Configure o servidor do webhook para aceitar requisições do seu domínio</li>
-              <li>Rede: Verifique se o servidor do webhook está acessível</li>
-            </ul>
+            
+            {results.some(r => r.test === 'Mixed Content' && r.status === 'error') && (
+              <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <h4 className="font-bold text-yellow-400 mb-3">🔧 Solução: Tunnel HTTPS (Sem Domínio)</h4>
+                <p className="text-gray-300 mb-3">
+                  O problema é Mixed Content (HTTP em HTTPS). Use um tunnel HTTPS gratuito:
+                </p>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-black/20 p-3 rounded border border-white/10">
+                    <strong className="text-yellow-400">Opção 1: Cloudflare Tunnel (Recomendado)</strong>
+                    <p className="text-gray-400 mt-1">Gratuito, ilimitado, URL fixa</p>
+                    <code className="block mt-2 text-xs bg-black/40 p-2 rounded">
+                      cloudflared tunnel create phdstudio-webhook
+                    </code>
+                  </div>
+                  <div className="bg-black/20 p-3 rounded border border-white/10">
+                    <strong className="text-yellow-400">Opção 2: ngrok (Mais Simples)</strong>
+                    <p className="text-gray-400 mt-1">Setup rápido, limite de 40 req/min</p>
+                    <code className="block mt-2 text-xs bg-black/40 p-2 rounded">
+                      ngrok http 148.230.79.105:5679
+                    </code>
+                  </div>
+                  <div className="bg-black/20 p-3 rounded border border-white/10">
+                    <strong className="text-yellow-400">Opção 3: LocalTunnel (Sem Conta)</strong>
+                    <p className="text-gray-400 mt-1">Open source, não precisa de conta</p>
+                    <code className="block mt-2 text-xs bg-black/40 p-2 rounded">
+                      lt --port 5679
+                    </code>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-4">
+                  📖 Guia completo: Ver documentação em <code>/docs/SOLUCAO_TUNNEL_HTTPS.md</code>
+                </p>
+              </div>
+            )}
+            
+            <div className="space-y-2 text-gray-300">
+              <p className="font-semibold">Outras soluções:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4">
+                <li>CORS: Configure o servidor do webhook para aceitar requisições do seu domínio</li>
+                <li>Rede: Verifique se o servidor do webhook está acessível</li>
+                <li>Firewall: Verifique se a porta 5679 está aberta</li>
+              </ul>
+            </div>
           </div>
         )}
       </div>

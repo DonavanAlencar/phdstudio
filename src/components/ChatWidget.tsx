@@ -33,6 +33,33 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   webhookUrl = import.meta.env.VITE_CHAT_WEBHOOK_URL || 'http://148.230.79.105:5679/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2',
   authToken = import.meta.env.VITE_CHAT_AUTH_TOKEN || 'T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly'
 }) => {
+  // Verificar visibilidade do chat via localStorage (controlado pelo admin)
+  const [isChatVisible, setIsChatVisible] = useState(() => {
+    const stored = localStorage.getItem('phdstudio_chat_visible');
+    return stored !== null ? stored === 'true' : true; // Default: visível
+  });
+
+  // Escutar mudanças no localStorage (para atualizar quando admin mudar)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem('phdstudio_chat_visible');
+      setIsChatVisible(stored !== null ? stored === 'true' : true);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // Também verificar periodicamente (para mesma aba)
+    const interval = setInterval(handleStorageChange, 500);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Se o chat estiver desabilitado, não renderizar nada
+  if (!isChatVisible) {
+    return null;
+  }
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
