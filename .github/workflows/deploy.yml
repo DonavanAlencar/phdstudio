@@ -10,6 +10,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     
     steps:
     - name: Checkout code
@@ -20,12 +21,58 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     
-    - name: Deploy to server (Docker / Traefik)
+    - name: Test server connectivity
+      timeout-minutes: 2
       run: |
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_HOST }} '
-          cd /root/phdstudio &&
-          chmod +x deploy-remote.sh &&
-          ./deploy-remote.sh
+        echo "🔍 Testando conectividade com o servidor..."
+        echo "IP do servidor: ${{ secrets.SERVER_HOST }}"
+        
+        # Testar ping (pode falhar se ICMP estiver bloqueado, mas não é crítico)
+        ping -c 2 -W 5 ${{ secrets.SERVER_HOST }} || echo "⚠️ Ping não respondeu (pode ser normal se ICMP estiver bloqueado)"
+        
+        # Testar porta 22
+        echo "🔌 Testando porta SSH (22)..."
+        timeout 10 bash -c "echo > /dev/tcp/${{ secrets.SERVER_HOST }}/22" && echo "✅ Porta 22 está acessível" || {
+          echo "❌ Porta 22 não está acessível"
+          echo "Possíveis causas:"
+          echo "  - Firewall bloqueando conexões do GitHub Actions"
+          echo "  - Servidor offline"
+          echo "  - IP mudou"
+          exit 1
+        }
+    
+    - name: Test SSH connection
+      timeout-minutes: 2
+      run: |
+        echo "🔑 Testando conexão SSH..."
+        ssh -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=20 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=3 \
+            -o BatchMode=yes \
+            -v root@${{ secrets.SERVER_HOST }} 'echo "✅ Conexão SSH OK"' || {
+          echo "❌ Falha ao conectar via SSH"
+          echo "Verifique:"
+          echo "  1. Se a chave SSH está configurada corretamente no GitHub Secrets"
+          echo "  2. Se o servidor está acessível (IP: ${{ secrets.SERVER_HOST }})"
+          echo "  3. Se o firewall permite conexões do GitHub Actions"
+          exit 1
+        }
+    
+    - name: Deploy to server (Docker / Traefik)
+      timeout-minutes: 10
+      run: |
+        echo "🚀 Iniciando deploy..."
+        ssh -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=20 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=3 \
+            -o BatchMode=yes \
+            root@${{ secrets.SERVER_HOST }} '
+          set -e
+          cd /root/phdstudio || exit 1
+          chmod +x deploy-remote.sh || exit 1
+          ./deploy-remote.sh || exit 1
         '
     
     - name: Notify deployment
@@ -35,5 +82,11 @@ jobs:
           echo "✅ Deploy concluído com sucesso!"
         else
           echo "❌ Deploy falhou!"
+          echo ""
+          echo "Troubleshooting:"
+          echo "1. Verifique se o servidor está online: ping ${{ secrets.SERVER_HOST }}"
+          echo "2. Verifique se a porta 22 está aberta: telnet ${{ secrets.SERVER_HOST }} 22"
+          echo "3. Verifique se a chave SSH está correta no GitHub Secrets"
+          echo "4. Verifique logs do servidor: journalctl -u sshd -n 50"
         fi
 
