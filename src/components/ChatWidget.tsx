@@ -30,8 +30,8 @@ const getSessionId = (): string => {
 };
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({ 
-  webhookUrl = 'http://148.230.79.105:5679/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2',
-  authToken = 'T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly'
+  webhookUrl = import.meta.env.VITE_CHAT_WEBHOOK_URL || 'http://148.230.79.105:5679/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2',
+  authToken = import.meta.env.VITE_CHAT_AUTH_TOKEN || 'T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -120,11 +120,58 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error: any) {
-      console.error('Erro ao enviar mensagem:', error);
+      // Não usar console em produção - apenas tratar o erro
+      
+      // Detectar tipo de erro sem expor detalhes sensíveis
+      let errorType = 'unknown';
+      let errorText = 'Desculpe, ocorreu um erro ao comunicar com o assistente. Por favor, tente novamente.';
+      
+      const errorMessageStr = error?.message?.toLowerCase() || '';
+      const errorNameStr = error?.name?.toLowerCase() || '';
+      
+      // Detectar Mixed Content (HTTP em HTTPS)
+      if (errorMessageStr.includes('mixed content') || 
+          errorMessageStr.includes('blocked:mixed-content') ||
+          errorMessageStr.includes('mixedcontenterror')) {
+        errorType = 'mixed_content';
+        errorText = '⚠️ Erro de segurança detectado: O navegador bloqueou a conexão por questões de segurança. Isso geralmente acontece quando o site usa HTTPS mas tenta conectar a um servidor HTTP. Por favor, entre em contato pelo WhatsApp para mais informações.';
+      } 
+      // Detectar CORS
+      else if (errorMessageStr.includes('cors') || 
+               errorMessageStr.includes('cross-origin') ||
+               errorNameStr === 'typeerror') {
+        errorType = 'cors';
+        errorText = '⚠️ Erro de conexão: O servidor não permitiu a requisição. Isso pode ser um problema de configuração do servidor. Por favor, tente novamente ou entre em contato pelo WhatsApp.';
+      } 
+      // Detectar falha de rede
+      else if (errorMessageStr.includes('failed to fetch') || 
+               errorMessageStr.includes('networkerror') ||
+               errorMessageStr.includes('network request failed')) {
+        errorType = 'network';
+        errorText = '⚠️ Erro de rede: Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.';
+      }
+      // Erro HTTP (status code)
+      else if (error?.message?.match(/erro \d{3}/i)) {
+        errorType = 'http_error';
+        errorText = `⚠️ Erro do servidor: ${error.message}. Por favor, tente novamente em alguns instantes.`;
+      }
+      
+      // Armazenar erro para diagnóstico (sem expor no console)
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.setItem('chat_last_error', JSON.stringify({
+            type: errorType,
+            timestamp: Date.now(),
+            url: webhookUrl ? new URL(webhookUrl).origin : 'unknown'
+          }));
+        } catch {
+          // Ignorar se não conseguir salvar
+        }
+      }
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'Desculpe, ocorreu um erro ao comunicar com o assistente. Por favor, tente novamente.',
+        text: errorText,
         sender: 'bot',
         timestamp: new Date()
       };

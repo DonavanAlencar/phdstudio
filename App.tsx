@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './src/components/ChatWidget';
+import ChatDiagnostic from './src/components/ChatDiagnostic';
 import {
   LineChart,
   Line,
@@ -3205,6 +3206,18 @@ function App() {
                 <ProtectedAdminRoute>
                   <LogsPage />
                 </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/chat-diagnostico"
+              element={
+                <>
+                  <Navbar />
+                  <main>
+                    <ChatDiagnostic />
+                  </main>
+                  <Footer />
+                </>
               }
             />
           </Routes>

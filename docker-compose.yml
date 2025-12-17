@@ -9,6 +9,8 @@ services:
         - VITE_EMAILJS_TEMPLATE_ID=${VITE_EMAILJS_TEMPLATE_ID:-}
         - VITE_EMAILJS_PUBLIC_KEY=${VITE_EMAILJS_PUBLIC_KEY:-}
         - VITE_RECIPIENT_EMAIL=${VITE_RECIPIENT_EMAIL:-}
+        - VITE_CHAT_WEBHOOK_URL=${VITE_CHAT_WEBHOOK_URL:-}
+        - VITE_CHAT_AUTH_TOKEN=${VITE_CHAT_AUTH_TOKEN:-}
     container_name: phdstudio-app
     # Porta exposta para o Easypanel/Traefik rotear
     expose:
