@@ -5,6 +5,7 @@ import {
   TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown, Download
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import ChatWidget from './src/components/ChatWidget';
 import {
   LineChart,
   Line,
@@ -3139,6 +3140,7 @@ function App() {
         <VisitorTracker />
         <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
           <CookieBanner />
+          <ChatWidget />
           <Routes>
             <Route
               path="/"
