@@ -8,6 +8,7 @@ import {
 import emailjs from '@emailjs/browser';
 import ChatWidget from './src/components/ChatWidget';
 import ChatDiagnostic from './src/components/ChatDiagnostic';
+import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 import {
   LineChart,
   Line,
@@ -191,17 +192,8 @@ const logVisit = async (page: string) => {
     referrer: document.referrer || 'direct'
   };
   
-  // Salvar no localStorage (logs locais)
-  const logsKey = 'phdstudio_access_logs';
-  const existingLogs = JSON.parse(localStorage.getItem(logsKey) || '[]');
-  existingLogs.push(logEntry);
-  
-  // Manter apenas os últimos 100 logs
-  if (existingLogs.length > 100) {
-    existingLogs.shift();
-  }
-  
-  localStorage.setItem(logsKey, JSON.stringify(existingLogs));
+  // Salvar usando IndexedDB (persistente mesmo após deploy)
+  await saveAccessLog(logEntry);
   
   // Enviar evento para Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -231,17 +223,8 @@ const logLogin = async (username: string, success: boolean, location?: string): 
     location
   };
   
-  // Salvar no localStorage
-  const logsKey = 'phdstudio_login_logs';
-  const existingLogs = JSON.parse(localStorage.getItem(logsKey) || '[]');
-  existingLogs.push(loginLog);
-  
-  // Manter apenas os últimos 50 logs de login
-  if (existingLogs.length > 50) {
-    existingLogs.shift();
-  }
-  
-  localStorage.setItem(logsKey, JSON.stringify(existingLogs));
+  // Salvar usando IndexedDB (persistente mesmo após deploy)
+  await saveLoginLog(loginLog);
   
   // Enviar evento para Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -256,17 +239,8 @@ const logLogin = async (username: string, success: boolean, location?: string): 
   return loginLog;
 };
 
-// Obter logs de acesso (para visualização)
-const getAccessLogs = (): any[] => {
-  const logsKey = 'phdstudio_access_logs';
-  return JSON.parse(localStorage.getItem(logsKey) || '[]');
-};
-
-// Obter logs de login (para visualização)
-const getLoginLogs = (): LoginLog[] => {
-  const logsKey = 'phdstudio_login_logs';
-  return JSON.parse(localStorage.getItem(logsKey) || '[]');
-};
+// Obter logs de acesso (para visualização) - agora usa IndexedDB
+// Nota: getAccessLogs e getLoginLogs são importados de logsStorage.ts
 
 // --- Chat Visibility Context ---
 interface ChatVisibilityContextType {
@@ -2778,13 +2752,17 @@ const LogsPage = () => {
   const { isChatVisible, toggleChat } = useChatVisibility();
 
   useEffect(() => {
-    const access = getAccessLogs().reverse();
-    const login = getLoginLogs().reverse();
-    setAccessLogs(access);
-    setLoginLogs(login);
-    setFilteredAccessLogs(access);
-    setFilteredLoginLogs(login);
-    setSuspiciousLogins(detectSuspiciousLogins(login));
+    // Carregar logs de forma assíncrona do IndexedDB
+    const loadLogs = async () => {
+      const access = (await getAccessLogs()).reverse();
+      const login = (await getLoginLogs()).reverse();
+      setAccessLogs(access);
+      setLoginLogs(login);
+      setFilteredAccessLogs(access);
+      setFilteredLoginLogs(login);
+      setSuspiciousLogins(detectSuspiciousLogins(login));
+    };
+    loadLogs();
   }, []);
 
   useEffect(() => {
