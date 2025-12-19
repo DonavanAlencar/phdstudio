@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, AlertCircle } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -29,10 +29,58 @@ const getSessionId = (): string => {
   return sessionId;
 };
 
+// Função para detectar e corrigir Mixed Content (HTTP em página HTTPS)
+const fixMixedContent = (url: string): { url: string; hasMixedContent: boolean } => {
+  const isHttpsPage = window.location.protocol === 'https:';
+  const isHttpUrl = url.startsWith('http://');
+  
+  if (isHttpsPage && isHttpUrl) {
+    // Tentar converter para HTTPS
+    const httpsUrl = url.replace('http://', 'https://');
+    return { url: httpsUrl, hasMixedContent: true };
+  }
+  
+  return { url, hasMixedContent: false };
+};
+
+// Obter configurações de variáveis de ambiente ou usar padrões
+const getWebhookConfig = () => {
+  const envWebhookUrl = import.meta.env.VITE_CHAT_WEBHOOK_URL;
+  const envAuthToken = import.meta.env.VITE_CHAT_AUTH_TOKEN;
+  
+  return {
+    webhookUrl: envWebhookUrl || 'http://148.230.79.105:5679/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2',
+    authToken: envAuthToken || 'T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly',
+    usingEnvVars: !!(envWebhookUrl || envAuthToken)
+  };
+};
+
 const ChatWidget: React.FC<ChatWidgetProps> = ({ 
-  webhookUrl = 'http://148.230.79.105:5679/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2',
-  authToken = 'T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly'
+  webhookUrl: propWebhookUrl,
+  authToken: propAuthToken
 }) => {
+  // Usar props ou variáveis de ambiente ou valores padrão
+  const config = getWebhookConfig();
+  const finalWebhookUrl = propWebhookUrl || config.webhookUrl;
+  const finalAuthToken = propAuthToken || config.authToken;
+  
+  // Corrigir Mixed Content se necessário
+  const { url: safeWebhookUrl, hasMixedContent } = fixMixedContent(finalWebhookUrl);
+  
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      text: 'Olá! Sou o assistente virtual da PHD Studio. Como posso ajudá-lo hoje?',
+      sender: 'bot',
+      timestamp: new Date()
+    }
+  ]);
+  const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -77,12 +125,13 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
+    setConnectionError(null);
 
     try {
-      const response = await fetch(webhookUrl, {
+      const response = await fetch(safeWebhookUrl, {
         method: 'POST',
         headers: {
-          'Authentication': authToken,
+          'Authentication': finalAuthToken,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -122,14 +171,33 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     } catch (error: any) {
       console.error('Erro ao enviar mensagem:', error);
       
-      const errorMessage: Message = {
+      // Detectar tipo de erro específico
+      let errorMessage = 'Desculpe, ocorreu um erro ao comunicar com o assistente.';
+      
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        if (hasMixedContent) {
+          errorMessage = 'Erro de conexão: O servidor do webhook precisa estar configurado com HTTPS para funcionar em páginas seguras. Entre em contato com o suporte.';
+          setConnectionError('MIXED_CONTENT');
+        } else {
+          errorMessage = 'Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.';
+          setConnectionError('NETWORK_ERROR');
+        }
+      } else if (error.message?.includes('CORS')) {
+        errorMessage = 'Erro de CORS: O servidor não permite requisições deste domínio.';
+        setConnectionError('CORS_ERROR');
+      } else {
+        errorMessage = `Erro: ${error.message || 'Erro desconhecido'}. Por favor, tente novamente.`;
+        setConnectionError('UNKNOWN_ERROR');
+      }
+      
+      const errorBotMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'Desculpe, ocorreu um erro ao comunicar com o assistente. Por favor, tente novamente.',
+        text: errorMessage,
         sender: 'bot',
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, errorBotMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -178,6 +246,16 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Aviso de Mixed Content */}
+          {hasMixedContent && (
+            <div className="bg-yellow-500/20 border-b border-yellow-500/30 px-4 py-2 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+              <p className="text-yellow-300 text-xs">
+                Aviso: Tentando conexão HTTPS. Se o erro persistir, o servidor precisa estar configurado com HTTPS.
+              </p>
+            </div>
+          )}
 
           {/* Área de mensagens */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-brand-gray/50">

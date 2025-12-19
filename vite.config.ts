@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+        // Variáveis VITE_ são automaticamente expostas pelo Vite
       },
       resolve: {
         alias: {
