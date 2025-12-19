@@ -9,6 +9,8 @@ ARG VITE_EMAILJS_SERVICE_ID
 ARG VITE_EMAILJS_TEMPLATE_ID
 ARG VITE_EMAILJS_PUBLIC_KEY
 ARG VITE_RECIPIENT_EMAIL
+ARG VITE_CHAT_WEBHOOK_URL
+ARG VITE_CHAT_AUTH_TOKEN
 
 # Copiar arquivos de dependências
 COPY package.json package-lock.json ./
@@ -26,7 +28,9 @@ RUN echo "GEMINI_API_KEY=${GEMINI_API_KEY:-}" > .env.local && \
     echo "VITE_EMAILJS_SERVICE_ID=${VITE_EMAILJS_SERVICE_ID:-}" >> .env.local && \
     echo "VITE_EMAILJS_TEMPLATE_ID=${VITE_EMAILJS_TEMPLATE_ID:-}" >> .env.local && \
     echo "VITE_EMAILJS_PUBLIC_KEY=${VITE_EMAILJS_PUBLIC_KEY:-}" >> .env.local && \
-    echo "VITE_RECIPIENT_EMAIL=${VITE_RECIPIENT_EMAIL:-}" >> .env.local
+    echo "VITE_RECIPIENT_EMAIL=${VITE_RECIPIENT_EMAIL:-}" >> .env.local && \
+    echo "VITE_CHAT_WEBHOOK_URL=${VITE_CHAT_WEBHOOK_URL:-}" >> .env.local && \
+    echo "VITE_CHAT_AUTH_TOKEN=${VITE_CHAT_AUTH_TOKEN:-}" >> .env.local
 
 # Build da aplicação
 RUN npm run build

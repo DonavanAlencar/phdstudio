@@ -229,6 +229,12 @@ VITE_RECIPIENT_EMAIL=seu-email@gmail.com
 VITE_EMAILJS_SERVICE_ID=seu-service-id
 VITE_EMAILJS_TEMPLATE_ID=seu-template-id
 VITE_EMAILJS_PUBLIC_KEY=sua-public-key
+
+# Chat Webhook (opcional - para contornar Mixed Content sem domínio)
+# Use um tunnel HTTPS: ngrok, Cloudflare Tunnel ou LocalTunnel
+# Veja: docs/SOLUCAO_TUNNEL_HTTPS.md
+VITE_CHAT_WEBHOOK_URL=https://seu-tunnel.ngrok-free.app/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2
+VITE_CHAT_AUTH_TOKEN=T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly
 ```
 
 ### Importante

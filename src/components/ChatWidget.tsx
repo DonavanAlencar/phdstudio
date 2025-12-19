@@ -59,6 +59,34 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   webhookUrl: propWebhookUrl,
   authToken: propAuthToken
 }) => {
+  // Verificar visibilidade do chat via localStorage (controlado pelo admin)
+  const [isChatVisible, setIsChatVisible] = useState(() => {
+    const stored = localStorage.getItem('phdstudio_chat_visible');
+    return stored !== null ? stored === 'true' : true; // Default: visível
+  });
+
+  // Escutar mudanças no localStorage (para atualizar quando admin mudar)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem('phdstudio_chat_visible');
+      setIsChatVisible(stored !== null ? stored === 'true' : true);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // Também verificar periodicamente (para mesma aba)
+    const interval = setInterval(handleStorageChange, 500);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Se o chat estiver desabilitado, não renderizar nada
+  if (!isChatVisible) {
+    return null;
+  }
+
   // Usar props ou variáveis de ambiente ou valores padrão
   const config = getWebhookConfig();
   const finalWebhookUrl = propWebhookUrl || config.webhookUrl;
@@ -67,20 +95,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   // Corrigir Mixed Content se necessário
   const { url: safeWebhookUrl, hasMixedContent } = fixMixedContent(finalWebhookUrl);
   
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Olá! Sou o assistente virtual da PHD Studio. Como posso ajudá-lo hoje?',
-      sender: 'bot',
-      timestamp: new Date()
-    }
-  ]);
-  const [inputText, setInputText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [connectionError, setConnectionError] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -125,7 +139,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
-    setConnectionError(null);
 
     try {
       const response = await fetch(safeWebhookUrl, {
@@ -169,30 +182,62 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error: any) {
-      console.error('Erro ao enviar mensagem:', error);
+      // Não usar console em produção - apenas tratar o erro
       
-      // Detectar tipo de erro específico
-      let errorMessage = 'Desculpe, ocorreu um erro ao comunicar com o assistente.';
+      // Detectar tipo de erro sem expor detalhes sensíveis
+      let errorType = 'unknown';
+      let errorText = 'Desculpe, ocorreu um erro ao comunicar com o assistente. Por favor, tente novamente.';
       
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+      const errorMessageStr = error?.message?.toLowerCase() || '';
+      const errorNameStr = error?.name?.toLowerCase() || '';
+      
+      // Detectar Mixed Content (HTTP em HTTPS)
+      if (errorMessageStr.includes('mixed content') || 
+          errorMessageStr.includes('blocked:mixed-content') ||
+          errorMessageStr.includes('mixedcontenterror')) {
+        errorType = 'mixed_content';
+        errorText = '⚠️ Erro de segurança detectado: O navegador bloqueou a conexão por questões de segurança. Isso geralmente acontece quando o site usa HTTPS mas tenta conectar a um servidor HTTP. Por favor, entre em contato pelo WhatsApp para mais informações.';
+      } 
+      // Detectar CORS
+      else if (errorMessageStr.includes('cors') || 
+               errorMessageStr.includes('cross-origin') ||
+               errorNameStr === 'typeerror') {
+        errorType = 'cors';
+        errorText = '⚠️ Erro de conexão: O servidor não permitiu a requisição. Isso pode ser um problema de configuração do servidor. Por favor, tente novamente ou entre em contato pelo WhatsApp.';
+      } 
+      // Detectar falha de rede
+      else if (errorMessageStr.includes('failed to fetch') || 
+               errorMessageStr.includes('networkerror') ||
+               errorMessageStr.includes('network request failed')) {
+        errorType = 'network';
         if (hasMixedContent) {
-          errorMessage = 'Erro de conexão: O servidor do webhook precisa estar configurado com HTTPS para funcionar em páginas seguras. Entre em contato com o suporte.';
-          setConnectionError('MIXED_CONTENT');
+          errorText = '⚠️ Erro de conexão: O servidor do webhook precisa estar configurado com HTTPS para funcionar em páginas seguras. Entre em contato com o suporte.';
         } else {
-          errorMessage = 'Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.';
-          setConnectionError('NETWORK_ERROR');
+          errorText = '⚠️ Erro de rede: Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.';
         }
-      } else if (error.message?.includes('CORS')) {
-        errorMessage = 'Erro de CORS: O servidor não permite requisições deste domínio.';
-        setConnectionError('CORS_ERROR');
-      } else {
-        errorMessage = `Erro: ${error.message || 'Erro desconhecido'}. Por favor, tente novamente.`;
-        setConnectionError('UNKNOWN_ERROR');
+      }
+      // Erro HTTP (status code)
+      else if (error?.message?.match(/erro \d{3}/i)) {
+        errorType = 'http_error';
+        errorText = `⚠️ Erro do servidor: ${error.message}. Por favor, tente novamente em alguns instantes.`;
+      }
+      
+      // Armazenar erro para diagnóstico (sem expor no console)
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.setItem('chat_last_error', JSON.stringify({
+            type: errorType,
+            timestamp: Date.now(),
+            url: safeWebhookUrl ? new URL(safeWebhookUrl).origin : 'unknown'
+          }));
+        } catch {
+          // Ignorar se não conseguir salvar
+        }
       }
       
       const errorBotMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: errorMessage,
+        text: errorText,
         sender: 'bot',
         timestamp: new Date()
       };
@@ -335,4 +380,3 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 };
 
 export default ChatWidget;
-

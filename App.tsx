@@ -2,10 +2,13 @@ import React, { useState, useEffect, useRef, createContext, useContext } from 'r
 import { BrowserRouter, Link, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
-  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown, Download
+  TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown, Download,
+  MessageCircle, Power, PowerOff
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './src/components/ChatWidget';
+import ChatDiagnostic from './src/components/ChatDiagnostic';
+import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 import {
   LineChart,
   Line,
@@ -189,17 +192,8 @@ const logVisit = async (page: string) => {
     referrer: document.referrer || 'direct'
   };
   
-  // Salvar no localStorage (logs locais)
-  const logsKey = 'phdstudio_access_logs';
-  const existingLogs = JSON.parse(localStorage.getItem(logsKey) || '[]');
-  existingLogs.push(logEntry);
-  
-  // Manter apenas os últimos 100 logs
-  if (existingLogs.length > 100) {
-    existingLogs.shift();
-  }
-  
-  localStorage.setItem(logsKey, JSON.stringify(existingLogs));
+  // Salvar usando IndexedDB (persistente mesmo após deploy)
+  await saveAccessLog(logEntry);
   
   // Enviar evento para Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -229,17 +223,8 @@ const logLogin = async (username: string, success: boolean, location?: string): 
     location
   };
   
-  // Salvar no localStorage
-  const logsKey = 'phdstudio_login_logs';
-  const existingLogs = JSON.parse(localStorage.getItem(logsKey) || '[]');
-  existingLogs.push(loginLog);
-  
-  // Manter apenas os últimos 50 logs de login
-  if (existingLogs.length > 50) {
-    existingLogs.shift();
-  }
-  
-  localStorage.setItem(logsKey, JSON.stringify(existingLogs));
+  // Salvar usando IndexedDB (persistente mesmo após deploy)
+  await saveLoginLog(loginLog);
   
   // Enviar evento para Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -254,16 +239,42 @@ const logLogin = async (username: string, success: boolean, location?: string): 
   return loginLog;
 };
 
-// Obter logs de acesso (para visualização)
-const getAccessLogs = (): any[] => {
-  const logsKey = 'phdstudio_access_logs';
-  return JSON.parse(localStorage.getItem(logsKey) || '[]');
+// Obter logs de acesso (para visualização) - agora usa IndexedDB
+// Nota: getAccessLogs e getLoginLogs são importados de logsStorage.ts
+
+// --- Chat Visibility Context ---
+interface ChatVisibilityContextType {
+  isChatVisible: boolean;
+  toggleChat: () => void;
+}
+
+const ChatVisibilityContext = createContext<ChatVisibilityContextType | undefined>(undefined);
+
+const useChatVisibility = () => {
+  const context = useContext(ChatVisibilityContext);
+  if (!context) {
+    throw new Error('useChatVisibility must be used within ChatVisibilityProvider');
+  }
+  return context;
 };
 
-// Obter logs de login (para visualização)
-const getLoginLogs = (): LoginLog[] => {
-  const logsKey = 'phdstudio_login_logs';
-  return JSON.parse(localStorage.getItem(logsKey) || '[]');
+const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isChatVisible, setIsChatVisible] = useState(() => {
+    const stored = localStorage.getItem('phdstudio_chat_visible');
+    return stored !== null ? stored === 'true' : true; // Default: visível
+  });
+
+  const toggleChat = () => {
+    const newValue = !isChatVisible;
+    setIsChatVisible(newValue);
+    localStorage.setItem('phdstudio_chat_visible', String(newValue));
+  };
+
+  return (
+    <ChatVisibilityContext.Provider value={{ isChatVisible, toggleChat }}>
+      {children}
+    </ChatVisibilityContext.Provider>
+  );
 };
 
 // --- Authentication Context ---
@@ -2630,6 +2641,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const menuItems = [
     { path: '/logs', label: 'Dashboard & Logs', icon: BarChart3 },
+    { path: '/chat-diagnostico', label: 'Diagnóstico do Chat', icon: MessageCircle },
   ];
 
   return (
@@ -2737,15 +2749,20 @@ const LogsPage = () => {
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'success' | 'failed'>('all');
   const [suspiciousLogins, setSuspiciousLogins] = useState<LoginLog[]>([]);
+  const { isChatVisible, toggleChat } = useChatVisibility();
 
   useEffect(() => {
-    const access = getAccessLogs().reverse();
-    const login = getLoginLogs().reverse();
-    setAccessLogs(access);
-    setLoginLogs(login);
-    setFilteredAccessLogs(access);
-    setFilteredLoginLogs(login);
-    setSuspiciousLogins(detectSuspiciousLogins(login));
+    // Carregar logs de forma assíncrona do IndexedDB
+    const loadLogs = async () => {
+      const access = (await getAccessLogs()).reverse();
+      const login = (await getLoginLogs()).reverse();
+      setAccessLogs(access);
+      setLoginLogs(login);
+      setFilteredAccessLogs(access);
+      setFilteredLoginLogs(login);
+      setSuspiciousLogins(detectSuspiciousLogins(login));
+    };
+    loadLogs();
   }, []);
 
   useEffect(() => {
@@ -2869,12 +2886,48 @@ const LogsPage = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-black font-heading mb-4">
-            Dashboard & Logs
-          </h1>
-          <p className="text-gray-400">
-            Monitoramento completo de visitas e segurança do sistema
-          </p>
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-black font-heading mb-2">
+                Dashboard & Logs
+              </h1>
+              <p className="text-gray-400">
+                Monitoramento completo de visitas e segurança do sistema
+              </p>
+            </div>
+            {/* Botão de Toggle do Chat */}
+            <button
+              onClick={toggleChat}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                isChatVisible
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
+                  : 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
+              }`}
+              title={isChatVisible ? 'Desativar Chat' : 'Ativar Chat'}
+            >
+              {isChatVisible ? (
+                <>
+                  <PowerOff size={20} />
+                  <span className="hidden md:inline">Desativar Chat</span>
+                </>
+              ) : (
+                <>
+                  <Power size={20} />
+                  <span className="hidden md:inline">Ativar Chat</span>
+                </>
+              )}
+            </button>
+          </div>
+          <div className={`mt-3 px-4 py-2 rounded-lg text-sm ${
+            isChatVisible
+              ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+          }`}>
+            <span className="flex items-center gap-2">
+              <MessageCircle size={16} />
+              Chat do Assistente: <strong>{isChatVisible ? 'ATIVO' : 'DESATIVADO'}</strong>
+            </span>
+          </div>
         </div>
 
         {/* Alertas de Segurança */}
@@ -3136,11 +3189,12 @@ const LogsPage = () => {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <VisitorTracker />
-        <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
-          <CookieBanner />
-          <ChatWidget />
+      <ChatVisibilityProvider>
+        <BrowserRouter>
+          <VisitorTracker />
+          <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+            <CookieBanner />
+            <ChatWidgetWrapper />
           <Routes>
             <Route
               path="/"
@@ -3207,11 +3261,26 @@ function App() {
                 </ProtectedAdminRoute>
               }
             />
+            <Route
+              path="/chat-diagnostico"
+              element={
+                <ProtectedAdminRoute>
+                  <ChatDiagnostic />
+                </ProtectedAdminRoute>
+              }
+            />
           </Routes>
         </div>
       </BrowserRouter>
+      </ChatVisibilityProvider>
     </AuthProvider>
   );
 }
+
+// Wrapper para ChatWidget com contexto
+const ChatWidgetWrapper = () => {
+  const { isChatVisible } = useChatVisibility();
+  return isChatVisible ? <ChatWidget /> : null;
+};
 
 export default App;
