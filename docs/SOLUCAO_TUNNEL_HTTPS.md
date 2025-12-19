@@ -223,3 +223,4 @@ Use um serviço de tunnel que fornece HTTPS grátis apontando para seu servidor 
 - Verifique se o servidor HTTP está respondendo
 - Verifique logs do tunnel
 
+
