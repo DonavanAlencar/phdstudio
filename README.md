@@ -1,529 +1,113 @@
-# PHD Studio - Documentação Completa
+# PHD Studio - Sistema de Gerenciamento de Produtos
 
-Aplicação React/Vite com deploy automatizado via Docker e Traefik.
+Sistema completo de gerenciamento de produtos/serviços do PHD Studio com:
+- **Plugin WordPress** para painel administrativo (CRUD)
+- **API REST** para integração com n8n e outros sistemas
+- **Banco de dados MySQL** no WordPress Docker
 
-**Domínio**: phdstudio.com.br  
-**IP do Servidor**: 148.230.79.105
+## 📋 Status Atual
 
----
+✅ **Plugin WordPress:** Instalado e ativado em `/root/wordpress/wp_data/plugins/phd-products/`  
+✅ **API REST:** Rodando na porta 3001  
+✅ **Banco de Dados:** 9 produtos cadastrados (seed automático)  
+✅ **Docker:** Configurado e funcionando
 
-## 📋 Índice
+## 🚀 Início Rápido
 
-1. [Status da Implantação](#status-da-implantação)
-2. [Configuração Inicial](#configuração-inicial)
-3. [Deploy](#deploy)
-4. [Configuração de Domínio](#configuração-de-domínio)
-5. [Variáveis de Ambiente](#variáveis-de-ambiente)
-6. [Comandos Úteis](#comandos-úteis)
-7. [Deploy Automatizado](#deploy-automatizado)
-8. [Documentação Técnica](#documentação-técnica)
-9. [Troubleshooting](#troubleshooting)
+### 1. Acessar Painel WordPress
 
----
+```
+http://seu-servidor:8080/wp-admin
+```
 
-## ✅ Status da Implantação
+Menu: **PHD Studio** → **Todos os Produtos**
 
-**Status**: ✅ **IMPLANTADO COM SUCESSO**  
-**Data**: 15/12/2025
+### 2. Testar API REST
 
-### O que está funcionando:
+```bash
+# Health check
+curl http://localhost:3001/health
 
-- ✅ Container `phdstudio-app` rodando
-- ✅ Aplicação React/Vite buildada e servida pelo Nginx
-- ✅ Conectado à rede `n8n_default` (mesma do Traefik)
-- ✅ Labels do Traefik configurados corretamente
-- ✅ Entrypoints: `web` (HTTP) e `websecure` (HTTPS)
-- ✅ Certificate resolver: `mytlschallenge`
+# Listar produtos
+curl -X GET http://localhost:3001/api/phd/v1/products \
+  -H "X-PHD-API-KEY: sua-api-key"
+```
 
-### Configuração Atual:
+### 3. Executar Testes Automatizados
 
-- **Container**: `phdstudio-app`
-- **Rede**: `n8n_default`
-- **Porta interna**: 80 (exposta apenas na rede Docker)
-- **Traefik**: Detecta automaticamente via labels
+```bash
+/root/phdstudio/TESTE_API.sh
+```
 
----
+## 📚 Documentação
 
-## 🚀 Configuração Inicial
+- **[INSTALACAO_DOCKER.md](INSTALACAO_DOCKER.md)** - Guia completo de instalação no Docker
+- **[README_PLUGIN.md](README_PLUGIN.md)** - Documentação do plugin WordPress
+- **[STATUS_INSTALACAO.md](STATUS_INSTALACAO.md)** - Status atual da instalação
+- **[SEGURANCA.md](SEGURANCA.md)** - Práticas de segurança implementadas
+- **[SETUP_SEGURANCA.md](SETUP_SEGURANCA.md)** - Configuração de segurança
 
-### Pré-requisitos
+## 🔧 Scripts Úteis
 
-- Docker e Docker Compose instalados ✅
-- Traefik rodando na rede `n8n_default` ✅
-- Arquivo `.env` configurado (veja seção abaixo)
+- **`ativar-plugin.sh`** - Ativar/reativar plugin WordPress
+- **`TESTE_API.sh`** - Testar todos os endpoints da API
 
-### Estrutura de Arquivos
+## 🗄️ Estrutura do Projeto
 
 ```
 /root/phdstudio/
-├── docker-compose.yml      # Configuração Docker com Traefik
-├── Dockerfile              # Build da aplicação
-├── nginx.conf              # Configuração Nginx com SSL
-├── nginx-init.conf         # Configuração inicial (sem SSL)
-├── .env                    # Variáveis de ambiente (criar/preencher)
-├── deploy.sh               # Script de deploy automático
-├── backups/                # Backups e scripts de rollback
-└── README.md               # Esta documentação
+├── api/                    # API REST (Node.js/Express)
+│   ├── server.js          # Servidor da API
+│   ├── package.json       # Dependências
+│   ├── Dockerfile         # Container da API
+│   └── env.example        # Template de configuração
+├── docker-compose.yml      # Configuração Docker
+├── INSTALACAO_DOCKER.md   # Guia de instalação
+├── README_PLUGIN.md       # Documentação do plugin
+├── STATUS_INSTALACAO.md   # Status atual
+├── SEGURANCA.md           # Segurança
+├── SETUP_SEGURANCA.md     # Setup de segurança
+├── ativar-plugin.sh       # Script de ativação
+└── TESTE_API.sh           # Script de testes
 ```
 
----
+## 🔐 Segurança
 
-## 🔧 Deploy
+- API Key obrigatória para todos os endpoints
+- Rate limiting configurado
+- Headers de segurança (Helmet.js)
+- Validação e sanitização rigorosa
+- Prepared statements (proteção SQL injection)
 
-### Deploy Manual (servidor)
+**Importante:** Configure uma API Key segura no arquivo `.env` da API.
+
+## 📖 Próximos Passos
+
+1. Configure API Key segura (veja `SETUP_SEGURANCA.md`)
+2. Integre com n8n usando a API REST
+3. Configure backup regular do banco de dados
+
+## 🆘 Troubleshooting
+
+### Plugin não aparece no WordPress
 
 ```bash
-cd /root/phdstudio
-docker compose up -d --build
+/root/phdstudio/ativar-plugin.sh
 ```
 
-### Deploy via Script Local (servidor)
+### API não responde
 
 ```bash
-cd /root/phdstudio
-./deploy.sh
+docker logs phd-api
+docker compose up -d phd-api
 ```
 
-### Deploy Automatizado (GitHub Actions → servidor) ✅
-
-Fluxo atual (sem Easypanel):
-
-1. **Servidor** (`srv934629`):
-   - Projeto clonado em `/root/phdstudio`
-   - Docker + Docker Compose instalados
-   - Script `deploy-remote.sh` presente no diretório do projeto
-2. **GitHub** (repositório `DonavanAlencar/phdstudio`):
-   - Secret `SSH_PRIVATE_KEY` configurado com a chave privada `id_ed25519_phdstudio`
-   - Secret `SERVER_HOST` configurado com o IP/host do servidor (ex.: `148.230.79.105`)
-   - Workflow `.github/workflows/deploy.yml` habilitado
-
-Quando houver **push na branch `main` ou `master`**, o GitHub:
-
-- Abre conexão SSH com `root@${SERVER_HOST}`
-- Entra em `/root/phdstudio`
-- Executa:
+### Verificar banco de dados
 
 ```bash
-./deploy-remote.sh
+docker exec wp_db mysql -u wp_user -p'WpUser@2024!Strong#Pass' wordpress_db -e "SELECT COUNT(*) FROM wp_phd_products;"
 ```
-
-O script `deploy-remote.sh` faz:
-
-- `git fetch` / `git pull origin main`  
-- Carrega variáveis do `.env` (se existir)  
-- Para e remove o container antigo `phdstudio-app`  
-- `docker compose build`  
-- `docker compose up -d`  
-- `docker image prune -f`  
-
-#### Como testar o deploy automatizado
-
-1. Confirme que você consegue acessar o servidor com a mesma chave usada no GitHub:
-
-```bash
-ssh -i ~/.ssh/id_ed25519_phdstudio root@148.230.79.105
-```
-
-2. No GitHub, verifique em **Settings → Secrets and variables → Actions**:
-   - `SSH_PRIVATE_KEY` preenchido com o conteúdo de `~/.ssh/id_ed25519_phdstudio`
-   - `SERVER_HOST` = `148.230.79.105`
-
-3. Faça uma pequena alteração no código (por exemplo, comentário em `App.tsx`), faça commit e push na **`main`**:
-
-```bash
-git add .
-git commit -m "teste: deploy automatizado"
-git push origin main
-```
-
-4. Acesse a aba **Actions → Deploy to Server** no GitHub e acompanhe o job:
-   - As etapas **Checkout code**, **Setup SSH** e **Deploy to server (Docker / Traefik)** devem ficar verdes
-
-5. No servidor, valide:
-
-```bash
-docker ps | grep phdstudio-app
-docker logs -f phdstudio-app
-```
-
-### Verificar Status
-
-```bash
-# Ver container
-docker ps | grep phdstudio
-
-# Ver logs
-docker logs -f phdstudio-app
-
-# Testar aplicação (dentro do container)
-docker exec phdstudio-app curl -s http://localhost | head -20
-```
-
-### Rebuild (após alterar .env)
-
-```bash
-cd /root/phdstudio
-docker compose up -d --build
-```
-
----
-
-## 🌐 Configuração de Domínio
-
-### 1. Configurar DNS no Registro.br
-
-1. Acesse: https://registro.br
-2. Faça login e vá em **Meus Domínios** → Selecione `phdstudio.com.br`
-3. Clique em **DNS** ou **Gerenciar DNS**
-4. Adicione/edite o registro:
-
-```
-Tipo: A
-Nome: @ (ou deixe em branco para raiz)
-Valor: 148.230.79.105
-TTL: 3600
-```
-
-### 2. Aguardar Propagação DNS
-
-- DNS pode levar de 5 minutos a 48 horas
-- Verificar com: `dig phdstudio.com.br` ou `nslookup phdstudio.com.br`
-
-### 3. SSL Automático
-
-Após o DNS propagar, o Traefik irá:
-- Detectar automaticamente o domínio
-- Solicitar certificado SSL via Let's Encrypt
-- Configurar HTTPS automaticamente
-
-**Não é necessário configurar manualmente!**
-
-### 4. Acessar
-
-Após propagação do DNS:
-- **HTTPS**: https://phdstudio.com.br (SSL automático via Traefik)
-- **HTTP**: http://phdstudio.com.br (redireciona automaticamente para HTTPS)
-
----
-
-## 🔐 Variáveis de Ambiente
-
-### Arquivo .env
-
-Edite o arquivo `/root/phdstudio/.env` e preencha as variáveis:
-
-```bash
-nano /root/phdstudio/.env
-```
-
-### Variáveis Necessárias
-
-```env
-# Google Gemini API
-GEMINI_API_KEY=sua-chave-aqui
-
-# EmailJS - Configure apenas seu email Gmail
-VITE_RECIPIENT_EMAIL=seu-email@gmail.com
-
-# EmailJS - Configure uma vez (obtenha em https://www.emailjs.com)
-VITE_EMAILJS_SERVICE_ID=seu-service-id
-VITE_EMAILJS_TEMPLATE_ID=seu-template-id
-VITE_EMAILJS_PUBLIC_KEY=sua-public-key
-
-# Chat Webhook (opcional - para contornar Mixed Content sem domínio)
-# Use um tunnel HTTPS: ngrok, Cloudflare Tunnel ou LocalTunnel
-# Veja: docs/SOLUCAO_TUNNEL_HTTPS.md
-VITE_CHAT_WEBHOOK_URL=https://seu-tunnel.ngrok-free.app/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2
-VITE_CHAT_AUTH_TOKEN=T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly
-```
-
-### Importante
-
-⚠️ **As variáveis são usadas no BUILD, não em runtime.**  
-Se alterar o `.env`, você precisa fazer rebuild:
-
-```bash
-cd /root/phdstudio
-docker compose up -d --build
-```
-
----
-
-## 🛠️ Comandos Úteis
-
-### Gerenciamento do Container
-
-```bash
-# Ver logs
-docker logs -f phdstudio-app
-
-# Parar aplicação
-cd /root/phdstudio && docker compose down
-
-# Reiniciar aplicação
-cd /root/phdstudio && docker compose restart
-
-# Rebuild completo
-cd /root/phdstudio && docker compose up -d --build
-
-# Ver status
-docker ps | grep phdstudio
-```
-
-### Verificação
-
-```bash
-# Container rodando
-docker ps | grep phdstudio-app
-
-# Rede conectada
-docker network inspect n8n_default | grep phdstudio
-
-# Labels do Traefik
-docker inspect phdstudio-app | grep -A 10 "Labels"
-
-# Logs do Traefik
-docker logs -f n8n-traefik-1
-```
-
-### Testes
-
-```bash
-# Testar aplicação (dentro do container)
-docker exec phdstudio-app curl -s http://localhost | head -20
-
-# Testar acesso externo (após DNS propagar)
-curl -I https://phdstudio.com.br
-```
-
----
-
-## 🔄 Deploy Automatizado
-
-### Opção 1: Webhook (Recomendado) ⭐
-
-O webhook recebe notificações do GitHub/GitLab quando há push e dispara o deploy automaticamente.
-
-#### Configuração:
-
-1. **Execute o script de setup:**
-   ```bash
-   cd /root/phdstudio
-   bash setup-automated-deploy.sh
-   ```
-
-2. **Configure webhook no GitHub:**
-   - Acesse: https://github.com/DonavanAlencar/phdstudio/settings/hooks
-   - Clique em "Add webhook"
-   - **Payload URL**: `http://148.230.79.105:9000/webhook`
-   - **Content type**: `application/json`
-   - **Events**: Selecione "Just the push event"
-   - Clique em "Add webhook"
-
-### Opção 2: Cron Job
-
-O cron job verifica periodicamente se há atualizações no repositório.
-
-- **Frequência**: A cada 5 minutos
-- **Log**: `/var/log/phdstudio-deploy.log`
-
-### Opção 3: GitHub Actions
-
-O GitHub Actions executa o deploy automaticamente quando há push na branch main.
-
-1. **Configure secrets no GitHub:**
-   - Acesse: https://github.com/DonavanAlencar/phdstudio/settings/secrets/actions
-   - Adicione:
-     - `SSH_PRIVATE_KEY`: Sua chave SSH privada
-     - `SERVER_HOST`: `148.230.79.105`
-
-2. **O workflow já está configurado** em `.github/workflows/deploy.yml`
-
-### Verificar Deploy Automatizado
-
-```bash
-# Ver logs do deploy
-tail -f /var/log/phdstudio-deploy.log
-
-# Ver logs do webhook
-tail -f /var/log/phdstudio-webhook.log
-```
-
----
-
-## 📚 Documentação Técnica
-
-### Valores do JSON
-
-Todos os valores numéricos das telas vêm do arquivo JSON:
-
-**Arquivo**: `public/data/projecoes_faturamento_vendas.json`
-
-#### Estrutura do JSON:
-
-1. **Agregados por Cenário** (dentro de cada cenário)
-   ```json
-   {
-     "nome": "Conservador",
-     "dadosMensais": [...],
-     "agregados": {
-       "totalLeads": 845,
-       "totalVendas": 12,
-       "totalTrafego": 2452,
-       "totalInvestimento": 19800,
-       "cpaMedio": 1650,
-       "conversaoMedia": 1.420
-     }
-   }
-   ```
-
-2. **Valores do Funil** (em `dadosAdicionais.funil`)
-   ```json
-   "funil": {
-     "valoresFunil": {
-       "start": {
-         "trafegoTotal": 2452,
-         "leads": 845,
-         "conversoes": 380,
-         "vendas": 12
-       }
-     }
-   }
-   ```
-
-3. **Investimento por Canal** (em `dadosAdicionais.estruturaCanais`)
-   ```json
-   "estruturaCanais": {
-     "metaAds": {
-       "investimentoPorPlano": {
-         "start": 900,
-         "premium": 1200
-       }
-     }
-   }
-   ```
-
-#### Como Atualizar Valores:
-
-1. Edite `public/data/projecoes_faturamento_vendas.json`
-2. Atualize os valores desejados
-3. Faça rebuild: `docker compose up -d --build`
-
----
-
-## 🔄 Rollback
-
-Se precisar reverter as mudanças:
-
-```bash
-cd /root/phdstudio
-./backups/ROLLBACK.sh
-```
-
-Ou manualmente:
-
-```bash
-docker stop phdstudio-app
-docker rm phdstudio-app
-```
-
----
-
-## 🔍 Troubleshooting
-
-### Container não inicia
-
-```bash
-# Ver logs detalhados
-docker logs phdstudio-app
-
-# Verificar se há erros no build
-docker compose build --no-cache
-```
-
-### Traefik não detecta o serviço
-
-```bash
-# Verificar se container está na rede correta
-docker network inspect n8n_default | grep phdstudio
-
-# Verificar labels do Traefik
-docker inspect phdstudio-app | grep -A 10 "Labels"
-
-# Ver logs do Traefik
-docker logs n8n-traefik-1 | tail -50
-```
-
-### DNS não propagou
-
-```bash
-# Verificar DNS
-dig phdstudio.com.br
-nslookup phdstudio.com.br
-
-# Verificar IP do servidor
-curl -4 ifconfig.me
-```
-
-### SSL não funciona
-
-1. Aguarde alguns minutos (certificados podem levar 2-5 minutos)
-2. Verifique se o DNS propagou completamente
-3. Verifique logs do Traefik: `docker logs n8n-traefik-1`
-
-### Variáveis de ambiente não funcionam
-
-⚠️ **Lembre-se**: Variáveis são usadas no BUILD, não em runtime.
-
-Se alterou o `.env`, faça rebuild:
-
-```bash
-docker compose up -d --build
-```
-
-### Aplicação não atualiza após deploy
-
-1. Verifique se o build foi concluído: `docker compose build`
-2. Verifique logs: `docker logs phdstudio-app`
-3. Force rebuild: `docker compose up -d --build --force-recreate`
-
----
-
-## 📝 Notas Importantes
-
-1. **Variáveis de ambiente**: Usadas no BUILD, não em runtime. Alterar `.env` requer rebuild.
-
-2. **Traefik**: Detecta automaticamente containers na rede `n8n_default` com labels `traefik.enable=true`.
-
-3. **SSL**: Certificado SSL será gerado automaticamente quando o DNS propagar.
-
-4. **Rede**: Container está na mesma rede do Traefik (`n8n_default`), permitindo comunicação interna.
-
-5. **Entrypoints Traefik**:
-   - HTTP: `web` (porta 80) - redireciona automaticamente para HTTPS
-   - HTTPS: `websecure` (porta 443)
-   - Certificate resolver: `mytlschallenge`
-
----
 
 ## 📞 Suporte
 
-Em caso de problemas:
-
-1. Verificar logs: `docker logs phdstudio-app`
-2. Verificar logs do Traefik: `docker logs n8n-traefik-1`
-3. Verificar rede: `docker network inspect n8n_default`
-4. Executar rollback se necessário: `./backups/ROLLBACK.sh`
-
----
-
-## 📁 Backups
-
-Backups automáticos são criados em `/root/phdstudio/backups/`:
-
-- `docker-compose.yml.backup-*` - Backups do docker-compose.yml
-- `ROLLBACK.sh` - Script de rollback
-
----
-
-**Última atualização**: 15/12/2025
+Para mais detalhes, consulte a documentação específica em cada arquivo `.md`.

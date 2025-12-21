@@ -1,0 +1,470 @@
+/**
+ * API REST para produtos PHD Studio
+ * Acessa o banco de dados MySQL do WordPress
+ * 
+ * SEGURANÇA:
+ * - Autenticação via API Key
+ * - Rate limiting
+ * - Headers de segurança
+ * - Validação rigorosa de inputs
+ * - Prepared statements (proteção SQL injection)
+ * - Sanitização de dados
+ */
+
+import express from 'express';
+import mysql from 'mysql2/promise';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+
+// Carregar variáveis de ambiente
+dotenv.config();
+
+const app = express();
+const PORT = process.env.API_PORT || 3001;
+
+// Validar variáveis de ambiente críticas
+if (!process.env.PHD_API_KEY) {
+    console.error('❌ ERRO: PHD_API_KEY não definida no .env');
+    process.exit(1);
+}
+
+if (!process.env.WP_DB_PASSWORD) {
+    console.error('❌ ERRO: WP_DB_PASSWORD não definida no .env');
+    process.exit(1);
+}
+
+// Middleware de segurança
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'"],
+            imgSrc: ["'self'", "data:", "https:"],
+        },
+    },
+    crossOriginEmbedderPolicy: false,
+}));
+
+// CORS configurado de forma segura
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+    : ['https://phdstudio.com.br', 'http://phdstudio.com.br'];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Permitir requisições sem origin (mobile apps, Postman, etc) em desenvolvimento
+        if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.warn(`CORS bloqueado para origem: ${origin}`);
+            callback(new Error('Não permitido por CORS'));
+        }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'X-PHD-API-KEY', 'Authorization'],
+    exposedHeaders: ['Content-Type']
+};
+app.use(cors(corsOptions));
+
+// Rate limiting - proteção contra brute force
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100, // máximo 100 requisições por IP
+    message: {
+        error: 'Muitas requisições deste IP',
+        message: 'Por favor, tente novamente em alguns minutos.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use('/phd/', limiter);
+
+// Rate limiting mais restritivo para autenticação
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5, // máximo 5 tentativas de autenticação
+    skipSuccessfulRequests: true,
+});
+app.use('/phd/v1/', authLimiter);
+
+// Limitar tamanho do body
+app.use(express.json({ limit: '10kb' }));
+
+// Configuração do banco de dados MySQL (WordPress)
+const dbConfig = {
+    host: process.env.WP_DB_HOST || 'localhost',
+    user: process.env.WP_DB_USER || 'root',
+    password: process.env.WP_DB_PASSWORD,
+    database: process.env.WP_DB_NAME || 'wordpress',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    connectTimeout: 10000, // 10 segundos timeout
+    acquireTimeout: 10000,
+    timeout: 10000,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
+    ssl: process.env.WP_DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+};
+
+// Pool de conexões MySQL
+const pool = mysql.createPool(dbConfig);
+
+// API Key para autenticação (OBRIGATÓRIA via .env)
+const API_KEY = process.env.PHD_API_KEY;
+
+// Logs de segurança
+const securityLog = {
+    failedAuth: [],
+    logFailedAuth: (ip, apiKey) => {
+        const entry = {
+            ip,
+            timestamp: new Date().toISOString(),
+            apiKeyPrefix: apiKey ? apiKey.substring(0, 8) + '...' : 'missing'
+        };
+        securityLog.failedAuth.push(entry);
+        // Manter apenas últimos 100 logs
+        if (securityLog.failedAuth.length > 100) {
+            securityLog.failedAuth.shift();
+        }
+        console.warn(`⚠️  Tentativa de autenticação falhada de ${ip} às ${entry.timestamp}`);
+    }
+};
+
+/**
+ * Middleware de autenticação via API Key
+ * Com proteção contra timing attacks usando comparação segura
+ */
+function authenticateApiKey(req, res, next) {
+    const apiKey = req.headers['x-phd-api-key'];
+    const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
+    
+    if (!apiKey) {
+        securityLog.logFailedAuth(clientIp, null);
+        return res.status(401).json({
+            error: 'API Key não fornecida',
+            message: 'Envie o header X-PHD-API-KEY com sua chave de API'
+        });
+    }
+    
+    // Comparação segura contra timing attacks
+    if (!secureCompare(apiKey, API_KEY)) {
+        securityLog.logFailedAuth(clientIp, apiKey);
+        return res.status(403).json({
+            error: 'API Key inválida',
+            message: 'A chave de API fornecida não é válida'
+        });
+    }
+    
+    next();
+}
+
+/**
+ * Comparação segura de strings (proteção contra timing attacks)
+ */
+function secureCompare(a, b) {
+    if (a.length !== b.length) {
+        return false;
+    }
+    
+    let result = 0;
+    for (let i = 0; i < a.length; i++) {
+        result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    }
+    
+    return result === 0;
+}
+
+/**
+ * Sanitizar e validar entrada de ID
+ */
+function validateId(id) {
+    const numId = parseInt(id, 10);
+    if (isNaN(numId) || numId <= 0 || numId > 2147483647) {
+        return null;
+    }
+    return numId;
+}
+
+/**
+ * Sanitizar string para prevenir XSS
+ */
+function sanitizeString(str) {
+    if (typeof str !== 'string') return '';
+    return str
+        .replace(/[<>]/g, '') // Remove < e >
+        .trim()
+        .substring(0, 1000); // Limite de tamanho
+}
+
+/**
+ * GET /phd/v1/products
+ * Lista todos os produtos
+ * Nota: O prefixo /api é removido pelo Traefik
+ */
+app.get('/phd/v1/products', authenticateApiKey, async (req, res) => {
+    let connection = null;
+    try {
+        // Validar e sanitizar prefixo da tabela
+        const tablePrefix = sanitizeString(process.env.WP_TABLE_PREFIX || 'wp_');
+        if (!/^[a-z0-9_]+$/i.test(tablePrefix)) {
+            throw new Error('Prefixo de tabela inválido');
+        }
+        const tableName = `${tablePrefix}phd_products`;
+        
+        connection = await pool.getConnection();
+        
+        // Query segura usando prepared statements
+        const [rows] = await connection.query(
+            `SELECT id, nome, categoria, atributos, preco_estimado, foto_url, updated_at 
+             FROM ?? 
+             ORDER BY categoria, nome ASC 
+             LIMIT 1000`,
+            [tableName]
+        );
+        
+        connection.release();
+        connection = null;
+        
+        // Processar produtos e formatar atributos JSON com sanitização
+        const products = rows.map(product => {
+            let atributos = {};
+            try {
+                const parsed = JSON.parse(product.atributos || '{}');
+                // Validar que é um objeto
+                if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+                    atributos = parsed;
+                }
+            } catch (e) {
+                atributos = {};
+            }
+            
+            // Sanitizar e validar URL da foto
+            let foto_url = sanitizeString(product.foto_url || '');
+            if (foto_url && !foto_url.startsWith('http')) {
+                const wpUrl = process.env.WP_URL || 'https://phdstudio.com.br';
+                // Validar URL antes de construir
+                if (wpUrl.match(/^https?:\/\/.+/)) {
+                    foto_url = foto_url.startsWith('/') 
+                        ? `${wpUrl}${foto_url}` 
+                        : `${wpUrl}/${foto_url}`;
+                }
+            }
+            
+            return {
+                id: parseInt(product.id, 10),
+                nome: sanitizeString(product.nome || ''),
+                categoria: sanitizeString(product.categoria || ''),
+                atributos: atributos,
+                preco_estimado: sanitizeString(product.preco_estimado || ''),
+                foto_url: foto_url,
+                updated_at: product.updated_at || null
+            };
+        });
+        
+        // Headers de segurança adicionais
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'DENY');
+        res.setHeader('X-XSS-Protection', '1; mode=block');
+        
+        res.json({
+            success: true,
+            count: products.length,
+            data: products,
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        if (connection) {
+            connection.release();
+        }
+        console.error('Erro ao buscar produtos:', error);
+        
+        // Não expor detalhes do erro em produção
+        const errorMessage = process.env.NODE_ENV === 'production' 
+            ? 'Erro interno do servidor' 
+            : error.message;
+            
+        res.status(500).json({
+            success: false,
+            error: 'Erro ao buscar produtos',
+            message: errorMessage
+        });
+    }
+});
+
+/**
+ * GET /phd/v1/products/:id
+ * Obter um produto específico por ID
+ * Nota: O prefixo /api é removido pelo Traefik
+ */
+app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
+    let connection = null;
+    try {
+        // Validar e sanitizar ID
+        const productId = validateId(req.params.id);
+        
+        if (!productId) {
+            return res.status(400).json({
+                success: false,
+                error: 'ID inválido',
+                message: 'O ID deve ser um número inteiro positivo'
+            });
+        }
+        
+        // Validar e sanitizar prefixo da tabela
+        const tablePrefix = sanitizeString(process.env.WP_TABLE_PREFIX || 'wp_');
+        if (!/^[a-z0-9_]+$/i.test(tablePrefix)) {
+            throw new Error('Prefixo de tabela inválido');
+        }
+        const tableName = `${tablePrefix}phd_products`;
+        
+        connection = await pool.getConnection();
+        
+        // Query segura usando prepared statements
+        const [rows] = await connection.query(
+            `SELECT id, nome, categoria, atributos, preco_estimado, foto_url, updated_at 
+             FROM ?? 
+             WHERE id = ? 
+             LIMIT 1`,
+            [tableName, productId]
+        );
+        
+        connection.release();
+        connection = null;
+        
+        if (rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Produto não encontrado'
+            });
+        }
+        
+        const product = rows[0];
+        let atributos = {};
+        try {
+            const parsed = JSON.parse(product.atributos || '{}');
+            if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+                atributos = parsed;
+            }
+        } catch (e) {
+            atributos = {};
+        }
+        
+        let foto_url = sanitizeString(product.foto_url || '');
+        if (foto_url && !foto_url.startsWith('http')) {
+            const wpUrl = process.env.WP_URL || 'https://phdstudio.com.br';
+            if (wpUrl.match(/^https?:\/\/.+/)) {
+                foto_url = foto_url.startsWith('/') 
+                    ? `${wpUrl}${foto_url}` 
+                    : `${wpUrl}/${foto_url}`;
+            }
+        }
+        
+        // Headers de segurança
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'DENY');
+        res.setHeader('X-XSS-Protection', '1; mode=block');
+        
+        res.json({
+            success: true,
+            data: {
+                id: parseInt(product.id, 10),
+                nome: sanitizeString(product.nome || ''),
+                categoria: sanitizeString(product.categoria || ''),
+                atributos: atributos,
+                preco_estimado: sanitizeString(product.preco_estimado || ''),
+                foto_url: foto_url,
+                updated_at: product.updated_at || null
+            },
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        if (connection) {
+            connection.release();
+        }
+        console.error('Erro ao buscar produto:', error);
+        
+        const errorMessage = process.env.NODE_ENV === 'production' 
+            ? 'Erro interno do servidor' 
+            : error.message;
+            
+        res.status(500).json({
+            success: false,
+            error: 'Erro ao buscar produto',
+            message: errorMessage
+        });
+    }
+});
+
+/**
+ * GET /health
+ * Endpoint de health check
+ */
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Middleware de tratamento de erros
+app.use((err, req, res, next) => {
+    console.error('Erro não tratado:', err);
+    res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor',
+        message: process.env.NODE_ENV === 'production' 
+            ? 'Erro interno do servidor' 
+            : err.message
+    });
+});
+
+// Tratamento de rotas não encontradas
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        error: 'Endpoint não encontrado',
+        message: 'A rota solicitada não existe'
+    });
+});
+
+// Tratamento de erros não capturados
+process.on('unhandledRejection', (error) => {
+    console.error('❌ Erro não tratado (unhandledRejection):', error);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('❌ Exceção não capturada (uncaughtException):', error);
+    process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    console.log('🛑 SIGTERM recebido, encerrando servidor...');
+    await pool.end();
+    process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+    console.log('🛑 SIGINT recebido, encerrando servidor...');
+    await pool.end();
+    process.exit(0);
+});
+
+// Iniciar servidor
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 API PHD Products rodando na porta ${PORT}`);
+    console.log(`📡 Endpoint: http://0.0.0.0:${PORT}/phd/v1/products`);
+    console.log(`🌐 Via Traefik: https://phdstudio.com.br/api/phd/v1/products`);
+    console.log(`🔒 Modo: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`✅ Segurança: Rate limiting, Helmet, Validação ativados`);
+    console.log(`🌍 CORS: ${allowedOrigins.join(', ')}`);
+});
+

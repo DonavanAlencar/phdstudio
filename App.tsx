@@ -3,11 +3,12 @@ import { BrowserRouter, Link, Routes, Route, Navigate, useNavigate, useLocation 
 import { 
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
   TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown, Download,
-  MessageCircle, Power, PowerOff
+  MessageCircle, Power, PowerOff, Package
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './src/components/ChatWidget';
 import ChatDiagnostic from './src/components/ChatDiagnostic';
+import ProductsAdmin from './src/components/ProductsAdmin';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 import {
   LineChart,
@@ -537,6 +538,9 @@ const Navbar = () => {
             </>
           ) : isAuthenticated && username === 'phdstudioadmin' ? (
             <>
+              <Link to="/produtos" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+                Produtos
+              </Link>
               <Link to="/logs" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Logs
               </Link>
@@ -598,6 +602,13 @@ const Navbar = () => {
             </>
           ) : isAuthenticated && username === 'phdstudioadmin' ? (
             <>
+              <Link
+                to="/produtos"
+                onClick={() => setIsOpen(false)}
+                className="text-2xl font-bold text-white hover:text-brand-red"
+              >
+                Produtos
+              </Link>
               <Link
                 to="/logs"
                 onClick={() => setIsOpen(false)}
@@ -2642,6 +2653,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const menuItems = [
     { path: '/logs', label: 'Dashboard & Logs', icon: BarChart3 },
     { path: '/chat-diagnostico', label: 'Diagnóstico do Chat', icon: MessageCircle },
+    { path: '/produtos', label: 'Produtos', icon: Package },
   ];
 
   return (
@@ -3266,6 +3278,14 @@ function App() {
               element={
                 <ProtectedAdminRoute>
                   <ChatDiagnostic />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/produtos"
+              element={
+                <ProtectedAdminRoute>
+                  <ProductsAdmin />
                 </ProtectedAdminRoute>
               }
             />

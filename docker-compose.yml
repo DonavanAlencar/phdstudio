@@ -39,7 +39,51 @@ services:
     networks:
       - n8n_default
 
+  phd-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: phd-api
+    expose:
+      - "3001"
+    restart: unless-stopped
+    environment:
+      # MySQL do WordPress Docker (container wp_db)
+      - WP_DB_HOST=wp_db
+      - WP_DB_USER=${WP_DB_USER:-wp_user}
+      - WP_DB_PASSWORD=${WP_DB_PASSWORD:-WpUser@2024!Strong#Pass}
+      - WP_DB_NAME=${WP_DB_NAME:-wordpress_db}
+      - WP_TABLE_PREFIX=${WP_TABLE_PREFIX:-wp_}
+      - WP_DB_SSL=false
+      - WP_URL=${WP_URL:-http://localhost:8080}
+      # API Key (configure no .env)
+      - PHD_API_KEY=${PHD_API_KEY:-CNZZoJ6rz7Gcb8Z80rYNSHfCW1jPxZTU}
+      - ALLOWED_ORIGINS=https://phdstudio.com.br,http://phdstudio.com.br
+      - API_PORT=3001
+      - NODE_ENV=production
+    labels:
+      # Labels do Traefik para expor API via path prefix
+      - "traefik.enable=true"
+      - "traefik.http.routers.phd-api.rule=Host(`phdstudio.com.br`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.phd-api.entrypoints=websecure"
+      - "traefik.http.routers.phd-api.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.phd-api.priority=200"
+      - "traefik.http.routers.phd-api.middlewares=phd-api-stripprefix"
+      - "traefik.http.services.phd-api.loadbalancer.server.port=3001"
+      # Middleware para remover prefixo /api
+      - "traefik.http.middlewares.phd-api-stripprefix.stripprefix.prefixes=/api"
+    networks:
+      - n8n_default
+      - wordpress_wp_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 networks:
   n8n_default:
+    external: true
+  wordpress_wp_network:
     external: true
 
