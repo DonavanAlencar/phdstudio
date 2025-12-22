@@ -10,6 +10,7 @@ import ChatWidget from './src/components/ChatWidget';
 import ChatDiagnostic from './src/components/ChatDiagnostic';
 import ProductsAdmin from './src/components/ProductsAdmin';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
+import AdminRoutes from './src/admin/routes';
 import {
   LineChart,
   Line,
@@ -3289,6 +3290,8 @@ function App() {
                 </ProtectedAdminRoute>
               }
             />
+            {/* Rotas do Admin CRM */}
+            <Route path="/admin/*" element={<AdminRoutes />} />
           </Routes>
         </div>
       </BrowserRouter>

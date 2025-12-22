@@ -17,6 +17,13 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+// Importar rotas do CRM
+import authRoutes from './routes/auth.js';
+import leadsRoutes from './routes/leads.js';
+import tagsRoutes from './routes/tags.js';
+import activitiesRoutes from './routes/activities.js';
+import kanbanRoutes from './routes/kanban.js';
+import dashboardRoutes from './routes/dashboard.js';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -403,9 +410,40 @@ app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
     }
 });
 
+// Health check para CRM (ANTES das rotas para evitar 404)
+app.get('/api/crm/v1/health', async (req, res) => {
+    res.json({
+        status: 'ok',
+        service: 'CRM API',
+        timestamp: new Date().toISOString()
+    });
+});
+app.get('/crm/v1/health', async (req, res) => {
+    res.json({
+        status: 'ok',
+        service: 'CRM API',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Rotas do CRM
+// NOTA: O Traefik remove o prefixo /api, então as rotas aqui não devem incluir /api
+app.use('/api/crm/v1/auth', authRoutes);
+app.use('/crm/v1/auth', authRoutes); // Rota alternativa sem /api para Traefik
+app.use('/api/crm/v1/leads', leadsRoutes);
+app.use('/crm/v1/leads', leadsRoutes);
+app.use('/api/crm/v1/tags', tagsRoutes);
+app.use('/crm/v1/tags', tagsRoutes);
+app.use('/api/crm/v1/activities', activitiesRoutes);
+app.use('/crm/v1/activities', activitiesRoutes);
+app.use('/api/crm/v1/kanban', kanbanRoutes);
+app.use('/crm/v1/kanban', kanbanRoutes);
+app.use('/api/crm/v1/dashboard', dashboardRoutes);
+app.use('/crm/v1/dashboard', dashboardRoutes);
+
 /**
  * GET /health
- * Endpoint de health check
+ * Endpoint de health check (legado)
  */
 app.get('/health', (req, res) => {
     res.json({

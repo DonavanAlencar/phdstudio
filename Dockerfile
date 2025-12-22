@@ -11,6 +11,7 @@ ARG VITE_EMAILJS_PUBLIC_KEY
 ARG VITE_RECIPIENT_EMAIL
 ARG VITE_CHAT_WEBHOOK_URL
 ARG VITE_CHAT_AUTH_TOKEN
+ARG VITE_API_URL
 
 # Copiar arquivos de dependências
 COPY package.json package-lock.json ./
@@ -30,7 +31,8 @@ RUN echo "GEMINI_API_KEY=${GEMINI_API_KEY:-}" > .env.local && \
     echo "VITE_EMAILJS_PUBLIC_KEY=${VITE_EMAILJS_PUBLIC_KEY:-}" >> .env.local && \
     echo "VITE_RECIPIENT_EMAIL=${VITE_RECIPIENT_EMAIL:-}" >> .env.local && \
     echo "VITE_CHAT_WEBHOOK_URL=${VITE_CHAT_WEBHOOK_URL:-}" >> .env.local && \
-    echo "VITE_CHAT_AUTH_TOKEN=${VITE_CHAT_AUTH_TOKEN:-}" >> .env.local
+    echo "VITE_CHAT_AUTH_TOKEN=${VITE_CHAT_AUTH_TOKEN:-}" >> .env.local && \
+    echo "VITE_API_URL=${VITE_API_URL:-https://phdstudio.com.br/api}" >> .env.local
 
 # Build da aplicação
 RUN npm run build

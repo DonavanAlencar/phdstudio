@@ -11,6 +11,7 @@ services:
         - VITE_RECIPIENT_EMAIL=${VITE_RECIPIENT_EMAIL:-}
         - VITE_CHAT_WEBHOOK_URL=${VITE_CHAT_WEBHOOK_URL:-}
         - VITE_CHAT_AUTH_TOKEN=${VITE_CHAT_AUTH_TOKEN:-}
+        - VITE_API_URL=${VITE_API_URL:-https://phdstudio.com.br/api}
     container_name: phdstudio-app
     # Porta exposta para o Easypanel/Traefik rotear
     expose:
@@ -56,9 +57,19 @@ services:
       - WP_TABLE_PREFIX=${WP_TABLE_PREFIX:-wp_}
       - WP_DB_SSL=false
       - WP_URL=${WP_URL:-http://localhost:8080}
+      # PostgreSQL para CRM
+      - CRM_DB_HOST=phd-crm-db
+      - CRM_DB_PORT=5432
+      - CRM_DB_USER=${CRM_DB_USER:-phd_crm_user}
+      - CRM_DB_PASSWORD=${CRM_DB_PASSWORD:-PhdCrm@2024!Strong#Pass}
+      - CRM_DB_NAME=${CRM_DB_NAME:-phd_crm}
+      # JWT para autenticação CRM
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret-key-change-in-production}
       # API Key (configure no .env)
       - PHD_API_KEY=${PHD_API_KEY:-CNZZoJ6rz7Gcb8Z80rYNSHfCW1jPxZTU}
       - ALLOWED_ORIGINS=https://phdstudio.com.br,http://phdstudio.com.br
+      - CORS_ORIGIN=https://phdstudio.com.br
       - API_PORT=3001
       - NODE_ENV=production
     labels:
@@ -75,6 +86,7 @@ services:
     networks:
       - n8n_default
       - wordpress_wp_network
+      - phd_crm_network
     logging:
       driver: "json-file"
       options:
@@ -86,4 +98,7 @@ networks:
     external: true
   wordpress_wp_network:
     external: true
+  phd_crm_network:
+    external: true
+    name: phdstudio_phd_crm_network
 

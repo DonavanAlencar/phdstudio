@@ -39,9 +39,40 @@ export default function AdminLayout() {
     }
   };
 
+  // Adicionar classe admin-page ao body e html quando o layout admin é montado
+  React.useEffect(() => {
+    const body = document.body;
+    const html = document.documentElement;
+    
+    body.classList.add('admin-page');
+    html.classList.add('admin-page');
+    
+    // Forçar fundo transparente com !important via setProperty
+    body.style.setProperty('background-color', 'transparent', 'important');
+    body.style.setProperty('background', 'transparent', 'important');
+    html.style.setProperty('background-color', 'transparent', 'important');
+    
+    const root = document.getElementById('root');
+    if (root) {
+      root.style.setProperty('background-color', 'transparent', 'important');
+      root.style.setProperty('background', 'transparent', 'important');
+    }
+    
+    return () => {
+      body.classList.remove('admin-page');
+      html.classList.remove('admin-page');
+      body.style.removeProperty('background-color');
+      body.style.removeProperty('background');
+      html.style.removeProperty('background-color');
+      if (root) {
+        root.style.removeProperty('background-color');
+        root.style.removeProperty('background');
+      }
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex" style={{ backgroundColor: '#f9fafb' }}>
       {/* Sidebar */}
       <aside
         className={`${

@@ -1,5 +1,21 @@
 /* Estilos globais - Tailwind é carregado via CDN no index.html */
 
+/* Estilos específicos para admin - isolados da página principal */
+body.admin-page {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+body.admin-page #root {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Garantir que html também seja transparente quando admin-page */
+html.admin-page {
+  background-color: transparent !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

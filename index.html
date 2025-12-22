@@ -119,10 +119,24 @@
       }
     </script>
     <style>
-      body {
+      /* Fundo preto apenas na página principal, não no admin */
+      html:not(.admin-page),
+      html:not(.admin-page) body,
+      html:not(.admin-page) #root {
         background-color: #050505;
+      }
+      
+      html:not(.admin-page) body {
         color: #ffffff;
         overflow-x: hidden;
+      }
+      
+      /* Admin deve ter fundo transparente para usar seus próprios estilos */
+      html.admin-page,
+      html.admin-page body,
+      html.admin-page #root {
+        background-color: transparent !important;
+        background: transparent !important;
       }
       .fade-in-section {
         opacity: 0;
@@ -155,10 +169,29 @@
         border: 1px solid rgba(255, 255, 255, 0.05);
       }
     </style>
-</head>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
+    <script>
+      // Detectar se está na rota admin e aplicar classe imediatamente
+      (function() {
+        const path = window.location.pathname;
+        if (path.startsWith('/admin')) {
+          document.documentElement.classList.add('admin-page');
+          document.body.classList.add('admin-page');
+          // Forçar remoção de estilos inline
+          document.body.style.setProperty('background-color', 'transparent', 'important');
+          document.body.style.setProperty('background', 'transparent', 'important');
+          document.documentElement.style.setProperty('background-color', 'transparent', 'important');
+          const root = document.getElementById('root');
+          if (root) {
+            root.style.setProperty('background-color', 'transparent', 'important');
+            root.style.setProperty('background', 'transparent', 'important');
+          }
+        }
+      })();
+    </script>
     
     <!-- Structured Data (JSON-LD) - Movido para o final para melhor performance -->
     <script type="application/ld+json">

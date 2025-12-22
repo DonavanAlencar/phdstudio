@@ -22,6 +22,38 @@ export default function Login() {
     }
   }, [isAuthenticated, navigate]);
 
+  // Adicionar classe admin-page ao body e html quando a página de login é montada
+  React.useEffect(() => {
+    const body = document.body;
+    const html = document.documentElement;
+    
+    body.classList.add('admin-page');
+    html.classList.add('admin-page');
+    
+    // Forçar fundo transparente com !important via setProperty
+    body.style.setProperty('background-color', 'transparent', 'important');
+    body.style.setProperty('background', 'transparent', 'important');
+    html.style.setProperty('background-color', 'transparent', 'important');
+    
+    const root = document.getElementById('root');
+    if (root) {
+      root.style.setProperty('background-color', 'transparent', 'important');
+      root.style.setProperty('background', 'transparent', 'important');
+    }
+    
+    return () => {
+      body.classList.remove('admin-page');
+      html.classList.remove('admin-page');
+      body.style.removeProperty('background-color');
+      body.style.removeProperty('background');
+      html.style.removeProperty('background-color');
+      if (root) {
+        root.style.removeProperty('background-color');
+        root.style.removeProperty('background');
+      }
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -39,7 +71,7 @@ export default function Login() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4" style={{ background: 'linear-gradient(to bottom right, #111827, #1f2937, #111827)' }}>
       <div className="w-full max-w-md">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
           {/* Logo e Título */}

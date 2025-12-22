@@ -21,7 +21,9 @@ const crmPool = new Pool({
   database: process.env.CRM_DB_NAME || 'phd_crm',
   max: 20, // máximo de conexões no pool
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  connectionTimeoutMillis: 5000, // Reduzido para 5s
+  query_timeout: 10000, // Timeout de 10s para queries
+  statement_timeout: 10000, // Timeout de 10s para statements
 });
 
 // Pool MySQL para produtos (WordPress)
@@ -50,6 +52,19 @@ crmPool.on('error', (err) => {
   console.error('❌ Erro inesperado no pool PostgreSQL:', err);
 });
 
+// Testar conexão explicitamente na inicialização
+(async () => {
+  try {
+    const testResult = await crmPool.query('SELECT 1 as test');
+    console.log('✅ PostgreSQL (CRM) conectado e testado');
+  } catch (error) {
+    console.error('❌ Erro ao testar conexão PostgreSQL:', error.message);
+    if (error.message.includes('EAI_AGAIN') || error.message.includes('getaddrinfo')) {
+      console.error('   → Problema de DNS/rede. Verifique se o container phd-crm-db está acessível.');
+    }
+  }
+})();
+
 // Testar conexão MySQL
 productsPool.getConnection()
   .then((connection) => {
@@ -64,11 +79,26 @@ productsPool.getConnection()
  * Executar query no PostgreSQL (CRM)
  */
 export async function queryCRM(text, params) {
+  const startTime = Date.now();
   try {
-    const result = await crmPool.query(text, params);
+    // Adicionar timeout manual se a query demorar muito
+    const queryPromise = crmPool.query(text, params);
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Query timeout após 10 segundos')), 10000);
+    });
+    
+    const result = await Promise.race([queryPromise, timeoutPromise]);
+    const duration = Date.now() - startTime;
+    if (duration > 1000) {
+      console.warn(`⚠️ Query lenta (${duration}ms): ${text.substring(0, 100)}...`);
+    }
     return result;
   } catch (error) {
-    console.error('Erro na query PostgreSQL:', error);
+    const duration = Date.now() - startTime;
+    console.error(`❌ Erro na query PostgreSQL (${duration}ms):`, error.message);
+    if (error.message.includes('timeout') || error.message.includes('EAI_AGAIN')) {
+      console.error('   → Possível problema de conexão com o banco de dados');
+    }
     throw error;
   }
 }
