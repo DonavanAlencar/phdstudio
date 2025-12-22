@@ -19,12 +19,12 @@ router.get('/', authenticateToken, validateListQuery, async (req, res) => {
     const offset = (parseInt(page) - 1) * parseInt(limit);
     const limitNum = Math.min(parseInt(limit), 100);
 
-    let query = 'SELECT * FROM tags';
+    let query = 'SELECT * FROM tags WHERE deleted_at IS NULL';
     const params = [];
     let paramIndex = 1;
 
     if (search) {
-      query += ` WHERE name ILIKE $${paramIndex++}`;
+      query += ` AND name ILIKE $${paramIndex++}`;
       params.push(`%${search}%`);
     }
 
@@ -34,10 +34,10 @@ router.get('/', authenticateToken, validateListQuery, async (req, res) => {
     const result = await queryCRM(query, params);
 
     // Contar total
-    let countQuery = 'SELECT COUNT(*) as total FROM tags';
+    let countQuery = 'SELECT COUNT(*) as total FROM tags WHERE deleted_at IS NULL';
     const countParams = [];
     if (search) {
-      countQuery += ` WHERE name ILIKE $1`;
+      countQuery += ` AND name ILIKE $1`;
       countParams.push(`%${search}%`);
     }
     const countResult = await queryCRM(countQuery, countParams);

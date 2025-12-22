@@ -28,7 +28,7 @@ services:
     labels:
       # Labels do Traefik para phdstudio.com.br
       - "traefik.enable=true"
-      - "traefik.http.routers.phdstudio.rule=Host(`phdstudio.com.br`)"
+      - "traefik.http.routers.phdstudio.rule=Host(`phdstudio.com.br`) && !PathPrefix(`/api`)"
       - "traefik.http.routers.phdstudio.entrypoints=websecure"
       - "traefik.http.routers.phdstudio.tls.certresolver=mytlschallenge"
       - "traefik.http.routers.phdstudio.priority=100"

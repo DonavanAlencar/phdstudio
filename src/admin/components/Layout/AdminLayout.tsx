@@ -15,7 +15,8 @@ import {
   X,
   LogOut,
   Settings,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from 'lucide-react';
 
 const menuItems = [
@@ -25,6 +26,11 @@ const menuItems = [
   { icon: Activity, label: 'Atividades', path: '/admin/activities' },
   { icon: Tag, label: 'Tags', path: '/admin/tags' },
   { icon: Settings, label: 'Configurações', path: '/admin/settings' },
+];
+
+// Menu items apenas para admin
+const adminOnlyItems = [
+  { icon: FileText, label: 'API Docs', path: '/admin/api-docs', external: true },
 ];
 
 export default function AdminLayout() {
@@ -117,6 +123,56 @@ export default function AdminLayout() {
               </Link>
             );
           })}
+          
+          {/* Separador para itens admin */}
+          {user?.role === 'admin' && (
+            <>
+              {sidebarOpen && <div className="pt-4 pb-2">
+                <p className="text-xs text-gray-500 uppercase tracking-wider px-4">Administração</p>
+              </div>}
+              {adminOnlyItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                
+                if (item.external) {
+                  return (
+                    <a
+                      key={item.path}
+                      href="https://phdstudio.com.br/api/docs"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-brand-red text-white'
+                          : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      } ${!sidebarOpen && 'justify-center'}`}
+                      title={!sidebarOpen ? item.label : ''}
+                    >
+                      <Icon className="w-5 h-5 flex-shrink-0" />
+                      {sidebarOpen && <span className="font-medium">{item.label}</span>}
+                    </a>
+                  );
+                }
+                
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-brand-red text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    } ${!sidebarOpen && 'justify-center'}`}
+                    title={!sidebarOpen ? item.label : ''}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    {sidebarOpen && <span className="font-medium">{item.label}</span>}
+                    {sidebarOpen && isActive && <ChevronRight className="w-4 h-4 ml-auto" />}
+                  </Link>
+                );
+              })}
+            </>
+          )}
         </nav>
 
         {/* User Info */}

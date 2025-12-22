@@ -12,20 +12,108 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = express.Router();
 
 /**
+ * @swagger
+ * /api/crm/v1/auth/login:
+ *   post:
+ *     summary: Autenticar usuário e obter tokens JWT
+ *     description: Realiza login do usuário e retorna accessToken e refreshToken para autenticação nas demais rotas
+ *     tags: [Autenticação]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: admin@phdstudio.com.br
+ *                 description: Email do usuário
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 6
+ *                 example: senha123
+ *                 description: Senha do usuário (mínimo 6 caracteres)
+ *     responses:
+ *       200:
+ *         description: Login realizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Login realizado com sucesso
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ *                     accessToken:
+ *                       type: string
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                       description: Token JWT para autenticação (válido por 1 hora)
+ *                     refreshToken:
+ *                       type: string
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                       description: Token para renovar accessToken (válido por 7 dias)
+ *                     expiresAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2024-12-22T02:00:00.000Z
+ *       401:
+ *         description: Credenciais inválidas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               success: false
+ *               error: Credenciais inválidas
+ *               message: Email ou senha incorretos
+ *       403:
+ *         description: Conta desativada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+/**
  * POST /api/crm/v1/auth/login
  * Login de usuário
  */
 router.post('/login', validateLogin, async (req, res) => {
+  const startTime = Date.now();
   try {
+    console.log('🔐 [LOGIN] Iniciando login para:', req.body.email);
     const { email, password } = req.body;
 
     // Buscar usuário
+    console.log('🔍 [LOGIN] Buscando usuário no banco...');
+    const queryStart = Date.now();
     const userResult = await queryCRM(
       'SELECT * FROM users WHERE email = $1',
       [email]
     );
+    console.log(`✅ [LOGIN] Query usuário concluída em ${Date.now() - queryStart}ms`);
 
     if (userResult.rows.length === 0) {
+      console.log('❌ [LOGIN] Usuário não encontrado');
       return res.status(401).json({
         error: 'Credenciais inválidas',
         message: 'Email ou senha incorretos'
@@ -33,9 +121,11 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     const user = userResult.rows[0];
+    console.log('✅ [LOGIN] Usuário encontrado:', user.email);
 
     // Verificar se usuário está ativo
     if (!user.is_active) {
+      console.log('❌ [LOGIN] Usuário inativo');
       return res.status(403).json({
         error: 'Conta desativada',
         message: 'Sua conta foi desativada. Entre em contato com o administrador.'
@@ -43,8 +133,13 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     // Verificar senha
+    console.log('🔐 [LOGIN] Verificando senha...');
+    const bcryptStart = Date.now();
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    console.log(`✅ [LOGIN] Bcrypt concluído em ${Date.now() - bcryptStart}ms, match: ${passwordMatch}`);
+    
     if (!passwordMatch) {
+      console.log('❌ [LOGIN] Senha incorreta');
       return res.status(401).json({
         error: 'Credenciais inválidas',
         message: 'Email ou senha incorretos'
@@ -52,8 +147,11 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     // Gerar tokens
+    console.log('🎫 [LOGIN] Gerando tokens...');
+    const tokenStart = Date.now();
     const accessToken = generateAccessToken({ userId: user.id, email: user.email });
     const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
+    console.log(`✅ [LOGIN] Tokens gerados em ${Date.now() - tokenStart}ms`);
 
     // Calcular datas de expiração
     const expiresAt = new Date();
@@ -63,6 +161,8 @@ router.post('/login', validateLogin, async (req, res) => {
     refreshExpiresAt.setDate(refreshExpiresAt.getDate() + 7); // 7 dias
 
     // Salvar sessão no banco
+    console.log('💾 [LOGIN] Salvando sessão no banco...');
+    const sessionStart = Date.now();
     await queryCRM(
       `INSERT INTO sessions (user_id, token, refresh_token, expires_at, refresh_expires_at, ip_address, user_agent)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
@@ -76,15 +176,22 @@ router.post('/login', validateLogin, async (req, res) => {
         req.get('user-agent')
       ]
     );
+    console.log(`✅ [LOGIN] Sessão salva em ${Date.now() - sessionStart}ms`);
 
     // Atualizar último login
+    console.log('🔄 [LOGIN] Atualizando último login...');
+    const updateStart = Date.now();
     await queryCRM(
       'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1',
       [user.id]
     );
+    console.log(`✅ [LOGIN] Último login atualizado em ${Date.now() - updateStart}ms`);
 
     // Retornar dados do usuário (sem senha)
     const { password_hash, ...userWithoutPassword } = user;
+
+    const totalTime = Date.now() - startTime;
+    console.log(`✅ [LOGIN] Login concluído com sucesso em ${totalTime}ms`);
 
     res.json({
       success: true,
@@ -97,7 +204,9 @@ router.post('/login', validateLogin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Erro no login:', error);
+    const totalTime = Date.now() - startTime;
+    console.error(`❌ [LOGIN] Erro após ${totalTime}ms:`, error.message);
+    console.error('Stack:', error.stack);
     res.status(500).json({
       error: 'Erro interno do servidor',
       message: 'Não foi possível realizar o login'

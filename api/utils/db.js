@@ -81,13 +81,7 @@ productsPool.getConnection()
 export async function queryCRM(text, params) {
   const startTime = Date.now();
   try {
-    // Adicionar timeout manual se a query demorar muito
-    const queryPromise = crmPool.query(text, params);
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Query timeout após 10 segundos')), 10000);
-    });
-    
-    const result = await Promise.race([queryPromise, timeoutPromise]);
+    const result = await crmPool.query(text, params);
     const duration = Date.now() - startTime;
     if (duration > 1000) {
       console.warn(`⚠️ Query lenta (${duration}ms): ${text.substring(0, 100)}...`);

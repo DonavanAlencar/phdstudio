@@ -17,6 +17,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+// Swagger/OpenAPI Documentation
+import { swaggerSpec, swaggerUi } from './swagger.js';
 // Importar rotas do CRM
 import authRoutes from './routes/auth.js';
 import leadsRoutes from './routes/leads.js';
@@ -31,6 +33,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.API_PORT || 3001;
 
+// Configurar Express para confiar no proxy (Traefik)
+// Isso é necessário para que express-rate-limit funcione corretamente com X-Forwarded-For
+app.set('trust proxy', true);
+
 // Validar variáveis de ambiente críticas
 if (!process.env.PHD_API_KEY) {
     console.error('❌ ERRO: PHD_API_KEY não definida no .env');
@@ -41,6 +47,12 @@ if (!process.env.WP_DB_PASSWORD) {
     console.error('❌ ERRO: WP_DB_PASSWORD não definida no .env');
     process.exit(1);
 }
+
+// Middleware simples de log de requisições (debug)
+app.use((req, res, next) => {
+    console.log(`➡️ [REQ] ${req.method} ${req.originalUrl}`);
+    next();
+});
 
 // Middleware de segurança
 app.use(helmet({
@@ -440,6 +452,44 @@ app.use('/api/crm/v1/kanban', kanbanRoutes);
 app.use('/crm/v1/kanban', kanbanRoutes);
 app.use('/api/crm/v1/dashboard', dashboardRoutes);
 app.use('/crm/v1/dashboard', dashboardRoutes);
+
+// Swagger UI - DEPOIS das rotas CRM para evitar conflitos
+// IMPORTANTE: Deve estar antes do 404 handler
+// Endpoint de teste para verificar se o problema é do Swagger
+app.get('/api/docs/test', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Endpoint de teste do Swagger funcionando',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.use('/api/docs', swaggerUi.serve);
+app.get('/api/docs', swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'PHD Studio API - Documentação',
+  customfavIcon: '/favicon.ico',
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    tryItOutEnabled: true,
+  },
+  customJs: [],
+  customCssUrl: null,
+}));
+app.use('/docs', swaggerUi.serve);
+app.get('/docs', swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'PHD Studio API - Documentação',
+  customfavIcon: '/favicon.ico',
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    tryItOutEnabled: true,
+  },
+  customJs: [],
+  customCssUrl: null,
+}));
 
 /**
  * GET /health

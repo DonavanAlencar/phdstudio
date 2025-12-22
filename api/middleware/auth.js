@@ -9,6 +9,7 @@ import { queryCRM } from '../utils/db.js';
  * Middleware para verificar token JWT
  */
 export async function authenticateToken(req, res, next) {
+  const startTime = Date.now();
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
@@ -21,13 +22,18 @@ export async function authenticateToken(req, res, next) {
     }
 
     // Verificar token
+    const verifyStart = Date.now();
     const decoded = verifyAccessToken(token);
+    console.log(`🔐 [AUTH] Token verificado em ${Date.now() - verifyStart}ms`);
 
     // Verificar se a sessão ainda existe e é válida
+    // Otimizado: SELECT apenas campos necessários + LIMIT 1
+    const sessionStart = Date.now();
     const sessionResult = await queryCRM(
-      'SELECT * FROM sessions WHERE token = $1 AND expires_at > NOW()',
+      'SELECT user_id, expires_at FROM sessions WHERE token = $1 AND expires_at > NOW() LIMIT 1',
       [token]
     );
+    console.log(`🔐 [AUTH] Query sessão concluída em ${Date.now() - sessionStart}ms`);
 
     if (sessionResult.rows.length === 0) {
       return res.status(401).json({
@@ -37,10 +43,12 @@ export async function authenticateToken(req, res, next) {
     }
 
     // Buscar dados do usuário
+    const userStart = Date.now();
     const userResult = await queryCRM(
       'SELECT id, email, first_name, last_name, role, is_active FROM users WHERE id = $1',
       [decoded.userId]
     );
+    console.log(`🔐 [AUTH] Query usuário concluída em ${Date.now() - userStart}ms`);
 
     if (userResult.rows.length === 0) {
       return res.status(401).json({
@@ -61,16 +69,21 @@ export async function authenticateToken(req, res, next) {
     req.user = user;
     req.token = token;
 
+    const totalTime = Date.now() - startTime;
+    console.log(`✅ [AUTH] Autenticação completa em ${totalTime}ms para ${user.email}`);
+
     next();
   } catch (error) {
+    const totalTime = Date.now() - startTime;
     if (error.message === 'Token inválido ou expirado') {
+      console.log(`❌ [AUTH] Token inválido após ${totalTime}ms`);
       return res.status(401).json({
         error: 'Token inválido ou expirado',
         message: 'Faça login novamente'
       });
     }
 
-    console.error('Erro na autenticação:', error);
+    console.error(`❌ [AUTH] Erro após ${totalTime}ms:`, error);
     return res.status(500).json({
       error: 'Erro interno na autenticação'
     });

@@ -16,6 +16,7 @@ import KanbanBoard from './pages/Kanban/KanbanBoard';
 import ActivitiesList from './pages/Activities/ActivitiesList';
 import ActivityForm from './pages/Activities/ActivityForm';
 import TagsList from './pages/Tags/TagsList';
+import ApiDocs from './pages/ApiDocs/ApiDocs';
 
 function AdminLayoutWrapper() {
   return (
@@ -47,6 +48,7 @@ export default function AdminRoutes() {
           <Route path="activities/new" element={<ActivityForm />} />
           <Route path="tags" element={<TagsList />} />
           <Route path="settings" element={<div className="p-6">Configurações - Em desenvolvimento</div>} />
+          <Route path="api-docs" element={<ApiDocs />} />
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
