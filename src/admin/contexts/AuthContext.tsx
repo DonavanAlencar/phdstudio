@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const currentUser = await Promise.race([
               api.getMe(),
               new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Timeout')), 10000)
+                setTimeout(() => reject(new Error('Timeout')), 30000)
               )
             ]);
             setUser(currentUser);

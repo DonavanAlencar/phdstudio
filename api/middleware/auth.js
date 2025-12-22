@@ -23,50 +23,59 @@ export async function authenticateToken(req, res, next) {
 
     // Verificar token
     const verifyStart = Date.now();
-    const decoded = verifyAccessToken(token);
-    console.log(`🔐 [AUTH] Token verificado em ${Date.now() - verifyStart}ms`);
+    let decoded;
+    try {
+      decoded = verifyAccessToken(token);
+      console.log(`🔐 [AUTH] Token verificado em ${Date.now() - verifyStart}ms`);
+    } catch (error) {
+      console.log(`❌ [AUTH] Token inválido após ${Date.now() - verifyStart}ms: ${error.message}`);
+      return res.status(401).json({
+        error: 'Token inválido ou expirado',
+        message: 'Faça login novamente'
+      });
+    }
 
-    // Verificar se a sessão ainda existe e é válida
-    // Otimizado: SELECT apenas campos necessários + LIMIT 1
-    const sessionStart = Date.now();
-    const sessionResult = await queryCRM(
-      'SELECT user_id, expires_at FROM sessions WHERE token = $1 AND expires_at > NOW() LIMIT 1',
+    // OTIMIZAÇÃO: Fazer JOIN para buscar sessão e usuário em uma única query
+    const authStart = Date.now();
+    const authResult = await queryCRM(
+      `SELECT 
+        s.user_id,
+        s.expires_at,
+        u.id,
+        u.email,
+        u.first_name,
+        u.last_name,
+        u.role,
+        u.is_active
+       FROM sessions s
+       INNER JOIN users u ON s.user_id = u.id
+       WHERE s.token = $1 
+         AND s.expires_at > NOW()
+         AND u.is_active = true
+       LIMIT 1`,
       [token]
     );
-    console.log(`🔐 [AUTH] Query sessão concluída em ${Date.now() - sessionStart}ms`);
+    console.log(`🔐 [AUTH] Query autenticação concluída em ${Date.now() - authStart}ms`);
 
-    if (sessionResult.rows.length === 0) {
+    if (authResult.rows.length === 0) {
       return res.status(401).json({
         error: 'Sessão inválida ou expirada',
         message: 'Faça login novamente'
       });
     }
 
-    // Buscar dados do usuário
-    const userStart = Date.now();
-    const userResult = await queryCRM(
-      'SELECT id, email, first_name, last_name, role, is_active FROM users WHERE id = $1',
-      [decoded.userId]
-    );
-    console.log(`🔐 [AUTH] Query usuário concluída em ${Date.now() - userStart}ms`);
+    const user = authResult.rows[0];
 
-    if (userResult.rows.length === 0) {
-      return res.status(401).json({
-        error: 'Usuário não encontrado'
-      });
-    }
-
-    const user = userResult.rows[0];
-
-    if (!user.is_active) {
-      return res.status(403).json({
-        error: 'Usuário inativo',
-        message: 'Sua conta foi desativada'
-      });
-    }
-
+    // Usuário já foi validado na query JOIN (is_active = true)
     // Adicionar usuário à requisição
-    req.user = user;
+    req.user = {
+      id: user.id,
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      role: user.role,
+      is_active: user.is_active
+    };
     req.token = token;
 
     const totalTime = Date.now() - startTime;

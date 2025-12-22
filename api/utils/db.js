@@ -19,11 +19,13 @@ const crmPool = new Pool({
   user: process.env.CRM_DB_USER || 'phd_crm_user',
   password: process.env.CRM_DB_PASSWORD,
   database: process.env.CRM_DB_NAME || 'phd_crm',
-  max: 20, // máximo de conexões no pool
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000, // Reduzido para 5s
-  query_timeout: 10000, // Timeout de 10s para queries
-  statement_timeout: 10000, // Timeout de 10s para statements
+  max: 30, // Aumentado para 30 conexões
+  idleTimeoutMillis: 60000, // Aumentado para 60s
+  connectionTimeoutMillis: 10000, // Aumentado para 10s
+  query_timeout: 30000, // Timeout de 30s para queries (aumentado)
+  statement_timeout: 30000, // Timeout de 30s para statements (aumentado)
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 });
 
 // Pool MySQL para produtos (WordPress)
@@ -80,19 +82,43 @@ productsPool.getConnection()
  */
 export async function queryCRM(text, params) {
   const startTime = Date.now();
+  const queryId = Math.random().toString(36).substring(7);
+  
   try {
+    // Log da query (apenas em desenvolvimento ou se muito lenta)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`📊 [DB] Query ${queryId}: ${text.substring(0, 100)}...`);
+    }
+    
     const result = await crmPool.query(text, params);
     const duration = Date.now() - startTime;
+    
+    // Avisar se query demorou mais de 1s
     if (duration > 1000) {
-      console.warn(`⚠️ Query lenta (${duration}ms): ${text.substring(0, 100)}...`);
+      console.warn(`⚠️ [DB] Query lenta (${duration}ms) [${queryId}]: ${text.substring(0, 100)}...`);
+    } else if (process.env.NODE_ENV !== 'production') {
+      console.log(`✅ [DB] Query ${queryId} concluída em ${duration}ms`);
     }
+    
     return result;
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error(`❌ Erro na query PostgreSQL (${duration}ms):`, error.message);
-    if (error.message.includes('timeout') || error.message.includes('EAI_AGAIN')) {
+    console.error(`❌ [DB] Erro na query PostgreSQL (${duration}ms) [${queryId}]:`, error.message);
+    console.error(`   Query: ${text.substring(0, 200)}...`);
+    
+    if (error.message.includes('timeout') || error.message.includes('EAI_AGAIN') || error.message.includes('ETIMEDOUT')) {
       console.error('   → Possível problema de conexão com o banco de dados');
+      console.error('   → Verifique: 1) Banco está acessível, 2) Rede está OK, 3) Índices existem');
     }
+    
+    if (error.code === 'ECONNREFUSED') {
+      console.error('   → Conexão recusada - banco pode estar offline');
+    }
+    
+    if (error.code === '28P01') {
+      console.error('   → Erro de autenticação - credenciais incorretas');
+    }
+    
     throw error;
   }
 }

@@ -3,7 +3,7 @@
  */
 
 import express from 'express';
-import { queryCRM } from '../utils/db.js';
+import { queryCRM, getCRMClient } from '../utils/db.js';
 import { authenticateToken, optionalAuth } from '../middleware/auth.js';
 import { validateLead, validateId, validateListQuery } from '../middleware/validation.js';
 
@@ -295,7 +295,9 @@ router.get('/check/:email', optionalAuth, async (req, res) => {
  * Criar lead
  */
 router.post('/', authenticateToken, validateLead, async (req, res) => {
+  const startTime = Date.now();
   try {
+    console.log(`📥 [LEADS] POST /leads iniciado`);
     const {
       email,
       first_name,
@@ -310,84 +312,105 @@ router.post('/', authenticateToken, validateLead, async (req, res) => {
       tags = []
     } = req.body;
 
-    // Verificar se lead já existe
-    const existingResult = await queryCRM(
-      'SELECT id FROM leads WHERE email = $1 AND deleted_at IS NULL',
-      [email]
+    // OTIMIZAÇÃO: Usar UPSERT (INSERT ... ON CONFLICT) para fazer tudo em uma query
+    console.log(`🔍 [LEADS] Verificando/inserindo lead para: ${email}`);
+    const upsertStart = Date.now();
+    
+    const upsertResult = await queryCRM(
+      `INSERT INTO leads 
+       (email, first_name, last_name, phone, status, stage, source, pain_point, assigned_to, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
+       ON CONFLICT (email) 
+       WHERE deleted_at IS NULL
+       DO UPDATE SET
+         first_name = COALESCE(EXCLUDED.first_name, leads.first_name),
+         last_name = COALESCE(EXCLUDED.last_name, leads.last_name),
+         phone = COALESCE(EXCLUDED.phone, leads.phone),
+         status = COALESCE(EXCLUDED.status, leads.status),
+         stage = COALESCE(EXCLUDED.stage, leads.stage),
+         source = COALESCE(EXCLUDED.source, leads.source),
+         pain_point = COALESCE(EXCLUDED.pain_point, leads.pain_point),
+         assigned_to = COALESCE(EXCLUDED.assigned_to, leads.assigned_to),
+         updated_at = CURRENT_TIMESTAMP
+       RETURNING *`,
+      [email, first_name || null, last_name || null, phone || null, status, stage, source || null, pain_point || null, assigned_to || null]
     );
+    
+    console.log(`✅ [LEADS] UPSERT concluído em ${Date.now() - upsertStart}ms`);
+    
+    const lead = upsertResult.rows[0];
+    const leadId = lead.id;
+    const isUpdate = lead.created_at !== lead.updated_at;
 
-    let leadId;
-    let isUpdate = false;
-
-    if (existingResult.rows.length > 0) {
-      // Atualizar lead existente
-      leadId = existingResult.rows[0].id;
-      isUpdate = true;
-
-      await queryCRM(
-        `UPDATE leads SET
-          first_name = COALESCE($1, first_name),
-          last_name = COALESCE($2, last_name),
-          phone = COALESCE($3, phone),
-          status = COALESCE($4, status),
-          stage = COALESCE($5, stage),
-          source = COALESCE($6, source),
-          pain_point = COALESCE($7, pain_point),
-          assigned_to = COALESCE($8, assigned_to),
-          updated_at = CURRENT_TIMESTAMP
-         WHERE id = $9`,
-        [first_name, last_name, phone, status, stage, source, pain_point, assigned_to || null, leadId]
-      );
-    } else {
-      // Criar novo lead
-      const result = await queryCRM(
-        `INSERT INTO leads 
-         (email, first_name, last_name, phone, status, stage, source, pain_point, assigned_to)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-         RETURNING *`,
-        [email, first_name || null, last_name || null, phone || null, status, stage, source || null, pain_point || null, assigned_to || null]
-      );
-      leadId = result.rows[0].id;
-    }
-
-    // Atualizar campos customizados
+    // OTIMIZAÇÃO: Atualizar campos customizados em batch usando transação
     if (Object.keys(custom_fields).length > 0) {
-      for (const [key, value] of Object.entries(custom_fields)) {
-        await queryCRM(
-          `INSERT INTO lead_custom_fields (lead_id, field_key, field_value)
-           VALUES ($1, $2, $3)
-           ON CONFLICT (lead_id, field_key) 
-           DO UPDATE SET field_value = $3, updated_at = CURRENT_TIMESTAMP`,
-          [leadId, key, String(value)]
-        );
+      console.log(`📝 [LEADS] Atualizando ${Object.keys(custom_fields).length} campos customizados`);
+      const customStart = Date.now();
+      
+      // Usar transação para inserir todos de uma vez
+      const client = await getCRMClient();
+      try {
+        await client.query('BEGIN');
+        
+        // Remover campos antigos (opcional - ou manter e atualizar)
+        // await client.query('DELETE FROM lead_custom_fields WHERE lead_id = $1', [leadId]);
+        
+        // Inserir/atualizar todos os campos
+        for (const [key, value] of Object.entries(custom_fields)) {
+          await client.query(
+            `INSERT INTO lead_custom_fields (lead_id, field_key, field_value)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (lead_id, field_key) 
+             DO UPDATE SET field_value = $3, updated_at = CURRENT_TIMESTAMP`,
+            [leadId, key, String(value)]
+          );
+        }
+        
+        await client.query('COMMIT');
+        console.log(`✅ [LEADS] Campos customizados atualizados em ${Date.now() - customStart}ms`);
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
       }
     }
 
-    // Atualizar tags
+    // OTIMIZAÇÃO: Atualizar tags em batch
     if (Array.isArray(tags) && tags.length > 0) {
-      // Remover tags antigas
-      await queryCRM(
-        'DELETE FROM lead_tags WHERE lead_id = $1',
-        [leadId]
-      );
+      console.log(`🏷️ [LEADS] Atualizando ${tags.length} tags`);
+      const tagsStart = Date.now();
+      
+      const client = await getCRMClient();
+      try {
+        await client.query('BEGIN');
+        
+        // Remover tags antigas
+        await client.query('DELETE FROM lead_tags WHERE lead_id = $1', [leadId]);
 
-      // Adicionar novas tags
-      const tagIds = tags.map(t => parseInt(t)).filter(id => !isNaN(id));
-      for (const tagId of tagIds) {
-        await queryCRM(
-          'INSERT INTO lead_tags (lead_id, tag_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-          [leadId, tagId]
-        );
+        // Adicionar novas tags em batch
+        const tagIds = tags.map(t => parseInt(t)).filter(id => !isNaN(id));
+        if (tagIds.length > 0) {
+          const values = tagIds.map((_, i) => `($1, $${i + 2})`).join(', ');
+          const params = [leadId, ...tagIds];
+          await client.query(
+            `INSERT INTO lead_tags (lead_id, tag_id) VALUES ${values} ON CONFLICT DO NOTHING`,
+            params
+          );
+        }
+        
+        await client.query('COMMIT');
+        console.log(`✅ [LEADS] Tags atualizadas em ${Date.now() - tagsStart}ms`);
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
       }
     }
 
-    // Buscar lead completo
-    const leadResult = await queryCRM(
-      'SELECT * FROM leads WHERE id = $1',
-      [leadId]
-    );
-
-    const lead = leadResult.rows[0];
+    const totalTime = Date.now() - startTime;
+    console.log(`✅ [LEADS] POST /leads concluído em ${totalTime}ms (${isUpdate ? 'atualizado' : 'criado'})`);
 
     res.status(isUpdate ? 200 : 201).json({
       success: true,
@@ -408,12 +431,23 @@ router.post('/', authenticateToken, validateLead, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Erro ao criar/atualizar lead:', error);
+    const totalTime = Date.now() - startTime;
+    console.error(`❌ [LEADS] Erro após ${totalTime}ms:`, error.message);
+    console.error('Stack:', error.stack);
     
     if (error.code === '23505') { // Unique violation
       return res.status(409).json({
         error: 'Email já existe',
         message: 'Já existe um lead com este email'
+      });
+    }
+
+    // Tratamento específico para timeouts
+    if (error.message.includes('timeout') || error.code === 'ETIMEDOUT' || error.code === 'ECONNRESET') {
+      console.error('   → Timeout detectado - possível problema de conexão com banco');
+      return res.status(504).json({
+        error: 'Gateway Timeout',
+        message: 'A operação demorou muito para ser concluída. Tente novamente.'
       });
     }
 
