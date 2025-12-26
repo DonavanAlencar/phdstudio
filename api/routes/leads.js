@@ -112,23 +112,33 @@ router.get('/', authenticateToken, validateListQuery, async (req, res) => {
     queryParams.push(limitNum, offset);
     const result = await queryCRM(dataQuery, queryParams);
 
-    // Buscar campos customizados para cada lead
-    const leads = await Promise.all(result.rows.map(async (lead) => {
+    // Buscar todos os campos customizados de uma vez (otimização N+1)
+    const leadIds = result.rows.map(lead => lead.id);
+    let customFieldsMap = {};
+    
+    if (leadIds.length > 0) {
+      const placeholders = leadIds.map((_, i) => `$${i + 1}`).join(',');
       const customFieldsResult = await queryCRM(
-        'SELECT field_key, field_value FROM lead_custom_fields WHERE lead_id = $1',
-        [lead.id]
+        `SELECT lead_id, field_key, field_value 
+         FROM lead_custom_fields 
+         WHERE lead_id IN (${placeholders})`,
+        leadIds
       );
 
-      const customFields = {};
+      // Agrupar campos customizados por lead_id
       customFieldsResult.rows.forEach(row => {
-        customFields[row.field_key] = row.field_value;
+        if (!customFieldsMap[row.lead_id]) {
+          customFieldsMap[row.lead_id] = {};
+        }
+        customFieldsMap[row.lead_id][row.field_key] = row.field_value;
       });
+    }
 
-      return {
-        ...lead,
-        tags: lead.tags || [],
-        custom_fields: customFields
-      };
+    // Mapear leads com seus campos customizados
+    const leads = result.rows.map(lead => ({
+      ...lead,
+      tags: lead.tags || [],
+      custom_fields: customFieldsMap[lead.id] || {}
     }));
 
     res.json({

@@ -110,5 +110,3 @@ Se retornar `{"status":"ok",...}`, a API está funcionando!
 
 Consulte `SEGURANCA.md` para detalhes completos sobre as práticas de segurança implementadas.
 
-
-

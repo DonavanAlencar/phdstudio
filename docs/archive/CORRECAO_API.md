@@ -71,5 +71,3 @@ docker compose up -d --build phdstudio
 - Toda comunicação passa pelo Traefik
 - Isso melhora segurança e permite SSL automático
 
-
-

@@ -41,11 +41,9 @@ curl -X GET http://localhost:3001/api/phd/v1/products \
 
 ## 📚 Documentação
 
-- **[INSTALACAO_DOCKER.md](INSTALACAO_DOCKER.md)** - Guia completo de instalação no Docker
-- **[README_PLUGIN.md](README_PLUGIN.md)** - Documentação do plugin WordPress
-- **[STATUS_INSTALACAO.md](STATUS_INSTALACAO.md)** - Status atual da instalação
-- **[SEGURANCA.md](SEGURANCA.md)** - Práticas de segurança implementadas
-- **[SETUP_SEGURANCA.md](SETUP_SEGURANCA.md)** - Configuração de segurança
+- **[DOCUMENTACAO_COMPLETA.md](DOCUMENTACAO_COMPLETA.md)** - Documentação completa do projeto, APIs, instalação e troubleshooting
+
+**Documentação histórica:** Arquivos antigos foram movidos para `docs/archive/` para referência.
 
 ## 🔧 Scripts Úteis
 

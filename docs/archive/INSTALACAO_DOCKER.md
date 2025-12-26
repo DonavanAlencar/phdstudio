@@ -219,5 +219,3 @@ docker logs wp_wordpress | grep -i "phd"
 - Configure CORS adequadamente em produção
 - Monitore logs de segurança
 
-
-

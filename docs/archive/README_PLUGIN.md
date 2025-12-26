@@ -113,5 +113,3 @@ O plugin implementa:
 
 Veja `INSTALACAO_DOCKER.md` para instruções completas de instalação e configuração.
 
-
-

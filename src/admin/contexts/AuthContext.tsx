@@ -30,22 +30,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const token = localStorage.getItem('accessToken');
 
         if (storedUser && token) {
-          // Validar token com a API (com timeout)
+          // Validar token com a API (com timeout reduzido e melhor tratamento)
           try {
             const currentUser = await Promise.race([
               api.getMe(),
               new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Timeout')), 30000)
+                setTimeout(() => reject(new Error('Timeout')), 10000)
               )
             ]);
             setUser(currentUser);
             localStorage.setItem('user', JSON.stringify(currentUser));
           } catch (error: any) {
-            // Token inválido ou timeout, limpar
-            console.error('Erro ao validar token:', error);
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('user');
+            // Verificar se é timeout de rede ou token inválido
+            if (error.message === 'Timeout' || error.code === 'ECONNABORTED') {
+              // Timeout de rede - manter token e usuário, apenas logar erro
+              console.warn('Timeout ao validar token (rede lenta), mantendo sessão local');
+              // Usar usuário do localStorage se disponível
+              try {
+                const parsedUser = JSON.parse(storedUser);
+                setUser(parsedUser);
+              } catch (e) {
+                // Se não conseguir parsear, limpar tudo
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+              }
+            } else if (error.response?.status === 401) {
+              // Token inválido ou expirado - limpar
+              console.error('Token inválido ou expirado');
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+            } else {
+              // Outro erro - manter sessão local mas logar erro
+              console.error('Erro ao validar token:', error);
+              try {
+                const parsedUser = JSON.parse(storedUser);
+                setUser(parsedUser);
+              } catch (e) {
+                // Se não conseguir parsear, limpar tudo
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+              }
+            }
           }
         }
       } catch (error) {

@@ -135,5 +135,3 @@ openssl rand -base64 24 | tr -d "=+/"
 - [WordPress Security](https://wordpress.org/support/article/hardening-wordpress/)
 - [Express Security Best Practices](https://expressjs.com/en/advanced/best-practice-security.html)
 
-
-

@@ -133,5 +133,3 @@ echo 'Tabela criada!';
 - [ ] Testes da API realizados
 - [ ] Integração com n8n configurada (se aplicável)
 
-
-

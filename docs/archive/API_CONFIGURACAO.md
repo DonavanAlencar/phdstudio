@@ -69,5 +69,3 @@ Se preferir usar subdomínio (`api.phdstudio.com.br`):
 const API_BASE_URL = 'https://api.phdstudio.com.br'
 ```
 
-
-

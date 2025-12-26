@@ -99,21 +99,42 @@ const router = express.Router();
  */
 router.post('/login', validateLogin, async (req, res) => {
   const startTime = Date.now();
+  const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
   try {
-    console.log('🔐 [LOGIN] Iniciando login para:', req.body.email);
+    // Log detalhado para debug do MCP
+    console.log(`🔐 [LOGIN] [${requestId}] Iniciando login`);
+    console.log(`🔍 [LOGIN] [${requestId}] IP: ${req.ip || req.connection.remoteAddress}`);
+    console.log(`🔍 [LOGIN] [${requestId}] User-Agent: ${req.get('user-agent') || 'N/A'}`);
+    console.log(`🔍 [LOGIN] [${requestId}] Body recebido:`, JSON.stringify({
+      email: req.body.email,
+      password: req.body.password ? '***' : undefined,
+      passwordLength: req.body.password ? req.body.password.length : 0,
+      passwordType: typeof req.body.password,
+      passwordHex: req.body.password ? Buffer.from(req.body.password).toString('hex') : 'null'
+    }));
+    
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      console.log(`❌ [LOGIN] [${requestId}] Email ou senha não fornecidos`);
+      return res.status(400).json({
+        error: 'Dados inválidos',
+        message: 'Email e senha são obrigatórios'
+      });
+    }
+
     // Buscar usuário
-    console.log('🔍 [LOGIN] Buscando usuário no banco...');
+    console.log(`🔍 [LOGIN] [${requestId}] Buscando usuário no banco: ${email}`);
     const queryStart = Date.now();
     const userResult = await queryCRM(
       'SELECT * FROM users WHERE email = $1',
       [email]
     );
-    console.log(`✅ [LOGIN] Query usuário concluída em ${Date.now() - queryStart}ms`);
+    console.log(`✅ [LOGIN] [${requestId}] Query usuário concluída em ${Date.now() - queryStart}ms`);
 
     if (userResult.rows.length === 0) {
-      console.log('❌ [LOGIN] Usuário não encontrado');
+      console.log(`❌ [LOGIN] [${requestId}] Usuário não encontrado: ${email}`);
       return res.status(401).json({
         error: 'Credenciais inválidas',
         message: 'Email ou senha incorretos'
@@ -121,11 +142,11 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     const user = userResult.rows[0];
-    console.log('✅ [LOGIN] Usuário encontrado:', user.email);
+    console.log(`✅ [LOGIN] [${requestId}] Usuário encontrado: ${user.email} (ID: ${user.id})`);
 
     // Verificar se usuário está ativo
     if (!user.is_active) {
-      console.log('❌ [LOGIN] Usuário inativo');
+      console.log(`❌ [LOGIN] [${requestId}] Usuário inativo: ${user.email}`);
       return res.status(403).json({
         error: 'Conta desativada',
         message: 'Sua conta foi desativada. Entre em contato com o administrador.'
@@ -133,13 +154,13 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     // Verificar senha
-    console.log('🔐 [LOGIN] Verificando senha...');
+    console.log(`🔐 [LOGIN] [${requestId}] Verificando senha...`);
     const bcryptStart = Date.now();
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
-    console.log(`✅ [LOGIN] Bcrypt concluído em ${Date.now() - bcryptStart}ms, match: ${passwordMatch}`);
+    console.log(`✅ [LOGIN] [${requestId}] Bcrypt concluído em ${Date.now() - bcryptStart}ms, match: ${passwordMatch}`);
     
     if (!passwordMatch) {
-      console.log('❌ [LOGIN] Senha incorreta');
+      console.log(`❌ [LOGIN] [${requestId}] Senha incorreta para: ${email}`);
       return res.status(401).json({
         error: 'Credenciais inválidas',
         message: 'Email ou senha incorretos'
@@ -147,11 +168,11 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     // Gerar tokens
-    console.log('🎫 [LOGIN] Gerando tokens...');
+    console.log(`🎫 [LOGIN] [${requestId}] Gerando tokens...`);
     const tokenStart = Date.now();
     const accessToken = generateAccessToken({ userId: user.id, email: user.email });
     const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
-    console.log(`✅ [LOGIN] Tokens gerados em ${Date.now() - tokenStart}ms`);
+    console.log(`✅ [LOGIN] [${requestId}] Tokens gerados em ${Date.now() - tokenStart}ms`);
 
     // Calcular datas de expiração
     const expiresAt = new Date();
@@ -161,7 +182,7 @@ router.post('/login', validateLogin, async (req, res) => {
     refreshExpiresAt.setDate(refreshExpiresAt.getDate() + 7); // 7 dias
 
     // Salvar sessão no banco
-    console.log('💾 [LOGIN] Salvando sessão no banco...');
+    console.log(`💾 [LOGIN] [${requestId}] Salvando sessão no banco...`);
     const sessionStart = Date.now();
     await queryCRM(
       `INSERT INTO sessions (user_id, token, refresh_token, expires_at, refresh_expires_at, ip_address, user_agent)
@@ -176,22 +197,22 @@ router.post('/login', validateLogin, async (req, res) => {
         req.get('user-agent')
       ]
     );
-    console.log(`✅ [LOGIN] Sessão salva em ${Date.now() - sessionStart}ms`);
+    console.log(`✅ [LOGIN] [${requestId}] Sessão salva em ${Date.now() - sessionStart}ms`);
 
     // Atualizar último login
-    console.log('🔄 [LOGIN] Atualizando último login...');
+    console.log(`🔄 [LOGIN] [${requestId}] Atualizando último login...`);
     const updateStart = Date.now();
     await queryCRM(
       'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1',
       [user.id]
     );
-    console.log(`✅ [LOGIN] Último login atualizado em ${Date.now() - updateStart}ms`);
+    console.log(`✅ [LOGIN] [${requestId}] Último login atualizado em ${Date.now() - updateStart}ms`);
 
     // Retornar dados do usuário (sem senha)
     const { password_hash, ...userWithoutPassword } = user;
 
     const totalTime = Date.now() - startTime;
-    console.log(`✅ [LOGIN] Login concluído com sucesso em ${totalTime}ms`);
+    console.log(`✅ [LOGIN] [${requestId}] Login concluído com sucesso em ${totalTime}ms`);
 
     res.json({
       success: true,
@@ -205,8 +226,8 @@ router.post('/login', validateLogin, async (req, res) => {
     });
   } catch (error) {
     const totalTime = Date.now() - startTime;
-    console.error(`❌ [LOGIN] Erro após ${totalTime}ms:`, error.message);
-    console.error('Stack:', error.stack);
+    console.error(`❌ [LOGIN] [${requestId}] Erro após ${totalTime}ms:`, error.message);
+    console.error(`❌ [LOGIN] [${requestId}] Stack:`, error.stack);
     res.status(500).json({
       error: 'Erro interno do servidor',
       message: 'Não foi possível realizar o login'
@@ -323,4 +344,3 @@ router.get('/me', authenticateToken, async (req, res) => {
 });
 
 export default router;
-

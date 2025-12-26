@@ -86,5 +86,3 @@ Para habilitar criação/edição via interface React:
 - `API_README.md` - Documentação da API REST
 - `README_PLUGIN.md` - Plugin WordPress
 
-
-
