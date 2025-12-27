@@ -199,6 +199,33 @@ router.post('/', authenticateToken, validateActivity, async (req, res) => {
       ]
     );
 
+    await queryCRM(
+      `INSERT INTO lead_events (lead_id, event_type, title, description, metadata, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        lead_id,
+        'activity',
+        `Atividade criada: ${title}`,
+        description || null,
+        { type },
+        req.user?.id || null
+      ]
+    );
+
+    // Auto-tagging simples baseado no texto
+    const tagCandidates = `${title || ''} ${description || ''}`.toLowerCase();
+    if (tagCandidates.trim()) {
+      const tagsResult = await queryCRM('SELECT id, name FROM tags', []);
+      for (const tag of tagsResult.rows) {
+        if (tagCandidates.includes(String(tag.name).toLowerCase())) {
+          await queryCRM(
+            'INSERT INTO lead_tags (lead_id, tag_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+            [lead_id, tag.id]
+          );
+        }
+      }
+    }
+
     res.status(201).json({
       success: true,
       message: 'Atividade criada com sucesso',
@@ -381,4 +408,3 @@ router.delete('/:id', authenticateToken, validateId, async (req, res) => {
 });
 
 export default router;
-

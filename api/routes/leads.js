@@ -9,6 +9,38 @@ import { validateLead, validateId, validateListQuery } from '../middleware/valid
 
 const router = express.Router();
 
+async function runStageWorkflows(leadId, newStage, userId) {
+  const workflows = await queryCRM(
+    `SELECT w.id, t.trigger_config, a.action_type, a.action_config
+     FROM workflows w
+     INNER JOIN workflow_triggers t ON t.workflow_id = w.id
+     INNER JOIN workflow_actions a ON a.workflow_id = w.id
+     WHERE w.is_active = true
+       AND t.trigger_type = 'lead_stage_changed'
+       AND t.trigger_config->>'stage' = $1`,
+    [newStage]
+  );
+
+  for (const row of workflows.rows) {
+    if (row.action_type === 'send_message') {
+      const channel = row.action_config?.channel || 'email';
+      const body = row.action_config?.body || 'Mensagem automatica';
+      await queryCRM(
+        `INSERT INTO messages (lead_id, channel, direction, subject, body, status, metadata, created_by)
+         VALUES ($1, $2, 'outbound', $3, $4, 'queued', $5, $6)`,
+        [leadId, channel, row.action_config?.subject || null, body, row.action_config || {}, userId]
+      );
+    }
+
+    if (row.action_type === 'add_tag' && row.action_config?.tag_id) {
+      await queryCRM(
+        'INSERT INTO lead_tags (lead_id, tag_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [leadId, row.action_config.tag_id]
+      );
+    }
+  }
+}
+
 /**
  * GET /api/crm/v1/leads
  * Listar leads com filtros e paginação
@@ -22,7 +54,8 @@ router.get('/', authenticateToken, validateListQuery, async (req, res) => {
       stage,
       search,
       assigned_to,
-      tags
+      tags,
+      nlp
     } = req.query;
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
@@ -60,6 +93,25 @@ router.get('/', authenticateToken, validateListQuery, async (req, res) => {
       )`);
       queryParams.push(`%${search}%`);
       paramIndex++;
+    }
+
+    // Filtro por linguagem natural (simples)
+    if (nlp) {
+      const nlpText = String(nlp).toLowerCase();
+
+      const daysMatch = nlpText.match(/nao contatad[oa]s? ha (\\d+) dias/);
+      if (daysMatch) {
+        const days = parseInt(daysMatch[1], 10);
+        if (!isNaN(days)) {
+          whereConditions.push(`l.id IN (\n            SELECT l2.id\n            FROM leads l2\n            LEFT JOIN activities a ON l2.id = a.lead_id\n            GROUP BY l2.id\n            HAVING MAX(a.created_at) IS NULL OR MAX(a.created_at) < NOW() - INTERVAL '${days} days'\n          )`);
+        }
+      }
+
+      const cityMatch = nlpText.match(/leads de ([^,]+)/);
+      if (cityMatch) {
+        whereConditions.push(`l.id IN (\n          SELECT lead_id FROM lead_custom_fields\n          WHERE field_key IN ('cidade','city','estado','state')\n            AND field_value ILIKE $${paramIndex++}\n        )`);
+        queryParams.push(`%${cityMatch[1].trim()}%`);
+      }
     }
 
     // Filtro por tags
@@ -491,7 +543,7 @@ router.put('/:id', authenticateToken, validateId, validateLead, async (req, res)
 
     // Verificar se lead existe
     const existingResult = await queryCRM(
-      'SELECT id FROM leads WHERE id = $1 AND deleted_at IS NULL',
+      'SELECT id, stage FROM leads WHERE id = $1 AND deleted_at IS NULL',
       [id]
     );
 
@@ -500,6 +552,8 @@ router.put('/:id', authenticateToken, validateId, validateLead, async (req, res)
         error: 'Lead não encontrado'
       });
     }
+
+    const previousStage = existingResult.rows[0].stage;
 
     // Atualizar lead
     await queryCRM(
@@ -563,6 +617,10 @@ router.put('/:id', authenticateToken, validateId, validateLead, async (req, res)
       [id]
     );
 
+    if (stage && stage !== previousStage) {
+      await runStageWorkflows(id, stage, req.user?.id || null);
+    }
+
     res.json({
       success: true,
       message: 'Lead atualizado com sucesso',
@@ -617,4 +675,3 @@ router.delete('/:id', authenticateToken, validateId, async (req, res) => {
 });
 
 export default router;
-

@@ -26,6 +26,19 @@ import tagsRoutes from './routes/tags.js';
 import activitiesRoutes from './routes/activities.js';
 import kanbanRoutes from './routes/kanban.js';
 import dashboardRoutes from './routes/dashboard.js';
+import productsRoutes from './routes/products.js';
+import customFieldsRoutes from './routes/customFields.js';
+import messagesRoutes from './routes/messages.js';
+import eventsRoutes from './routes/events.js';
+import pipelinesRoutes from './routes/pipelines.js';
+import dealsRoutes from './routes/deals.js';
+import lossReasonsRoutes from './routes/lossReasons.js';
+import integrationsRoutes from './routes/integrations.js';
+import filesRoutes from './routes/files.js';
+import reportsRoutes from './routes/reports.js';
+import profileRoutes from './routes/profile.js';
+import workflowsRoutes from './routes/workflows.js';
+import botRoutes from './routes/bot.js';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -452,6 +465,32 @@ app.use('/api/crm/v1/kanban', kanbanRoutes);
 app.use('/crm/v1/kanban', kanbanRoutes);
 app.use('/api/crm/v1/dashboard', dashboardRoutes);
 app.use('/crm/v1/dashboard', dashboardRoutes);
+app.use('/api/crm/v1/products', productsRoutes);
+app.use('/crm/v1/products', productsRoutes);
+app.use('/api/crm/v1/custom-fields', customFieldsRoutes);
+app.use('/crm/v1/custom-fields', customFieldsRoutes);
+app.use('/api/crm/v1/messages', messagesRoutes);
+app.use('/crm/v1/messages', messagesRoutes);
+app.use('/api/crm/v1', eventsRoutes);
+app.use('/crm/v1', eventsRoutes);
+app.use('/api/crm/v1/pipelines', pipelinesRoutes);
+app.use('/crm/v1/pipelines', pipelinesRoutes);
+app.use('/api/crm/v1/deals', dealsRoutes);
+app.use('/crm/v1/deals', dealsRoutes);
+app.use('/api/crm/v1/loss-reasons', lossReasonsRoutes);
+app.use('/crm/v1/loss-reasons', lossReasonsRoutes);
+app.use('/api/crm/v1/integrations', integrationsRoutes);
+app.use('/crm/v1/integrations', integrationsRoutes);
+app.use('/api/crm/v1', filesRoutes);
+app.use('/crm/v1', filesRoutes);
+app.use('/api/crm/v1/reports', reportsRoutes);
+app.use('/crm/v1/reports', reportsRoutes);
+app.use('/api/crm/v1/profile', profileRoutes);
+app.use('/crm/v1/profile', profileRoutes);
+app.use('/api/crm/v1/workflows', workflowsRoutes);
+app.use('/crm/v1/workflows', workflowsRoutes);
+app.use('/api/crm/v1/bot', botRoutes);
+app.use('/crm/v1/bot', botRoutes);
 
 // Swagger UI - DEPOIS das rotas CRM para evitar conflitos
 // IMPORTANTE: Deve estar antes do 404 handler
@@ -555,4 +594,3 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Segurança: Rate limiting, Helmet, Validação ativados`);
     console.log(`🌍 CORS: ${allowedOrigins.join(', ')}`);
 });
-

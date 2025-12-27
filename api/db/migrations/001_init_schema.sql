@@ -67,10 +67,12 @@ CREATE TABLE tags (
     color VARCHAR(7) DEFAULT '#3B82F6',
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL
 );
 
 CREATE INDEX idx_tags_name ON tags(name);
+CREATE INDEX idx_tags_deleted_at ON tags(deleted_at) WHERE deleted_at IS NULL;
 
 -- Tabela: lead_tags
 CREATE TABLE lead_tags (
@@ -203,7 +205,7 @@ CREATE TRIGGER update_kanban_cards_updated_at BEFORE UPDATE ON kanban_cards
 -- Seed: Usuário admin padrão (senha: admin123 - DEVE SER ALTERADA!)
 -- Hash bcrypt para "admin123"
 INSERT INTO users (email, password_hash, first_name, last_name, role) VALUES
-('admin@phdstudio.com.br', '$2a$10$rOzJqZqZqZqZqZqZqZqZqOqZqZqZqZqZqZqZqZqZqZqZqZqZqZq', 'Admin', 'PHD Studio', 'admin')
+('admin@phdstudio.com.br', '$2a$10$bKiT8v07uz62qO4.8BRD0OrsI0e5EkbhXKBBnGejJShyK8tTH72SS', 'Admin', 'PHD Studio', 'admin')
 ON CONFLICT (email) DO NOTHING;
 
 -- Seed: Tags padrão
@@ -235,4 +237,3 @@ BEGIN
         ON CONFLICT DO NOTHING;
     END IF;
 END $$;
-
