@@ -13,7 +13,7 @@ const ChatDiagnostic: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const webhookUrl = import.meta.env.VITE_CHAT_WEBHOOK_URL || 'http://148.230.79.105:5679/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2';
+  const webhookUrl = import.meta.env.VITE_CHAT_WEBHOOK_URL || 'https://n8n.546digitalservices.com/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2';
   const authToken = import.meta.env.VITE_CHAT_AUTH_TOKEN || 'T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly';
 
   const updateResult = (test: string, status: DiagnosticResult['status'], message: string, details?: string) => {

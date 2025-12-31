@@ -49,7 +49,7 @@ const getWebhookConfig = () => {
   const envAuthToken = import.meta.env.VITE_CHAT_AUTH_TOKEN;
   
   return {
-    webhookUrl: envWebhookUrl || 'http://148.230.79.105:5679/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2',
+    webhookUrl: envWebhookUrl || 'https://n8n.546digitalservices.com/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2',
     authToken: envAuthToken || 'T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly',
     usingEnvVars: !!(envWebhookUrl || envAuthToken)
   };
