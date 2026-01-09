@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { BrowserRouter, Link, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { 
+import {
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
   TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown, Download,
-  MessageCircle, Power, PowerOff, Package
+  MessageCircle, Power, PowerOff, Package, Star
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './src/components/ChatWidget';
 import ChatDiagnostic from './src/components/ChatDiagnostic';
 import ProductsAdmin from './src/components/ProductsAdmin';
+import InstagramCarousel from './src/components/InstagramCarousel';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 import AdminRoutes from './src/admin/routes';
 import {
@@ -33,15 +34,15 @@ import {
 // --- Assets Configuration ---
 const ASSETS = {
   // Link direto para a nova imagem do logo no GitHub
-  logo: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Novo%202.png", 
+  logo: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Novo%202.png",
 
   // Video mock (using high quality tech image for background) - Otimizado para performance
-  heroBg: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop", 
-  
+  heroBg: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",
+
   // Specific contextual images
   recurringBg: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop",
   launchBg: "https://images.unsplash.com/photo-1642427749670-f20e2e76ed8c?q=80&w=800&auto=format&fit=crop",
-  
+
   // Client Logos (URLs reais do GitHub)
   clientLogos: [
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/3%20Eus.svg",
@@ -82,25 +83,49 @@ const ASSETS = {
 // --- Fake Data for Testimonials ---
 const TESTIMONIALS = [
   {
+    id: 'g1',
+    name: "Ricardo Oliveira",
+    role: "Diretor Comercial",
+    quote: "A PHD Studio revolucionou nosso processo de vendas. A automação e os dashboards em tempo real nos deram clareza total. Resultado: 40% de aumento no faturamento em 3 meses.",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop",
+    source: 'google',
+    rating: 5
+  },
+  {
     id: 1,
     name: "Fabio Salgueiro",
     role: "Escritor e Palestrante",
     quote: "A PHD Studio foi essencial na criação das capas de mais de sete livros da FSalgueiro Editora. A estética e a criatividade da equipe deram vida às obras e transmitiram exatamente a mensagem que eu desejava. Recomendo pela qualidade e profissionalismo.",
-    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fabio%20Salgueiro.png"
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fabio%20Salgueiro.png",
+    source: 'internal',
+    rating: 5
+  },
+  {
+    id: 'g2',
+    name: "Juliana Mendes",
+    role: "Marketing Manager",
+    quote: "Profissionalismo ímpar. A equipe entende profundamente de Growth e Tecnologia. Não é apenas tráfego, é inteligência de negócio aplicada.",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop",
+    source: 'google',
+    rating: 5
   },
   {
     id: 2,
     name: "Lucas Battistoni",
     role: "Especialista em Liderança de Marketing Multinível",
     quote: "Trabalhar com a PHD Studio na gestão de tráfego transformou meu negócio. As estratégias bem estruturadas aumentaram nossa visibilidade e conversões. Uma parceria confiável, com resultados reais. Estou muito satisfeito.",
-    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Lucas.png"
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Lucas.png",
+    source: 'internal',
+    rating: 5
   },
   {
     id: 3,
     name: "Fernanda Daud",
     role: "Farmacêutica",
     quote: "Gravei um vídeo para minhas aulas de pós-graduação com a PHD Studio e fiquei muito satisfeita! Ficou didático, com música e imagens em total harmonia. Meus alunos adoraram. Super recomendo!",
-    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fernanda.png"
+    avatar: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Fernanda.png",
+    source: 'internal',
+    rating: 5
   },
   // Depoimento comentado provisoriamente a pedido do cliente
   // {
@@ -133,12 +158,12 @@ interface LoginLog {
 const getOrCreateVisitorId = (): string => {
   const storageKey = 'phdstudio_visitor_id';
   let visitorId = localStorage.getItem(storageKey);
-  
+
   if (!visitorId) {
     visitorId = `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem(storageKey, visitorId);
   }
-  
+
   return visitorId;
 };
 
@@ -147,7 +172,7 @@ const getVisitorData = (): VisitorData => {
   const visitorId = getOrCreateVisitorId();
   const storageKey = `phdstudio_visitor_${visitorId}`;
   const stored = localStorage.getItem(storageKey);
-  
+
   if (stored) {
     const data = JSON.parse(stored);
     data.lastVisit = new Date().toISOString();
@@ -155,14 +180,14 @@ const getVisitorData = (): VisitorData => {
     localStorage.setItem(storageKey, JSON.stringify(data));
     return data;
   }
-  
+
   const newData: VisitorData = {
     visitorId,
     firstVisit: new Date().toISOString(),
     lastVisit: new Date().toISOString(),
     visitCount: 1
   };
-  
+
   localStorage.setItem(storageKey, JSON.stringify(newData));
   return newData;
 };
@@ -184,7 +209,7 @@ const logVisit = async (page: string) => {
   const ip = await getVisitorIP();
   const userAgent = navigator.userAgent;
   const timestamp = new Date().toISOString();
-  
+
   const logEntry = {
     visitorId: visitorData.visitorId,
     page,
@@ -193,10 +218,10 @@ const logVisit = async (page: string) => {
     timestamp,
     referrer: document.referrer || 'direct'
   };
-  
+
   // Salvar usando IndexedDB (persistente mesmo após deploy)
   await saveAccessLog(logEntry);
-  
+
   // Enviar evento para Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
     (window as any).gtag('event', 'page_visit', {
@@ -206,7 +231,7 @@ const logVisit = async (page: string) => {
       custom_parameter_1: ip
     });
   }
-  
+
   return logEntry;
 };
 
@@ -215,7 +240,7 @@ const logLogin = async (username: string, success: boolean, location?: string): 
   const ip = await getVisitorIP();
   const userAgent = navigator.userAgent;
   const timestamp = new Date().toISOString();
-  
+
   const loginLog: LoginLog = {
     username,
     ip,
@@ -224,10 +249,10 @@ const logLogin = async (username: string, success: boolean, location?: string): 
     success,
     location
   };
-  
+
   // Salvar usando IndexedDB (persistente mesmo após deploy)
   await saveLoginLog(loginLog);
-  
+
   // Enviar evento para Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
     (window as any).gtag('event', success ? 'login_success' : 'login_failed', {
@@ -237,7 +262,7 @@ const logLogin = async (username: string, success: boolean, location?: string): 
       custom_parameter_1: userAgent
     });
   }
-  
+
   return loginLog;
 };
 
@@ -307,7 +332,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   const login = async (username: string, password: string): Promise<boolean> => {
     const location = window.location.pathname;
-    
+
     // Validação admin
     if (username === 'phdstudioadmin' && password === 'phd@studio!@admin') {
       setIsAuthenticated(true);
@@ -315,15 +340,15 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('username', 'phdstudioadmin');
       localStorage.setItem('userRole', 'admin');
-      
+
       // Registrar login bem-sucedido com IP e dados
       logLogin(username, true, location).catch(() => {
         // Silenciar erros de logging
       });
-      
+
       return true;
     }
-    
+
     // Validação usuário vexin (mantido para compatibilidade)
     if (username === 'vexin' && password === '@v3xiN!') {
       setIsAuthenticated(true);
@@ -331,20 +356,20 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('username', 'vexin');
       localStorage.setItem('userRole', 'client');
-      
+
       // Registrar login bem-sucedido com IP e dados
       logLogin(username, true, location).catch(() => {
         // Silenciar erros de logging
       });
-      
+
       return true;
     }
-    
+
     // Registrar tentativa de login falhada
     logLogin(username, false, location).catch(() => {
       // Silenciar erros de logging
     });
-    
+
     return false;
   };
 
@@ -437,17 +462,43 @@ const ProtectedAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children
 // --- Components ---
 
 const TestimonialCard: React.FC<{ data: typeof TESTIMONIALS[0] }> = ({ data }) => (
-  <div className="bg-[#121212] border border-white/10 p-8 rounded-2xl w-[300px] md:w-[320px] flex-shrink-0 snap-center hover:border-brand-red/50 transition-colors duration-300 flex flex-col justify-between h-full group">
+  <div className="bg-[#121212] border border-white/10 p-8 rounded-2xl w-[300px] md:w-[320px] flex-shrink-0 snap-center hover:border-brand-red/50 transition-colors duration-300 flex flex-col justify-between h-full group relative overflow-hidden">
+    {/* Google Source Indicator */}
+    {data.source === 'google' && (
+      <div className="absolute top-4 right-4 bg-white/10 p-1.5 rounded-full z-10" title="Avaliação via Google">
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.84z" fill="#FBBC05" />
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+        </svg>
+      </div>
+    )}
+
     <div>
       <Quote className="text-brand-red w-8 h-8 mb-6 opacity-50 group-hover:opacity-100 transition-opacity" />
+
+      {/* Star Rating */}
+      {data.rating && (
+        <div className="flex gap-1 mb-4">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              size={14}
+              className={`${i < data.rating! ? 'fill-yellow-500 text-yellow-500' : 'fill-gray-700 text-gray-700'}`}
+            />
+          ))}
+        </div>
+      )}
+
       <p className="text-gray-300 text-base leading-relaxed italic mb-8 font-light">
         "{data.quote}"
       </p>
     </div>
     <div className="flex items-center gap-4 border-t border-white/5 pt-6">
-      <img 
-        src={data.avatar} 
-        alt={data.name} 
+      <img
+        src={data.avatar}
+        alt={data.name}
         className="w-12 h-12 rounded-full object-cover ring-2 ring-brand-red/20 group-hover:ring-brand-red/50 transition-all"
         loading="lazy"
         decoding="async"
@@ -455,6 +506,9 @@ const TestimonialCard: React.FC<{ data: typeof TESTIMONIALS[0] }> = ({ data }) =
       <div>
         <h4 className="text-white font-bold font-heading text-sm">{data.name}</h4>
         <p className="text-xs text-gray-500">{data.role}</p>
+        {data.source === 'google' && (
+          <span className="text-[10px] uppercase font-bold text-gray-500 mt-1 block">Google Reviews</span>
+        )}
       </div>
     </div>
   </div>
@@ -506,8 +560,8 @@ const Navbar = () => {
             Sair
           </button>
         ) : (
-          <Link 
-            to="/login" 
+          <Link
+            to="/login"
             className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
           >
             <Lock size={16} />
@@ -516,14 +570,14 @@ const Navbar = () => {
         )}
 
         <Link to="/" className="relative z-50 block">
-           <img 
-             src={ASSETS.logo} 
-             alt="PHD Studio" 
-             className="h-10 w-auto object-contain md:h-12"
-             width="200"
-             height="48"
-             loading="eager"
-           />
+          <img
+            src={ASSETS.logo}
+            alt="PHD Studio"
+            className="h-10 w-auto object-contain md:h-12"
+            width="200"
+            height="48"
+            loading="eager"
+          />
         </Link>
 
         {/* Desktop Menu */}
@@ -547,12 +601,12 @@ const Navbar = () => {
               </Link>
             </>
           ) : (
-            navLinks.map((link) => 
+            navLinks.map((link) =>
               link.external ? (
-                <a 
-                  key={link.name} 
-                  href={link.href} 
-                  target="_blank" 
+                <a
+                  key={link.name}
+                  href={link.href}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider"
                 >
@@ -630,23 +684,23 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link 
-                to="/login" 
-                onClick={() => setIsOpen(false)} 
+              <Link
+                to="/login"
+                onClick={() => setIsOpen(false)}
                 className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
               >
                 <Lock size={20} />
                 Área do Cliente
               </Link>
 
-              {navLinks.map((link) => 
+              {navLinks.map((link) =>
                 link.external ? (
-                  <a 
-                    key={link.name} 
-                    href={link.href} 
-                    target="_blank" 
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => setIsOpen(false)} 
+                    onClick={() => setIsOpen(false)}
                     className="text-2xl font-bold text-white hover:text-brand-red"
                   >
                     {link.name}
@@ -670,9 +724,9 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background with overlay */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src={ASSETS.heroBg} 
-          alt="Background" 
+        <img
+          src={ASSETS.heroBg}
+          alt="Background"
           className="w-full h-full object-cover opacity-20"
           loading="eager"
           fetchpriority="high"
@@ -688,15 +742,15 @@ const Hero = () => {
             <span className="w-2 h-2 bg-brand-red rounded-full animate-pulse"></span>
             MARKETING + TECNOLOGIA
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-black font-heading leading-tight">
             Marketing que gera <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-red-500">vendas</span> — todos os dias.
           </h1>
-          
+
           <p className="text-xl text-gray-400 font-light max-w-lg leading-relaxed">
             Criativos, campanhas e automações inteligentes para negócios que querem crescer com consistência ou escalar lançamentos.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <a href="#contato" className="bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/20">
               Quero crescer agora
@@ -721,7 +775,7 @@ const Hero = () => {
         </div>
 
         {/* Right side video */}
-        <div className="relative hidden md:block animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+        <div className="relative hidden md:block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
               <video
@@ -778,17 +832,17 @@ const GrowthType = () => {
   return (
     <section id="recorrente" className="py-20 bg-brand-dark">
       <div className="container mx-auto px-4">
-        <SectionTitle 
-          title="Escolha seu tipo de crescimento" 
-          subtitle="Dois caminhos, um objetivo: resultados que transformam seu negócio." 
-          centered 
+        <SectionTitle
+          title="Escolha seu tipo de crescimento"
+          subtitle="Dois caminhos, um objetivo: resultados que transformam seu negócio."
+          centered
         />
         <div className="grid md:grid-cols-2 gap-8 mt-12">
           {/* Bloco 1 - Marketing Recorrente */}
           <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
             <div className="absolute inset-0">
-               <img src={ASSETS.recurringBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Marketing Recorrente" loading="lazy" decoding="async" />
-               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+              <img src={ASSETS.recurringBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Marketing Recorrente" loading="lazy" decoding="async" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
             </div>
             <div className="relative p-10 h-full flex flex-col items-start">
               <div className="bg-blue-500/10 p-3 rounded-xl mb-6 border border-blue-500/20">
@@ -810,8 +864,8 @@ const GrowthType = () => {
           {/* Bloco 2 - Lançamentos Digitais */}
           <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
             <div className="absolute inset-0">
-               <img src={ASSETS.launchBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Lançamentos Digitais" loading="lazy" decoding="async" />
-               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+              <img src={ASSETS.launchBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Lançamentos Digitais" loading="lazy" decoding="async" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
             </div>
             <div className="relative p-10 h-full flex flex-col items-start">
               <div className="bg-brand-red/10 p-3 rounded-xl mb-6 border border-brand-red/20">
@@ -875,10 +929,10 @@ const Solutions = () => {
   return (
     <section id="solucoes" className="py-20 bg-[#0A0A0A]">
       <div className="container mx-auto px-4">
-        <SectionTitle 
-          title="Soluções Orientadas a Resultado" 
-          subtitle="Um ecossistema completo para resolver gargalos e acelerar seu faturamento." 
-          centered 
+        <SectionTitle
+          title="Soluções Orientadas a Resultado"
+          subtitle="Um ecossistema completo para resolver gargalos e acelerar seu faturamento."
+          centered
         />
         <div className="grid md:grid-cols-3 gap-8 mt-12">
           {solutionsBlocks.map((block, index) => (
@@ -910,10 +964,10 @@ const Methodology = () => (
   <section id="metodologia" className="py-20 bg-brand-dark border-t border-white/5">
     <div className="container mx-auto px-4">
       <SectionTitle title="Método PHD" subtitle="Como transformamos estratégias em resultados reais e mensuráveis." />
-      
+
       <div className="grid md:grid-cols-3 gap-8 mt-16 relative">
         <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-brand-red/50 to-transparent"></div>
-        
+
         {[
           { step: "01", title: "Diagnóstico Estratégico", desc: "Analisamos seu modelo de negócio, público e concorrência para traçar a rota mais eficiente rumo aos resultados." },
           { step: "02", title: "Implementação Rápida", desc: "Configuramos campanhas, criativos e automações em tempo recorde. Testamos rápido para validar o que funciona." },
@@ -939,8 +993,8 @@ const Cases = () => (
     <div className="container mx-auto px-4">
       <div className="flex justify-between items-end mb-12">
         <div className="max-w-2xl">
-           <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-4">Resultados Reais</h2>
-           <p className="text-gray-400">Performance comprovada que transforma números em crescimento real.</p>
+          <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-4">Resultados Reais</h2>
+          <p className="text-gray-400">Performance comprovada que transforma números em crescimento real.</p>
         </div>
         <a href="#contato" className="hidden md:flex items-center gap-2 text-brand-red font-bold hover:underline">
           Ver todos os cases <ArrowRight size={16} />
@@ -986,40 +1040,40 @@ const Testimonials = () => {
 
   return (
     <section id="depoimentos" className="py-20 bg-brand-dark relative overflow-hidden border-t border-white/5">
-        <div className="container mx-auto px-4">
-        <SectionTitle 
-          title="O que nossos clientes dizem" 
-          subtitle="Resultados reais de quem confiou na PHD Studio para transformar seus negócios." 
-          centered 
+      <div className="container mx-auto px-4">
+        <SectionTitle
+          title="O que nossos clientes dizem"
+          subtitle="Resultados reais de quem confiou na PHD Studio para transformar seus negócios."
+          centered
         />
-            
-            <div className="relative group/nav flex justify-center">
-                {/* Navigation Arrows (Desktop) */}
-                <button 
-                  onClick={() => scroll('left')} 
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 bg-brand-red/80 p-3 rounded-full text-white shadow-lg hover:bg-brand-red transition opacity-0 group-hover/nav:opacity-100 hidden md:block backdrop-blur-sm"
-                >
-                    <ChevronLeft size={24} />
-                </button>
-                <button 
-                  onClick={() => scroll('right')} 
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 bg-brand-red/80 p-3 rounded-full text-white shadow-lg hover:bg-brand-red transition opacity-0 group-hover/nav:opacity-100 hidden md:block backdrop-blur-sm"
-                >
-                    <ChevronRight size={24} />
-                </button>
 
-                {/* Scroll Container */}
-                <div 
-                  ref={scrollRef} 
-                  className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide px-4 md:px-0" 
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                    {TESTIMONIALS.map(t => (
-                        <TestimonialCard key={t.id} data={t} />
-                    ))}
-                </div>
-            </div>
+        <div className="relative group/nav flex justify-center">
+          {/* Navigation Arrows (Desktop) */}
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 bg-brand-red/80 p-3 rounded-full text-white shadow-lg hover:bg-brand-red transition opacity-0 group-hover/nav:opacity-100 hidden md:block backdrop-blur-sm"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 bg-brand-red/80 p-3 rounded-full text-white shadow-lg hover:bg-brand-red transition opacity-0 group-hover/nav:opacity-100 hidden md:block backdrop-blur-sm"
+          >
+            <ChevronRight size={24} />
+          </button>
+
+          {/* Scroll Container */}
+          <div
+            ref={scrollRef}
+            className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide px-4 md:px-0"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {TESTIMONIALS.map(t => (
+              <TestimonialCard key={t.id} data={t} />
+            ))}
+          </div>
         </div>
+      </div>
     </section>
   )
 };
@@ -1078,7 +1132,7 @@ const ContactForm = () => {
    * - O template deve estar ATIVO no painel do EmailJS
    * - O e-mail destinatário (to_email) pode ser configurado no template ou será enviado para o e-mail conectado
    */
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -1141,7 +1195,7 @@ const ContactForm = () => {
         if (!EMAILJS_CONFIG.serviceId) missing.push('VITE_EMAILJS_SERVICE_ID');
         if (!EMAILJS_CONFIG.templateId) missing.push('VITE_EMAILJS_TEMPLATE_ID');
         if (!EMAILJS_CONFIG.publicKey) missing.push('VITE_EMAILJS_PUBLIC_KEY');
-        
+
         const errorMsg = `EmailJS não configurado. Variáveis faltando: ${missing.join(', ')}`;
         throw new Error(errorMsg);
       }
@@ -1151,7 +1205,7 @@ const ContactForm = () => {
         EMAILJS_CONFIG.templateId,
         templateParams
       );
-      
+
       // Enviar evento de conversão para Google Analytics (sem logs adicionais)
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'form_submission', {
@@ -1160,7 +1214,7 @@ const ContactForm = () => {
           value: 1,
           send_to: 'G-VFKC64NZHH'
         });
-        
+
         // Evento de conversão (pode ser usado para Goals no GA4)
         (window as any).gtag('event', 'conversion', {
           send_to: 'G-VFKC64NZHH',
@@ -1169,17 +1223,17 @@ const ContactForm = () => {
           value: 1
         });
       }
-      
+
       setSubmitStatus('success');
       setFormData({ name: '', email: '', phone: '', message: '' });
-      
+
       setTimeout(() => {
         setSubmitStatus('idle');
       }, 5000);
     } catch (error: any) {
       // Mensagem de erro mais descritiva baseada no status
       let userErrorMessage = 'Erro ao enviar. Por favor, tente novamente ou entre em contato pelo WhatsApp.';
-      
+
       // Tratamento específico para erro 422 (Unprocessable Entity)
       if (error?.status === 422) {
         userErrorMessage = 'Erro 422: Parâmetros inválidos. Verifique se o template do EmailJS está configurado corretamente com as variáveis: from_name, from_email, phone, message, reply_to, email';
@@ -1188,10 +1242,10 @@ const ContactForm = () => {
       } else if (error?.message) {
         userErrorMessage = error.message;
       }
-      
+
       setErrorMessage(userErrorMessage);
       setSubmitStatus('error');
-      
+
       setTimeout(() => {
         setSubmitStatus('idle');
       }, 5000);
@@ -1210,10 +1264,10 @@ const ContactForm = () => {
   return (
     <section id="contato" className="py-20 bg-brand-gray">
       <div className="container mx-auto px-4 max-w-2xl">
-        <SectionTitle 
-          title="Vamos transformar seu negócio?" 
-          subtitle="Preencha o formulário e receba um diagnóstico gratuito em 48h." 
-          centered 
+        <SectionTitle
+          title="Vamos transformar seu negócio?"
+          subtitle="Preencha o formulário e receba um diagnóstico gratuito em 48h."
+          centered
         />
         <form onSubmit={handleSubmit} className="bg-brand-dark border border-white/10 rounded-2xl p-8 md:p-10 space-y-6">
           <div>
@@ -1231,7 +1285,7 @@ const ContactForm = () => {
               placeholder="Seu nome"
             />
           </div>
-          
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
               E-mail
@@ -1247,7 +1301,7 @@ const ContactForm = () => {
               placeholder="seu@email.com"
             />
           </div>
-          
+
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
               WhatsApp
@@ -1263,7 +1317,7 @@ const ContactForm = () => {
               placeholder="(11) 99999-9999"
             />
           </div>
-          
+
           <div>
             <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
               Mensagem (opcional)
@@ -1278,7 +1332,7 @@ const ContactForm = () => {
               placeholder="Conte-nos sobre seu negócio..."
             />
           </div>
-          
+
           <div className="space-y-3">
             <div className="flex items-start gap-2 text-xs text-gray-500">
               <input
@@ -1586,7 +1640,7 @@ const LoginPage = () => {
     setError('');
 
     const success = await login(username, password);
-    
+
     if (success) {
       // Se usuário for admin, redirecionar para logs
       if (username === 'phdstudioadmin') {
@@ -1609,9 +1663,9 @@ const LoginPage = () => {
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
         {/* Background with overlay */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src={ASSETS.heroBg} 
-            alt="Background" 
+          <img
+            src={ASSETS.heroBg}
+            alt="Background"
             className="w-full h-full object-cover opacity-20"
             loading="eager"
             fetchpriority="high"
@@ -1713,10 +1767,10 @@ const useProjecoesData = (planoSelecionado: 'start' | 'premium' = 'premium') => 
   const nomeCenario = planoSelecionado === 'start' ? 'Conservador' : 'Base';
   const cenarioAtivo = data?.cenarios?.find((c: any) => c.nome === nomeCenario) || data?.cenarios?.find((c: any) => c.nome === 'Base');
   const dadosAdicionais = data?.dadosAdicionais;
-  
+
   const calcularAgregados = () => {
     if (!cenarioAtivo) return null;
-    
+
     // Usar agregados do JSON se disponíveis, senão calcular
     if (cenarioAtivo.agregados) {
       return {
@@ -1726,20 +1780,20 @@ const useProjecoesData = (planoSelecionado: 'start' | 'premium' = 'premium') => 
         cpaMedio: cenarioAtivo.agregados.cpaMedio
       };
     }
-    
+
     // Fallback: calcular se não estiver no JSON
     const totalLeads = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.leads, 0);
     const totalVendas = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.vendas, 0);
     const totalTrafego = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.trafego, 0);
     const totalInvestimento = cenarioAtivo.dadosMensais.reduce((sum: number, m: any) => sum + m.investimentoMidia, 0);
     const cpaMedio = totalInvestimento / totalVendas || 0;
-    
+
     return { totalLeads, totalVendas, totalTrafego, cpaMedio };
   };
 
-  return { 
-    data: cenarioAtivo, 
-    agregados: calcularAgregados(), 
+  return {
+    data: cenarioAtivo,
+    agregados: calcularAgregados(),
     dadosAdicionais,
     loading,
     todosOsCenarios: data?.cenarios || []
@@ -1768,10 +1822,10 @@ const FunilVexinPage = () => {
   const mensagensEnviadas = dadosAdicionais.funil.mensagensEnviadas;
   const planos = dadosAdicionais.planos;
   const estruturaCanais = dadosAdicionais.estruturaCanais;
-  
+
   // Usar plano selecionado pelo usuário
   const planoAtual = planos[planoSelecionado];
-  
+
   const kpis = [
     {
       label: 'Leads',
@@ -1809,7 +1863,7 @@ const FunilVexinPage = () => {
   const leads = valoresFunil?.leads || agregados.totalLeads;
   const conversoes = valoresFunil?.conversoes || Math.floor(agregados.totalLeads * dadosAdicionais.funil.taxaConversaoLeads);
   const vendas = valoresFunil?.vendas || agregados.totalVendas;
-  
+
   const funilData = [
     { name: 'Tráfego Total', value: trafegoTotal },
     { name: 'Leads', value: leads },
@@ -1870,11 +1924,10 @@ const FunilVexinPage = () => {
                   <div
                     key={plano.nome}
                     onClick={() => setPlanoSelecionado(key as 'start' | 'premium')}
-                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] ${
-                      isAtivo
-                        ? 'border-red-500/50 bg-red-500/10 shadow-lg shadow-red-500/20'
-                        : 'border-white/10 bg-white/5 hover:border-white/20'
-                    }`}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] ${isAtivo
+                      ? 'border-red-500/50 bg-red-500/10 shadow-lg shadow-red-500/20'
+                      : 'border-white/10 bg-white/5 hover:border-white/20'
+                      }`}
                   >
                     <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center gap-2">
@@ -1925,9 +1978,8 @@ const FunilVexinPage = () => {
                 <div className="text-3xl font-bold text-white mb-1">{kpi.value}</div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">{kpi.periodo}</span>
-                  <span className={`text-sm font-semibold flex items-center gap-1 ${
-                    kpi.positive ? 'text-green-400' : 'text-red-400'
-                  }`}>
+                  <span className={`text-sm font-semibold flex items-center gap-1 ${kpi.positive ? 'text-green-400' : 'text-red-400'
+                    }`}>
                     {kpi.positive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                     {Math.abs(kpi.trend)}%
                   </span>
@@ -2078,16 +2130,16 @@ const ProjecaoVexinPage = () => {
   const projecao = dadosAdicionais.projecao;
   const ctr = projecao.ctr;
   // Usar valor do JSON se disponível, senão calcular
-  const conversaoMedia = projecao.conversao.valoresPorPlano?.[planoSelecionado] 
+  const conversaoMedia = projecao.conversao.valoresPorPlano?.[planoSelecionado]
     ? projecao.conversao.valoresPorPlano[planoSelecionado].toFixed(3)
     : (agregados.totalVendas / agregados.totalLeads * 100).toFixed(3);
   const planos = dadosAdicionais.planos;
   const estruturaCanais = dadosAdicionais.estruturaCanais;
   const fases = dadosAdicionais.fases;
-  
+
   // Usar plano selecionado pelo usuário
   const planoAtual = planos[planoSelecionado];
-  
+
   const kpis = [
     {
       title: 'CPA',
@@ -2144,11 +2196,10 @@ const ProjecaoVexinPage = () => {
                   <div
                     key={plano.nome}
                     onClick={() => setPlanoSelecionado(key as 'start' | 'premium')}
-                    className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] overflow-hidden ${
-                      isAtivo
-                        ? 'border-red-500 bg-gradient-to-br from-red-500/20 to-red-900/10 shadow-2xl shadow-red-500/30'
-                        : 'border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10'
-                    }`}
+                    className={`relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] overflow-hidden ${isAtivo
+                      ? 'border-red-500 bg-gradient-to-br from-red-500/20 to-red-900/10 shadow-2xl shadow-red-500/30'
+                      : 'border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10'
+                      }`}
                   >
                     {isAtivo && (
                       <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
@@ -2618,7 +2669,8 @@ const HomePage = () => (
     <Solutions />
     <Methodology />
     <Cases />
-    <Testimonials /> 
+    <Testimonials />
+    <InstagramCarousel />
     <FAQ />
     <ContactForm />
   </>
@@ -2660,9 +2712,8 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="font-sans bg-brand-dark min-h-screen text-white flex">
       {/* Sidebar */}
-      <aside className={`bg-[#121212] border-r border-white/10 transition-all duration-300 ${
-        sidebarOpen ? 'w-64' : 'w-20'
-      }`}>
+      <aside className={`bg-[#121212] border-r border-white/10 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'
+        }`}>
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center justify-between mb-6">
             {sidebarOpen && (
@@ -2685,11 +2736,10 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-brand-red/20 text-brand-red border border-brand-red/30'
-                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
+                  ? 'bg-brand-red/20 text-brand-red border border-brand-red/30'
+                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                  }`}
               >
                 <Icon size={20} />
                 {sidebarOpen && <span className="font-medium">{item.label}</span>}
@@ -2726,7 +2776,7 @@ const detectSuspiciousLogins = (loginLogs: LoginLog[]): LoginLog[] => {
 
   loginLogs.forEach((log) => {
     const logTime = new Date(log.timestamp).getTime();
-    
+
     // Múltiplas tentativas falhadas do mesmo IP
     if (!log.success) {
       ipAttempts[log.ip] = (ipAttempts[log.ip] || 0) + 1;
@@ -2795,7 +2845,7 @@ const LogsPage = () => {
     if (dateFilter !== 'all') {
       const now = new Date();
       const filterDate = new Date();
-      
+
       if (dateFilter === 'today') {
         filterDate.setHours(0, 0, 0, 0);
       } else if (dateFilter === 'week') {
@@ -2824,7 +2874,7 @@ const LogsPage = () => {
 
     // Filtro de status
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(log => 
+      filtered = filtered.filter(log =>
         statusFilter === 'success' ? log.success : !log.success
       );
     }
@@ -2833,7 +2883,7 @@ const LogsPage = () => {
     if (dateFilter !== 'all') {
       const now = new Date();
       const filterDate = new Date();
-      
+
       if (dateFilter === 'today') {
         filterDate.setHours(0, 0, 0, 0);
       } else if (dateFilter === 'week') {
@@ -2911,11 +2961,10 @@ const LogsPage = () => {
             {/* Botão de Toggle do Chat */}
             <button
               onClick={toggleChat}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                isChatVisible
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
-                  : 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${isChatVisible
+                ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
+                : 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
+                }`}
               title={isChatVisible ? 'Desativar Chat' : 'Ativar Chat'}
             >
               {isChatVisible ? (
@@ -2931,11 +2980,10 @@ const LogsPage = () => {
               )}
             </button>
           </div>
-          <div className={`mt-3 px-4 py-2 rounded-lg text-sm ${
-            isChatVisible
-              ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-              : 'bg-red-500/10 text-red-400 border border-red-500/20'
-          }`}>
+          <div className={`mt-3 px-4 py-2 rounded-lg text-sm ${isChatVisible
+            ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+            : 'bg-red-500/10 text-red-400 border border-red-500/20'
+            }`}>
             <span className="flex items-center gap-2">
               <MessageCircle size={16} />
               Chat do Assistente: <strong>{isChatVisible ? 'ATIVO' : 'DESATIVADO'}</strong>
@@ -2967,31 +3015,28 @@ const LogsPage = () => {
         <div className="flex gap-4 mb-6 border-b border-white/10">
           <button
             onClick={() => setActiveTab('dashboard')}
-            className={`px-6 py-3 font-semibold transition-colors ${
-              activeTab === 'dashboard'
-                ? 'text-brand-red border-b-2 border-brand-red'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'dashboard'
+              ? 'text-brand-red border-b-2 border-brand-red'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             Dashboard
           </button>
           <button
             onClick={() => setActiveTab('access')}
-            className={`px-6 py-3 font-semibold transition-colors ${
-              activeTab === 'access'
-                ? 'text-brand-red border-b-2 border-brand-red'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'access'
+              ? 'text-brand-red border-b-2 border-brand-red'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             Logs de Acesso ({accessLogs.length})
           </button>
           <button
             onClick={() => setActiveTab('login')}
-            className={`px-6 py-3 font-semibold transition-colors ${
-              activeTab === 'login'
-                ? 'text-brand-red border-b-2 border-brand-red'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'login'
+              ? 'text-brand-red border-b-2 border-brand-red'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             Logs de Login ({loginLogs.length})
           </button>
@@ -3176,11 +3221,10 @@ const LogsPage = () => {
                         <td className="px-6 py-4 text-sm text-white font-mono">{log.username}</td>
                         <td className="px-6 py-4 text-sm text-gray-300 font-mono">{log.ip}</td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            log.success
-                              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                              : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                          }`}>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${log.success
+                            ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                            : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                            }`}>
                             {log.success ? 'Sucesso' : 'Falha'}
                           </span>
                         </td>
@@ -3208,93 +3252,93 @@ function App() {
           <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
             <CookieBanner />
             <ChatWidgetWrapper />
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <Navbar />
-                  <main>
-                    <HomePage />
-                  </main>
-                  <Footer />
-                  {/* Floating WhatsApp Button */}
-                  <a
-                    href="https://wa.me/5511971490549"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
-                    aria-label="Falar no WhatsApp"
-                  >
-                    <Phone size={28} fill="currentColor" />
-                  </a>
-                </>
-              }
-            />
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/politica-de-privacidade"
-              element={
-                <>
-                  <Navbar />
-                  <main>
-                    <PrivacyPolicyPage />
-                  </main>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/funil_vexin"
-              element={
-                <ProtectedRoute>
-                  <Navbar />
-                  <main>
-                    <FunilVexinPage />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/projecao_vexin"
-              element={
-                <ProtectedRoute>
-                  <Navbar />
-                  <main>
-                    <ProjecaoVexinPage />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/logs"
-              element={
-                <ProtectedAdminRoute>
-                  <LogsPage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/chat-diagnostico"
-              element={
-                <ProtectedAdminRoute>
-                  <ChatDiagnostic />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/produtos"
-              element={
-                <ProtectedAdminRoute>
-                  <ProductsAdmin />
-                </ProtectedAdminRoute>
-              }
-            />
-            {/* Rotas do Admin CRM */}
-            <Route path="/admin/*" element={<AdminRoutes />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <Navbar />
+                    <main>
+                      <HomePage />
+                    </main>
+                    <Footer />
+                    {/* Floating WhatsApp Button */}
+                    <a
+                      href="https://wa.me/5511971490549"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
+                      aria-label="Falar no WhatsApp"
+                    >
+                      <Phone size={28} fill="currentColor" />
+                    </a>
+                  </>
+                }
+              />
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/politica-de-privacidade"
+                element={
+                  <>
+                    <Navbar />
+                    <main>
+                      <PrivacyPolicyPage />
+                    </main>
+                    <Footer />
+                  </>
+                }
+              />
+              <Route
+                path="/funil_vexin"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <main>
+                      <FunilVexinPage />
+                    </main>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/projecao_vexin"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <main>
+                      <ProjecaoVexinPage />
+                    </main>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/logs"
+                element={
+                  <ProtectedAdminRoute>
+                    <LogsPage />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/chat-diagnostico"
+                element={
+                  <ProtectedAdminRoute>
+                    <ChatDiagnostic />
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/produtos"
+                element={
+                  <ProtectedAdminRoute>
+                    <ProductsAdmin />
+                  </ProtectedAdminRoute>
+                }
+              />
+              {/* Rotas do Admin CRM */}
+              <Route path="/admin/*" element={<AdminRoutes />} />
+            </Routes>
+          </div>
+        </BrowserRouter>
       </ChatVisibilityProvider>
     </AuthProvider>
   );
