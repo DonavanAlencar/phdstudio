@@ -354,7 +354,8 @@ router.get('/check/:email', optionalAuth, async (req, res) => {
 
 /**
  * POST /api/crm/v1/leads
- * Criar lead
+ * Criar ou atualizar lead (UPSERT)
+ * Se o lead com o email já existe (não deletado), atualiza. Caso contrário, cria.
  */
 router.post('/', authenticateToken, validateLead, async (req, res) => {
   const startTime = Date.now();
@@ -374,35 +375,59 @@ router.post('/', authenticateToken, validateLead, async (req, res) => {
       tags = []
     } = req.body;
 
-    // OTIMIZAÇÃO: Usar UPSERT (INSERT ... ON CONFLICT) para fazer tudo em uma query
+    // UPSERT: Verificar se lead existe e atualizar ou criar
     console.log(`🔍 [LEADS] Verificando/inserindo lead para: ${email}`);
     const upsertStart = Date.now();
     
-    const upsertResult = await queryCRM(
-      `INSERT INTO leads 
-       (email, first_name, last_name, phone, status, stage, source, pain_point, assigned_to, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
-       ON CONFLICT (email) 
-       WHERE deleted_at IS NULL
-       DO UPDATE SET
-         first_name = COALESCE(EXCLUDED.first_name, leads.first_name),
-         last_name = COALESCE(EXCLUDED.last_name, leads.last_name),
-         phone = COALESCE(EXCLUDED.phone, leads.phone),
-         status = COALESCE(EXCLUDED.status, leads.status),
-         stage = COALESCE(EXCLUDED.stage, leads.stage),
-         source = COALESCE(EXCLUDED.source, leads.source),
-         pain_point = COALESCE(EXCLUDED.pain_point, leads.pain_point),
-         assigned_to = COALESCE(EXCLUDED.assigned_to, leads.assigned_to),
-         updated_at = CURRENT_TIMESTAMP
-       RETURNING *`,
-      [email, first_name || null, last_name || null, phone || null, status, stage, source || null, pain_point || null, assigned_to || null]
+    // Verificar se lead já existe (não deletado)
+    const existingLead = await queryCRM(
+      `SELECT id, created_at, updated_at FROM leads WHERE email = $1 AND deleted_at IS NULL`,
+      [email]
     );
     
-    console.log(`✅ [LEADS] UPSERT concluído em ${Date.now() - upsertStart}ms`);
+    let lead;
+    let leadId;
+    let isUpdate = false;
     
-    const lead = upsertResult.rows[0];
-    const leadId = lead.id;
-    const isUpdate = lead.created_at !== lead.updated_at;
+    if (existingLead.rows.length > 0) {
+      // Lead existe: fazer UPDATE
+      console.log(`📝 [LEADS] Lead existente encontrado, atualizando...`);
+      isUpdate = true;
+      leadId = existingLead.rows[0].id;
+      
+      const updateResult = await queryCRM(
+        `UPDATE leads SET
+          first_name = COALESCE($1, first_name),
+          last_name = COALESCE($2, last_name),
+          phone = COALESCE($3, phone),
+          status = COALESCE($4, status),
+          stage = COALESCE($5, stage),
+          source = COALESCE($6, source),
+          pain_point = COALESCE($7, pain_point),
+          assigned_to = COALESCE($8, assigned_to),
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $9
+        RETURNING *`,
+        [first_name || null, last_name || null, phone || null, status, stage, source || null, pain_point || null, assigned_to || null, leadId]
+      );
+      
+      lead = updateResult.rows[0];
+    } else {
+      // Lead não existe: fazer INSERT
+      console.log(`➕ [LEADS] Lead novo, criando...`);
+      const insertResult = await queryCRM(
+        `INSERT INTO leads 
+         (email, first_name, last_name, phone, status, stage, source, pain_point, assigned_to, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
+         RETURNING *`,
+        [email, first_name || null, last_name || null, phone || null, status, stage, source || null, pain_point || null, assigned_to || null]
+      );
+      
+      lead = insertResult.rows[0];
+      leadId = lead.id;
+    }
+    
+    console.log(`✅ [LEADS] UPSERT concluído em ${Date.now() - upsertStart}ms (${isUpdate ? 'atualizado' : 'criado'})`);
 
     // OTIMIZAÇÃO: Atualizar campos customizados em batch usando transação
     if (Object.keys(custom_fields).length > 0) {
@@ -497,13 +522,6 @@ router.post('/', authenticateToken, validateLead, async (req, res) => {
     console.error(`❌ [LEADS] Erro após ${totalTime}ms:`, error.message);
     console.error('Stack:', error.stack);
     
-    if (error.code === '23505') { // Unique violation
-      return res.status(409).json({
-        error: 'Email já existe',
-        message: 'Já existe um lead com este email'
-      });
-    }
-
     // Tratamento específico para timeouts
     if (error.message.includes('timeout') || error.code === 'ETIMEDOUT' || error.code === 'ECONNRESET') {
       console.error('   → Timeout detectado - possível problema de conexão com banco');
