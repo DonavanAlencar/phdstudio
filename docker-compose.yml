@@ -12,6 +12,7 @@ services:
         - VITE_CHAT_WEBHOOK_URL=${VITE_CHAT_WEBHOOK_URL:-}
         - VITE_CHAT_AUTH_TOKEN=${VITE_CHAT_AUTH_TOKEN:-}
         - VITE_API_URL=${VITE_API_URL:-https://phdstudio.com.br/api}
+        - VITE_INSTAGRAM_API_URL=${VITE_INSTAGRAM_API_URL:-https://phdstudio.com.br/api/instagram}
     container_name: phdstudio-app
     # Porta exposta para o Easypanel/Traefik rotear
     expose:
