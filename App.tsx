@@ -1431,15 +1431,17 @@ const Footer = () => (
     <div className="container mx-auto px-4">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
         <div className="text-center md:text-left">
-          <img
-            src={ASSETS.logo}
-            alt="PHD Studio"
-            className="h-16 w-auto object-contain mx-auto md:mx-0 mb-6"
-            width="200"
-            height="48"
-            loading="lazy"
-            decoding="async"
-          />
+          <Link to="/" className="block w-fit mx-auto md:mx-0 mb-6">
+            <img
+              src={ASSETS.logo}
+              alt="PHD Studio"
+              className="h-16 w-auto object-contain"
+              width="200"
+              height="48"
+              loading="lazy"
+              decoding="async"
+            />
+          </Link>
           <p className="text-gray-400 max-w-sm">
             Agência híbrida de Marketing + IA + Tecnologia. Transformamos estratégias em vendas recorrentes e lançamentos de sucesso.
           </p>
