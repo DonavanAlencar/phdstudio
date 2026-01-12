@@ -549,7 +549,7 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-6'}`}>
-      <div className="container mx-auto px-4 flex justify-between items-center">
+      <div className="container mx-auto px-4 flex justify-between items-center relative">
         {/* Botão Área do Cliente / Sair - Lado Esquerdo */}
         {isAuthenticated && username === 'vexin' ? (
           <button
@@ -569,7 +569,7 @@ const Navbar = () => {
           </Link>
         )}
 
-        <Link to="/" className="relative z-50 block">
+        <Link to="/" className="relative z-50 block absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">
           <img
             src={ASSETS.logo}
             alt="PHD Studio"
@@ -1430,8 +1430,8 @@ const Footer = () => (
   <footer className="bg-black border-t border-white/10 pt-20 pb-10">
     <div className="container mx-auto px-4">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
-        <div className="text-center md:text-left">
-          <Link to="/" className="block w-fit mx-auto md:mx-0 mb-6">
+        <div className="text-left">
+          <Link to="/" className="block w-fit mb-6">
             <img
               src={ASSETS.logo}
               alt="PHD Studio"
@@ -1447,7 +1447,7 @@ const Footer = () => (
           </p>
         </div>
 
-        <div className="bg-brand-gray p-8 rounded-2xl border border-white/10 text-center md:text-right w-full md:w-auto">
+        <div className="bg-brand-gray p-8 rounded-2xl border border-white/10 text-left md:text-right w-full md:w-auto">
           <h4 className="text-xl font-bold mb-2">Pronto para escalar?</h4>
           <p className="text-gray-400 mb-6 text-sm">Receba um diagnóstico gratuito em 48h.</p>
           <a
