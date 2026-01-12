@@ -39,6 +39,7 @@ import reportsRoutes from './routes/reports.js';
 import profileRoutes from './routes/profile.js';
 import workflowsRoutes from './routes/workflows.js';
 import botRoutes from './routes/bot.js';
+import instagramRoutes from './routes/instagram.js';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -450,6 +451,10 @@ app.get('/crm/v1/health', async (req, res) => {
         timestamp: new Date().toISOString()
     });
 });
+
+// Rotas públicas (Instagram Feed)
+app.use('/api/instagram', instagramRoutes);
+app.use('/instagram', instagramRoutes); // Rota alternativa sem /api para Traefik
 
 // Rotas do CRM
 // NOTA: O Traefik remove o prefixo /api, então as rotas aqui não devem incluir /api

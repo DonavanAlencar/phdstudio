@@ -1,10 +1,19 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Heart, MessageCircle, ChevronLeft, ChevronRight, Instagram, ExternalLink, Loader2 } from 'lucide-react';
 
-// Access Token provided by user
-// TODO: Move this to an environment variable (VITE_INSTAGRAM_TOKEN) for security in production
-const ACCESS_TOKEN = "EAALiGcJMMZB4BQbsxMjNnqncZCCMwMFMhEz5ZAkDFynO2sZCrn1Jh9bvCmCvo8Ba8TZCBVBrtqZBB2DLHcpXERQwO8DOhdTdgXgrIg96VzQtTen3tgXbfphhWuTRT5YNXe6KmZBDSjbJ50IXU7ZCprW0llyZBYHKDft1QZAdbXcCZC9WHl6khWlPgr2XLx2hZAl25o75ZArAH9aaJouEIUzBBWZAL2k65jJkGB6tV0eSUoPxQNX08ZA8YzsAIkcF0DBWDxXmLy5efkFmEuQAwV6OzcPSZBQllFM9sarZBejprludnnMd2EODo2I6mPpM8PPRApFkZC8HZA9E8XZCspSToGoVvZBdRqoIZD";
-const IG_USER_ID = "17841403453191047"; // phdstudiooficial
+// URL da API do Instagram (configurada via variável de ambiente)
+// Se não tiver VITE_INSTAGRAM_API_URL, usa VITE_API_URL + /instagram
+const getInstagramApiUrl = () => {
+  if (import.meta.env.VITE_INSTAGRAM_API_URL) {
+    return import.meta.env.VITE_INSTAGRAM_API_URL;
+  }
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  // Remove /api duplicado se já estiver na URL
+  const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
+  return `${baseUrl}/instagram`;
+};
+
+const INSTAGRAM_API_URL = getInstagramApiUrl();
 
 interface InstagramPost {
   id: string;
@@ -77,21 +86,43 @@ const InstagramCarousel: React.FC = () => {
   useEffect(() => {
     const fetchInstagramPosts = async () => {
       try {
-        // Updated to use Facebook Graph API instead of Basic Display API
-        // since the provided token is a Graph API token
-        const response = await fetch(
-          `https://graph.facebook.com/v22.0/${IG_USER_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count&access_token=${ACCESS_TOKEN}&limit=9`
-        );
+        const apiUrl = `${INSTAGRAM_API_URL}/posts?limit=9`;
+        console.log('📸 Buscando posts do Instagram de:', apiUrl);
+        
+        // Buscar posts do Instagram via endpoint da API (mais seguro - token não exposto no frontend)
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch instagram posts');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('❌ Erro na resposta da API:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData
+          });
+          throw new Error(errorData.message || `Erro ${response.status}: Failed to fetch instagram posts`);
         }
 
-        const data = await response.json();
-        setPosts(data.data);
+        const result = await response.json();
+        console.log('✅ Resposta da API do Instagram:', result);
+        
+        if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
+          setPosts(result.data);
+          setError(false);
+          console.log(`✅ ${result.data.length} posts do Instagram carregados com sucesso`);
+        } else {
+          console.warn('⚠️ Nenhum post encontrado ou formato inválido, usando fallback');
+          throw new Error('Nenhum post encontrado');
+        }
+        
         setLoading(false);
-      } catch (err) {
-        console.error('Instagram fetch error:', err);
+      } catch (err: any) {
+        console.error('❌ Erro ao buscar posts do Instagram:', err);
+        console.warn('⚠️ Usando posts de fallback (imagens do Unsplash)');
         setError(true);
         // Fallback to mock data on error
         setPosts(FALLBACK_POSTS as any);

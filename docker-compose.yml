@@ -68,6 +68,10 @@ services:
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret-key-change-in-production}
       # API Key (configure no .env)
       - PHD_API_KEY=${PHD_API_KEY:-CNZZoJ6rz7Gcb8Z80rYNSHfCW1jPxZTU}
+      # Instagram Feed (configure no .env)
+      - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN:-}
+      - INSTAGRAM_USER_ID=${INSTAGRAM_USER_ID:-17841403453191047}
+      - INSTAGRAM_API_VERSION=${INSTAGRAM_API_VERSION:-v22.0}
       - ALLOWED_ORIGINS=https://phdstudio.com.br,http://phdstudio.com.br
       - CORS_ORIGIN=https://phdstudio.com.br
       - API_PORT=3001
