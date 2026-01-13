@@ -28,22 +28,32 @@ const crmPool = new Pool({
   keepAliveInitialDelayMillis: 10000,
 });
 
-// Pool MySQL para produtos (WordPress)
-const productsPool = mysql.createPool({
-  host: process.env.WP_DB_HOST || 'localhost',
-  user: process.env.WP_DB_USER || 'root',
-  password: process.env.WP_DB_PASSWORD,
-  database: process.env.WP_DB_NAME || 'wordpress',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  connectTimeout: 10000,
-  acquireTimeout: 10000,
-  timeout: 10000,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-  ssl: process.env.WP_DB_SSL === 'true' ? { rejectUnauthorized: false } : false
-});
+// Flag para indicar se o MySQL está configurado
+const isMysqlConfigured = !!(process.env.WP_DB_HOST && process.env.WP_DB_USER && process.env.WP_DB_PASSWORD);
+
+// Pool MySQL para produtos (WordPress) - Opcional
+let productsPool = null;
+if (isMysqlConfigured) {
+  try {
+    productsPool = mysql.createPool({
+      host: process.env.WP_DB_HOST || 'localhost',
+      user: process.env.WP_DB_USER || 'root',
+      password: process.env.WP_DB_PASSWORD,
+      database: process.env.WP_DB_NAME || 'wordpress',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+      connectTimeout: 10000,
+      acquireTimeout: 10000,
+      timeout: 10000,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
+      ssl: process.env.WP_DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+    });
+  } catch (err) {
+    console.error('❌ Erro ao inicializar pool MySQL:', err.message);
+  }
+}
 
 // Testar conexão PostgreSQL
 crmPool.on('connect', () => {
@@ -60,22 +70,29 @@ crmPool.on('error', (err) => {
     const testResult = await crmPool.query('SELECT 1 as test');
     console.log('✅ PostgreSQL (CRM) conectado e testado');
   } catch (error) {
-    console.error('❌ Erro ao testar conexão PostgreSQL:', error.message);
-    if (error.message.includes('EAI_AGAIN') || error.message.includes('getaddrinfo')) {
-      console.error('   → Problema de DNS/rede. Verifique se o container phd-crm-db está acessível.');
+    if (error.code === '28P01') {
+      console.error('❌ ERRO DE AUTENTICAÇÃO POSTGRESQL: A senha para o usuário "' + (process.env.CRM_DB_USER || 'phd_crm_user') + '" está incorreta no .env');
+    } else if (error.code === '3D000') {
+      console.error('❌ ERRO DE BANCO POSTGRESQL: O banco de dados "' + (process.env.CRM_DB_NAME || 'phd_crm') + '" não existe.');
+    } else {
+      console.error('❌ Erro ao testar conexão PostgreSQL:', error.message);
     }
   }
 })();
 
-// Testar conexão MySQL
-productsPool.getConnection()
-  .then((connection) => {
-    console.log('✅ MySQL (Produtos) conectado');
-    connection.release();
-  })
-  .catch((err) => {
-    console.error('❌ Erro ao conectar MySQL:', err);
-  });
+// Testar conexão MySQL apenas se configurado
+if (isMysqlConfigured && productsPool) {
+  productsPool.getConnection()
+    .then((connection) => {
+      console.log('✅ MySQL (Produtos) conectado');
+      connection.release();
+    })
+    .catch((err) => {
+      console.warn('⚠️  MySQL configurado mas não responde (ECONNREFUSED). Funcionalidade de produtos limitada.');
+    });
+} else {
+  console.info('ℹ️  MySQL não configurado na utility level. Rotas de produtos desativadas.');
+}
 
 /**
  * Executar query no PostgreSQL (CRM)
@@ -83,42 +100,42 @@ productsPool.getConnection()
 export async function queryCRM(text, params) {
   const startTime = Date.now();
   const queryId = Math.random().toString(36).substring(7);
-  
+
   try {
     // Log da query (apenas em desenvolvimento ou se muito lenta)
     if (process.env.NODE_ENV !== 'production') {
       console.log(`📊 [DB] Query ${queryId}: ${text.substring(0, 100)}...`);
     }
-    
+
     const result = await crmPool.query(text, params);
     const duration = Date.now() - startTime;
-    
+
     // Avisar se query demorou mais de 1s
     if (duration > 1000) {
       console.warn(`⚠️ [DB] Query lenta (${duration}ms) [${queryId}]: ${text.substring(0, 100)}...`);
     } else if (process.env.NODE_ENV !== 'production') {
       console.log(`✅ [DB] Query ${queryId} concluída em ${duration}ms`);
     }
-    
+
     return result;
   } catch (error) {
     const duration = Date.now() - startTime;
     console.error(`❌ [DB] Erro na query PostgreSQL (${duration}ms) [${queryId}]:`, error.message);
     console.error(`   Query: ${text.substring(0, 200)}...`);
-    
+
     if (error.message.includes('timeout') || error.message.includes('EAI_AGAIN') || error.message.includes('ETIMEDOUT')) {
       console.error('   → Possível problema de conexão com o banco de dados');
       console.error('   → Verifique: 1) Banco está acessível, 2) Rede está OK, 3) Índices existem');
     }
-    
+
     if (error.code === 'ECONNREFUSED') {
       console.error('   → Conexão recusada - banco pode estar offline');
     }
-    
+
     if (error.code === '28P01') {
       console.error('   → Erro de autenticação - credenciais incorretas');
     }
-    
+
     throw error;
   }
 }

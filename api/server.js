@@ -57,9 +57,9 @@ if (!process.env.PHD_API_KEY) {
     process.exit(1);
 }
 
+// WP_DB_PASSWORD is now optional (MySQL is only used for the products section)
 if (!process.env.WP_DB_PASSWORD) {
-    console.error('❌ ERRO: WP_DB_PASSWORD não definida no .env');
-    process.exit(1);
+    console.warn('⚠️  AVISO: WP_DB_PASSWORD não definida no .env. As rotas de produtos não funcionarão.');
 }
 
 // Middleware simples de log de requisições (debug)
@@ -145,8 +145,20 @@ const dbConfig = {
     ssl: process.env.WP_DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 };
 
-// Pool de conexões MySQL
-const pool = mysql.createPool(dbConfig);
+// Pool de conexões MySQL - Inicializado apenas se as credenciais básicas estiverem presentes
+let pool = null;
+const isMysqlConfigured = process.env.WP_DB_HOST && process.env.WP_DB_USER && process.env.WP_DB_PASSWORD;
+
+if (isMysqlConfigured) {
+    try {
+        pool = mysql.createPool(dbConfig);
+        console.log('✅ Pool de conexões MySQL carregado (WordPress)');
+    } catch (err) {
+        console.error('❌ Erro ao criar pool MySQL:', err.message);
+    }
+} else {
+    console.warn('⚠️  MySQL não configurado. Funcionalidade de produtos desativada.');
+}
 
 // API Key para autenticação (OBRIGATÓRIA via .env)
 const API_KEY = process.env.PHD_API_KEY;
@@ -243,6 +255,14 @@ function sanitizeString(str) {
 app.get('/phd/v1/products', authenticateApiKey, async (req, res) => {
     let connection = null;
     try {
+        if (!pool) {
+            return res.status(503).json({
+                success: false,
+                error: 'Serviço de produtos indisponível',
+                message: 'A conexão com o banco de dados WordPress (MySQL) não está configurada.'
+            });
+        }
+
         // Validar e sanitizar prefixo da tabela
         const tablePrefix = sanitizeString(process.env.WP_TABLE_PREFIX || 'wp_');
         if (!/^[a-z0-9_]+$/i.test(tablePrefix)) {
@@ -347,6 +367,14 @@ app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
                 success: false,
                 error: 'ID inválido',
                 message: 'O ID deve ser um número inteiro positivo'
+            });
+        }
+
+        if (!pool) {
+            return res.status(503).json({
+                success: false,
+                error: 'Serviço de produtos indisponível',
+                message: 'A conexão com o banco de dados WordPress (MySQL) não está configurada.'
             });
         }
 

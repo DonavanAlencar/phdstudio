@@ -1,8 +1,7 @@
-# ============================================
 # PHD STUDIO - Script de Deploy para Windows (SEM DOCKER)
 # ============================================
 # Este script automatiza toda a implantação da aplicação no Windows
-# Pré-requisitos: 
+# Pre-requisitos: 
 #   - Node.js instalado e no PATH
 #   - PostgreSQL instalado e rodando
 #   - psql no PATH (ou configurar caminho completo)
@@ -32,10 +31,10 @@ function Write-ColorOutput($ForegroundColor) {
     $host.UI.RawUI.ForegroundColor = $fc
 }
 
-function Write-Success { Write-ColorOutput Green "✓ $args" }
-function Write-Error { Write-ColorOutput Red "✗ $args" }
-function Write-Warning { Write-ColorOutput Yellow "⚠ $args" }
-function Write-Info { Write-ColorOutput Cyan "ℹ $args" }
+function Write-Success { Write-ColorOutput Green "[OK] $args" }
+function Write-Error { Write-ColorOutput Red "[ERROR] $args" }
+function Write-Warning { Write-ColorOutput Yellow "[WARN] $args" }
+function Write-Info { Write-ColorOutput Cyan "[INFO] $args" }
 
 # ============================================
 # CONFIGURAÇÕES E SECRETS
@@ -67,6 +66,20 @@ $Config = @{
     INSTAGRAM_USER_ID = "17841403453191047"
     INSTAGRAM_API_VERSION = "v22.0"
     
+    # YouTube API
+    VITE_YOUTUBE_API_KEY = "AIzaSyDwZYKOSVF8WqYmukIa_-RltjQpV9HEKvg"
+    VITE_YOUTUBE_PLAYLIST_ID = "PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa"
+    VITE_YOUTUBE_CHANNEL_ID = "UCxasZ2ECtL0RH4iV6Cjsv3g"
+
+    # WordPress DB (MySQL)
+    WP_DB_HOST = "localhost"
+    WP_DB_USER = "wp_user"
+    WP_DB_PASSWORD = "WpUser@2024!Strong#Pass"
+    WP_DB_NAME = "wordpress_db"
+    WP_TABLE_PREFIX = "wp_"
+    WP_DB_SSL = "false"
+    WP_URL = "http://localhost:8080"
+    
     # URLs
     VITE_API_URL = "http://localhost:$ApiPort/api"
     VITE_INSTAGRAM_API_URL = "http://localhost:$ApiPort/api/instagram"
@@ -85,7 +98,7 @@ $Config = @{
 }
 
 Write-Info "============================================"
-Write-Info "  PHD STUDIO - Deploy Automático Windows"
+Write-Info "  PHD STUDIO - Deploy Automatico Windows"
 Write-Info "  (SEM DOCKER - Node.js e PostgreSQL nativos)"
 Write-Info "============================================"
 Write-Info ""
@@ -148,8 +161,8 @@ try {
     }
     
     if (-not $psqlFound) {
-        Write-Warning "psql não encontrado no PATH ou em caminhos comuns"
-        Write-Warning "Migrations serão puladas. Execute manualmente se necessário."
+        Write-Warning "psql nao encontrado no PATH ou em caminhos comuns"
+        Write-Warning "Migrations serao puladas. Execute manualmente se necessario."
     }
 }
 
@@ -159,7 +172,7 @@ Write-Info ""
 # CRIAR ARQUIVOS .ENV
 # ============================================
 
-Write-Info "Criando arquivos de configuração..."
+Write-Info "Criando arquivos de configuracao..."
 
 # .env para frontend (build time)
 $frontendEnv = @"
@@ -173,6 +186,9 @@ VITE_CHAT_WEBHOOK_URL=$($Config.VITE_CHAT_WEBHOOK_URL)
 VITE_CHAT_AUTH_TOKEN=$($Config.VITE_CHAT_AUTH_TOKEN)
 VITE_API_URL=$($Config.VITE_API_URL)
 VITE_INSTAGRAM_API_URL=$($Config.VITE_INSTAGRAM_API_URL)
+VITE_YOUTUBE_API_KEY=$($Config.VITE_YOUTUBE_API_KEY)
+VITE_YOUTUBE_PLAYLIST_ID=$($Config.VITE_YOUTUBE_PLAYLIST_ID)
+VITE_YOUTUBE_CHANNEL_ID=$($Config.VITE_YOUTUBE_CHANNEL_ID)
 "@
 
 $frontendEnv | Out-File -FilePath ".env" -Encoding UTF8 -NoNewline
@@ -210,6 +226,15 @@ NODE_ENV=$($Config.NODE_ENV)
 INSTAGRAM_ACCESS_TOKEN=$($Config.INSTAGRAM_ACCESS_TOKEN)
 INSTAGRAM_USER_ID=$($Config.INSTAGRAM_USER_ID)
 INSTAGRAM_API_VERSION=$($Config.INSTAGRAM_API_VERSION)
+
+# WordPress DB (MySQL)
+WP_DB_HOST=$($Config.WP_DB_HOST)
+WP_DB_USER=$($Config.WP_DB_USER)
+WP_DB_PASSWORD=$($Config.WP_DB_PASSWORD)
+WP_DB_NAME=$($Config.WP_DB_NAME)
+WP_TABLE_PREFIX=$($Config.WP_TABLE_PREFIX)
+WP_DB_SSL=$($Config.WP_DB_SSL)
+WP_URL=$($Config.WP_URL)
 "@
 
 $apiEnv | Out-File -FilePath "api\.env" -Encoding UTF8 -NoNewline
@@ -224,17 +249,17 @@ Write-Info ""
 if (-not $SkipMigrations -and $psqlFound) {
     Write-Info "Executando migrations do banco de dados..."
     
-    # Verificar conexão
-    Write-Info "Verificando conexão com PostgreSQL..."
+    # Verificar conexao
+    Write-Info "Verificando conexao com PostgreSQL..."
     $env:PGPASSWORD = $Config.CRM_DB_PASSWORD
     
     $testConnection = & $psqlPath -h $Config.CRM_DB_HOST -p $Config.CRM_DB_PORT -U $Config.CRM_DB_USER -d postgres -c "SELECT 1;" 2>&1
     
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "Não foi possível conectar ao PostgreSQL: $testConnection"
-        Write-Warning "Verifique se o PostgreSQL está rodando e as credenciais estão corretas"
+        Write-Warning "Nao foi possivel conectar ao PostgreSQL: $testConnection"
+        Write-Warning "DICA: Verifique se o usuario '$($Config.CRM_DB_USER)' existe e se a senha esta correta no .env"
     } else {
-        Write-Success "Conexão com PostgreSQL OK"
+        Write-Success "Conexao com PostgreSQL OK"
         
         # Criar banco se não existir
         Write-Info "Verificando se o banco de dados existe..."
@@ -282,13 +307,13 @@ if (-not $SkipMigrations -and $psqlFound) {
             }
         }
         
-        Write-Success "Migrations concluídas!"
+        Write-Success "Migrations concluidas!"
     }
 } else {
     if ($SkipMigrations) {
         Write-Warning "Pulando migrations (flag -SkipMigrations)"
     } else {
-        Write-Warning "psql não encontrado. Migrations não serão executadas."
+        Write-Warning "psql nao encontrado. Migrations nao serao executadas."
         Write-Warning "Execute manualmente: .\scripts\run-migrations.ps1"
     }
 }
@@ -314,10 +339,10 @@ Set-Location api
 npm install
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "Falha ao instalar dependências da API"
+    Write-Error "Falha ao instalar dependencias da API"
     exit 1
 }
-Write-Success "Dependências da API instaladas"
+Write-Success "Dependencias da API instaladas"
 
 Set-Location $PSScriptRoot
 Write-Info ""
@@ -347,7 +372,7 @@ if (-not $SkipBuild) {
         Write-Error "Falha ao fazer build do frontend"
         exit 1
     }
-    Write-Success "Build do frontend concluído"
+    Write-Success "Build do frontend concluido"
 } else {
     Write-Warning "Pulando build do frontend (flag -SkipBuild)"
 }
@@ -420,10 +445,10 @@ Write-Info ""
 # ============================================
 
 Write-Info "============================================"
-Write-Success "Deploy concluído com sucesso!"
+Write-Success "Deploy concluido com sucesso!"
 Write-Info "============================================"
 Write-Info ""
-Write-Info "Próximos passos:"
+Write-Info "Proximos passos:"
 Write-Info ""
 Write-Info "1. Iniciar API:"
 Write-Info "   .\start-api.ps1"
