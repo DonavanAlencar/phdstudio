@@ -82,7 +82,7 @@ app.use(helmet({
 }));
 
 // CORS configurado de forma segura
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
+const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
     : ['https://phdstudio.com.br', 'http://phdstudio.com.br'];
 
@@ -176,7 +176,7 @@ const securityLog = {
 function authenticateApiKey(req, res, next) {
     const apiKey = req.headers['x-phd-api-key'];
     const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
-    
+
     if (!apiKey) {
         securityLog.logFailedAuth(clientIp, null);
         return res.status(401).json({
@@ -184,7 +184,7 @@ function authenticateApiKey(req, res, next) {
             message: 'Envie o header X-PHD-API-KEY com sua chave de API'
         });
     }
-    
+
     // Comparação segura contra timing attacks
     if (!secureCompare(apiKey, API_KEY)) {
         securityLog.logFailedAuth(clientIp, apiKey);
@@ -193,7 +193,7 @@ function authenticateApiKey(req, res, next) {
             message: 'A chave de API fornecida não é válida'
         });
     }
-    
+
     next();
 }
 
@@ -204,12 +204,12 @@ function secureCompare(a, b) {
     if (a.length !== b.length) {
         return false;
     }
-    
+
     let result = 0;
     for (let i = 0; i < a.length; i++) {
         result |= a.charCodeAt(i) ^ b.charCodeAt(i);
     }
-    
+
     return result === 0;
 }
 
@@ -249,9 +249,9 @@ app.get('/phd/v1/products', authenticateApiKey, async (req, res) => {
             throw new Error('Prefixo de tabela inválido');
         }
         const tableName = `${tablePrefix}phd_products`;
-        
+
         connection = await pool.getConnection();
-        
+
         // Query segura usando prepared statements
         const [rows] = await connection.query(
             `SELECT id, nome, categoria, atributos, preco_estimado, foto_url, updated_at 
@@ -260,10 +260,10 @@ app.get('/phd/v1/products', authenticateApiKey, async (req, res) => {
              LIMIT 1000`,
             [tableName]
         );
-        
+
         connection.release();
         connection = null;
-        
+
         // Processar produtos e formatar atributos JSON com sanitização
         const products = rows.map(product => {
             let atributos = {};
@@ -276,19 +276,19 @@ app.get('/phd/v1/products', authenticateApiKey, async (req, res) => {
             } catch (e) {
                 atributos = {};
             }
-            
+
             // Sanitizar e validar URL da foto
             let foto_url = sanitizeString(product.foto_url || '');
             if (foto_url && !foto_url.startsWith('http')) {
                 const wpUrl = process.env.WP_URL || 'https://phdstudio.com.br';
                 // Validar URL antes de construir
                 if (wpUrl.match(/^https?:\/\/.+/)) {
-                    foto_url = foto_url.startsWith('/') 
-                        ? `${wpUrl}${foto_url}` 
+                    foto_url = foto_url.startsWith('/')
+                        ? `${wpUrl}${foto_url}`
                         : `${wpUrl}/${foto_url}`;
                 }
             }
-            
+
             return {
                 id: parseInt(product.id, 10),
                 nome: sanitizeString(product.nome || ''),
@@ -299,30 +299,30 @@ app.get('/phd/v1/products', authenticateApiKey, async (req, res) => {
                 updated_at: product.updated_at || null
             };
         });
-        
+
         // Headers de segurança adicionais
         res.setHeader('X-Content-Type-Options', 'nosniff');
         res.setHeader('X-Frame-Options', 'DENY');
         res.setHeader('X-XSS-Protection', '1; mode=block');
-        
+
         res.json({
             success: true,
             count: products.length,
             data: products,
             timestamp: new Date().toISOString()
         });
-        
+
     } catch (error) {
         if (connection) {
             connection.release();
         }
         console.error('Erro ao buscar produtos:', error);
-        
+
         // Não expor detalhes do erro em produção
-        const errorMessage = process.env.NODE_ENV === 'production' 
-            ? 'Erro interno do servidor' 
+        const errorMessage = process.env.NODE_ENV === 'production'
+            ? 'Erro interno do servidor'
             : error.message;
-            
+
         res.status(500).json({
             success: false,
             error: 'Erro ao buscar produtos',
@@ -341,7 +341,7 @@ app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
     try {
         // Validar e sanitizar ID
         const productId = validateId(req.params.id);
-        
+
         if (!productId) {
             return res.status(400).json({
                 success: false,
@@ -349,16 +349,16 @@ app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
                 message: 'O ID deve ser um número inteiro positivo'
             });
         }
-        
+
         // Validar e sanitizar prefixo da tabela
         const tablePrefix = sanitizeString(process.env.WP_TABLE_PREFIX || 'wp_');
         if (!/^[a-z0-9_]+$/i.test(tablePrefix)) {
             throw new Error('Prefixo de tabela inválido');
         }
         const tableName = `${tablePrefix}phd_products`;
-        
+
         connection = await pool.getConnection();
-        
+
         // Query segura usando prepared statements
         const [rows] = await connection.query(
             `SELECT id, nome, categoria, atributos, preco_estimado, foto_url, updated_at 
@@ -367,17 +367,17 @@ app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
              LIMIT 1`,
             [tableName, productId]
         );
-        
+
         connection.release();
         connection = null;
-        
+
         if (rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 error: 'Produto não encontrado'
             });
         }
-        
+
         const product = rows[0];
         let atributos = {};
         try {
@@ -388,22 +388,22 @@ app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
         } catch (e) {
             atributos = {};
         }
-        
+
         let foto_url = sanitizeString(product.foto_url || '');
         if (foto_url && !foto_url.startsWith('http')) {
             const wpUrl = process.env.WP_URL || 'https://phdstudio.com.br';
             if (wpUrl.match(/^https?:\/\/.+/)) {
-                foto_url = foto_url.startsWith('/') 
-                    ? `${wpUrl}${foto_url}` 
+                foto_url = foto_url.startsWith('/')
+                    ? `${wpUrl}${foto_url}`
                     : `${wpUrl}/${foto_url}`;
             }
         }
-        
+
         // Headers de segurança
         res.setHeader('X-Content-Type-Options', 'nosniff');
         res.setHeader('X-Frame-Options', 'DENY');
         res.setHeader('X-XSS-Protection', '1; mode=block');
-        
+
         res.json({
             success: true,
             data: {
@@ -417,17 +417,17 @@ app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
             },
             timestamp: new Date().toISOString()
         });
-        
+
     } catch (error) {
         if (connection) {
             connection.release();
         }
         console.error('Erro ao buscar produto:', error);
-        
-        const errorMessage = process.env.NODE_ENV === 'production' 
-            ? 'Erro interno do servidor' 
+
+        const errorMessage = process.env.NODE_ENV === 'production'
+            ? 'Erro interno do servidor'
             : error.message;
-            
+
         res.status(500).json({
             success: false,
             error: 'Erro ao buscar produto',
@@ -501,38 +501,38 @@ app.use('/crm/v1/bot', botRoutes);
 // IMPORTANTE: Deve estar antes do 404 handler
 // Endpoint de teste para verificar se o problema é do Swagger
 app.get('/api/docs/test', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'Endpoint de teste do Swagger funcionando',
-    timestamp: new Date().toISOString()
-  });
+    res.json({
+        status: 'ok',
+        message: 'Endpoint de teste do Swagger funcionando',
+        timestamp: new Date().toISOString()
+    });
 });
 
 app.use('/api/docs', swaggerUi.serve);
 app.get('/api/docs', swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'PHD Studio API - Documentação',
-  customfavIcon: '/favicon.ico',
-  swaggerOptions: {
-    persistAuthorization: true,
-    displayRequestDuration: true,
-    tryItOutEnabled: true,
-  },
-  customJs: [],
-  customCssUrl: null,
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'PHD Studio API - Documentação',
+    customfavIcon: '/favicon.ico',
+    swaggerOptions: {
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        tryItOutEnabled: true,
+    },
+    customJs: [],
+    customCssUrl: null,
 }));
 app.use('/docs', swaggerUi.serve);
 app.get('/docs', swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'PHD Studio API - Documentação',
-  customfavIcon: '/favicon.ico',
-  swaggerOptions: {
-    persistAuthorization: true,
-    displayRequestDuration: true,
-    tryItOutEnabled: true,
-  },
-  customJs: [],
-  customCssUrl: null,
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'PHD Studio API - Documentação',
+    customfavIcon: '/favicon.ico',
+    swaggerOptions: {
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        tryItOutEnabled: true,
+    },
+    customJs: [],
+    customCssUrl: null,
 }));
 
 /**
@@ -552,8 +552,8 @@ app.use((err, req, res, next) => {
     res.status(500).json({
         success: false,
         error: 'Erro interno do servidor',
-        message: process.env.NODE_ENV === 'production' 
-            ? 'Erro interno do servidor' 
+        message: process.env.NODE_ENV === 'production'
+            ? 'Erro interno do servidor'
             : err.message
     });
 });
