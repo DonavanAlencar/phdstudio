@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-const PLAYLIST_ID = import.meta.env.VITE_YOUTUBE_PLAYLIST_ID || 'PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa';
+const PLAYLIST_ID = import.meta.env.VITE_YOUTUBE_PLAYLIST_ID;
+const CHANNEL_ID = import.meta.env.VITE_YOUTUBE_CHANNEL_ID || 'UC7l123...'; // Opcional
 
 export interface YouTubeVideo {
     id: string;
@@ -35,12 +36,32 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
     }
 
     try {
+        let targetPlaylistId = PLAYLIST_ID || 'PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa';
+
+        // Se tivermos um Channel ID mas não uma Playlist ID, buscamos a playlist de 'uploads' do canal
+        const channelId = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
+        if (!PLAYLIST_ID && channelId) {
+            try {
+                const channelResponse = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
+                    params: {
+                        part: 'contentDetails',
+                        id: channelId,
+                        key: YOUTUBE_API_KEY,
+                    },
+                });
+                const uploadsId = channelResponse.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+                if (uploadsId) targetPlaylistId = uploadsId;
+            } catch (e) {
+                console.error('Erro ao buscar playlist de uploads do canal:', e);
+            }
+        }
+
         // 1. Buscar itens da playlist (Snippet)
         const playlistResponse = await axios.get('https://www.googleapis.com/youtube/v3/playlistItems', {
             params: {
                 part: 'snippet,contentDetails',
                 maxResults: limit,
-                playlistId: PLAYLIST_ID,
+                playlistId: targetPlaylistId,
                 key: YOUTUBE_API_KEY,
             },
         });
