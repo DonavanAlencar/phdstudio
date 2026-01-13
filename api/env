@@ -1,0 +1,60 @@
+# ============================================
+# CONFIGURAÇÃO DO BANCO DE DADOS MYSQL (WordPress Docker)
+# ============================================
+
+# Host do MySQL (nome do container Docker)
+WP_DB_HOST=wp_db
+
+# Credenciais do MySQL (do container wp_db)
+WP_DB_USER=wp_user
+WP_DB_PASSWORD=WpUser@2024!Strong#Pass
+WP_DB_NAME=wordpress_db
+WP_TABLE_PREFIX=wp_
+
+# SSL para conexão MySQL (true/false)
+WP_DB_SSL=false
+
+# ============================================
+# URL BASE DO WORDPRESS
+# ============================================
+WP_URL=http://localhost:8080
+
+# ============================================
+# SEGURANÇA - API KEY
+# ============================================
+PHD_API_KEY=local-api-key
+
+# ============================================
+# CORS - ORIGENS PERMITIDAS
+# ============================================
+ALLOWED_ORIGINS=http://localhost:8080,http://localhost:5173,http://localhost:3000
+
+# ============================================
+# CONFIGURAÇÃO DO SERVIDOR
+# ============================================
+API_PORT=3001
+NODE_ENV=development
+
+# ============================================
+# POSTGRES (CRM)
+# ============================================
+CRM_DB_HOST=phd-crm-db
+CRM_DB_PORT=5432
+CRM_DB_USER=phd_crm_user
+CRM_DB_PASSWORD=PhdCrm@2024!Strong#Pass
+CRM_DB_NAME=phd_crm
+
+# ============================================
+# JWT
+# ============================================
+JWT_SECRET=local-jwt-secret
+JWT_REFRESH_SECRET=local-refresh-secret
+
+# ============================================
+# INSTAGRAM FEED (Facebook Graph API)
+# ============================================
+# Obtenha um token de longa duração em: https://developers.facebook.com/tools/explorer/
+# Token deve ter permissões: instagram_basic, pages_read_engagement, pages_show_list
+INSTAGRAM_ACCESS_TOKEN=EAAqpKJFj3OIBQZAQu1Qo8TmAoBhP5DEJMaD6W0gjrzZCvoZCj4YEvcwwSVJBAUJlhLohWdIOpQZAyWIMeX7qjcDZCJZCtlkTFW0PnuSDkD7I29VhPv9wMKHjfiSlrLwYAT4pYv0flQduZAy1n43ZBSuCzDpbhicWXHpQvOb8S2QEZBxHqBR6ANLuDlT6VK5bmbEnPnUR80Le2xgZDZD
+INSTAGRAM_USER_ID=17841403453191047
+INSTAGRAM_API_VERSION=v22.0

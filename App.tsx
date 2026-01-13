@@ -11,6 +11,7 @@ import ChatDiagnostic from './src/components/ChatDiagnostic';
 import ProductsAdmin from './src/components/ProductsAdmin';
 import InstagramCarousel from './src/components/InstagramCarousel';
 import MobileChatPage from './src/components/MobileChat/MobileChatPage';
+import YouTubeCarousel from './src/components/YouTubeCarousel';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 import AdminRoutes from './src/admin/routes';
 import {
@@ -2672,6 +2673,7 @@ const HomePage = () => (
     <Solutions />
     <Methodology />
     <Cases />
+    <YouTubeCarousel />
     <Testimonials />
     <InstagramCarousel />
     <FAQ />
