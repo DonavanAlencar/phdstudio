@@ -46,7 +46,8 @@ try {
     $null = Get-Command psql -ErrorAction Stop
 } catch {
     Write-Error "psql não encontrado no PATH"
-    Write-Error "Por favor, instale o PostgreSQL Client ou use Docker para executar migrations"
+    Write-Error "Por favor, instale o PostgreSQL Client e adicione ao PATH"
+    Write-Error "Caminho típico: C:\Program Files\PostgreSQL\16\bin"
     exit 1
 }
 

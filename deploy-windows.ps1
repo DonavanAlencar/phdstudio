@@ -1,9 +1,11 @@
 # ============================================
-# PHD STUDIO - Script de Deploy para Windows
+# PHD STUDIO - Script de Deploy para Windows (SEM DOCKER)
 # ============================================
 # Este script automatiza toda a implantação da aplicação no Windows
-# Pré-requisitos: Docker Desktop instalado e rodando
-# PostgreSQL deve estar configurado e acessível
+# Pré-requisitos: 
+#   - Node.js instalado e no PATH
+#   - PostgreSQL instalado e rodando
+#   - psql no PATH (ou configurar caminho completo)
 # ============================================
 
 param(
@@ -12,11 +14,14 @@ param(
     [string]$PostgresUser = "phd_crm_user",
     [string]$PostgresPassword = "PhdCrm@2024!Strong#Pass",
     [string]$PostgresDatabase = "phd_crm",
-    [switch]$SkipMigrations = $false
+    [switch]$SkipMigrations = $false,
+    [switch]$SkipBuild = $false,
+    [int]$ApiPort = 3001,
+    [int]$FrontendPort = 8080
 )
 
 # Cores para output
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 function Write-ColorOutput($ForegroundColor) {
     $fc = $host.UI.RawUI.ForegroundColor
@@ -63,11 +68,11 @@ $Config = @{
     INSTAGRAM_API_VERSION = "v22.0"
     
     # URLs
-    VITE_API_URL = "http://localhost:3001/api"
-    VITE_INSTAGRAM_API_URL = "http://localhost:3001/api/instagram"
-    ALLOWED_ORIGINS = "http://localhost:8080,http://localhost:3000,http://localhost:5173"
+    VITE_API_URL = "http://localhost:$ApiPort/api"
+    VITE_INSTAGRAM_API_URL = "http://localhost:$ApiPort/api/instagram"
+    ALLOWED_ORIGINS = "http://localhost:$FrontendPort,http://localhost:3000,http://localhost:5173"
     
-    # PostgreSQL (usar parâmetros ou valores padrão)
+    # PostgreSQL
     CRM_DB_HOST = $PostgresHost
     CRM_DB_PORT = $PostgresPort
     CRM_DB_USER = $PostgresUser
@@ -75,12 +80,13 @@ $Config = @{
     CRM_DB_NAME = $PostgresDatabase
     
     # API
-    API_PORT = 3001
+    API_PORT = $ApiPort
     NODE_ENV = "production"
 }
 
 Write-Info "============================================"
 Write-Info "  PHD STUDIO - Deploy Automático Windows"
+Write-Info "  (SEM DOCKER - Node.js e PostgreSQL nativos)"
 Write-Info "============================================"
 Write-Info ""
 
@@ -90,48 +96,61 @@ Write-Info ""
 
 Write-Info "Verificando pré-requisitos..."
 
-# Verificar Docker
+# Verificar Node.js
 try {
-    $dockerVersion = docker --version
-    Write-Success "Docker encontrado: $dockerVersion"
+    $nodeVersion = node --version
+    Write-Success "Node.js encontrado: $nodeVersion"
 } catch {
-    Write-Error "Docker não está instalado ou não está no PATH"
-    Write-Error "Por favor, instale o Docker Desktop: https://www.docker.com/products/docker-desktop"
+    Write-Error "Node.js não está instalado ou não está no PATH"
+    Write-Error "Por favor, instale o Node.js: https://nodejs.org/"
     exit 1
 }
 
-# Verificar se Docker está rodando
+# Verificar npm
 try {
-    docker ps | Out-Null
-    Write-Success "Docker está rodando"
+    $npmVersion = npm --version
+    Write-Success "npm encontrado: $npmVersion"
 } catch {
-    Write-Error "Docker não está rodando. Por favor, inicie o Docker Desktop"
+    Write-Error "npm não está disponível"
     exit 1
 }
 
-# Verificar Docker Compose
-try {
-    $composeVersion = docker compose version
-    Write-Success "Docker Compose encontrado: $composeVersion"
-} catch {
-    Write-Error "Docker Compose não está disponível"
-    exit 1
-}
+# Verificar PostgreSQL (psql)
+$psqlPath = $null
+$psqlFound = $false
 
-# Verificar conexão com PostgreSQL
-Write-Info "Verificando conexão com PostgreSQL..."
+# Tentar encontrar psql no PATH
 try {
-    $env:PGPASSWORD = $Config.CRM_DB_PASSWORD
-    $psqlCheck = & psql -h $Config.CRM_DB_HOST -p $Config.CRM_DB_PORT -U $Config.CRM_DB_USER -d postgres -c "SELECT 1;" 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Success "Conexão com PostgreSQL OK"
-    } else {
-        Write-Warning "Não foi possível verificar PostgreSQL via psql (pode estar OK se usando Docker)"
-        Write-Info "Continuando... PostgreSQL será verificado durante o deploy"
+    $psqlCheck = Get-Command psql -ErrorAction Stop
+    $psqlPath = "psql"
+    $psqlFound = $true
+    Write-Success "psql encontrado no PATH"
+} catch {
+    # Tentar caminhos comuns do PostgreSQL no Windows
+    $commonPaths = @(
+        "C:\Program Files\PostgreSQL\16\bin\psql.exe",
+        "C:\Program Files\PostgreSQL\15\bin\psql.exe",
+        "C:\Program Files\PostgreSQL\14\bin\psql.exe",
+        "C:\Program Files\PostgreSQL\13\bin\psql.exe",
+        "$env:ProgramFiles\PostgreSQL\16\bin\psql.exe",
+        "$env:ProgramFiles\PostgreSQL\15\bin\psql.exe",
+        "$env:ProgramFiles\PostgreSQL\14\bin\psql.exe",
+        "$env:ProgramFiles\PostgreSQL\13\bin\psql.exe"
+    )
+    
+    foreach ($path in $commonPaths) {
+        if (Test-Path $path) {
+            $psqlPath = $path
+            $psqlFound = $true
+            Write-Success "psql encontrado em: $path"
+            break
+        }
     }
-} catch {
-    Write-Warning "psql não encontrado no PATH (normal se PostgreSQL não estiver instalado localmente)"
-    Write-Info "Continuando... PostgreSQL será verificado durante o deploy"
+    
+    if (-not $psqlFound) {
+        Write-Warning "psql não encontrado no PATH ou em caminhos comuns"
+        Write-Warning "Migrations serão puladas. Execute manualmente se necessário."
+    }
 }
 
 Write-Info ""
@@ -159,19 +178,15 @@ VITE_INSTAGRAM_API_URL=$($Config.VITE_INSTAGRAM_API_URL)
 $frontendEnv | Out-File -FilePath ".env" -Encoding UTF8 -NoNewline
 Write-Success "Arquivo .env criado para frontend"
 
-# Determinar o host do PostgreSQL para dentro do Docker
-# Se for localhost, usar host.docker.internal
-$dockerDbHost = if ($Config.CRM_DB_HOST -eq "localhost" -or $Config.CRM_DB_HOST -eq "127.0.0.1") {
-    "host.docker.internal"
-} else {
-    $Config.CRM_DB_HOST
+# api/.env para backend (runtime)
+if (-not (Test-Path "api")) {
+    New-Item -ItemType Directory -Path "api" | Out-Null
 }
 
-# api/.env para backend (runtime)
 $apiEnv = @"
 # API Environment Variables (Runtime)
 # PostgreSQL CRM
-CRM_DB_HOST=$dockerDbHost
+CRM_DB_HOST=$($Config.CRM_DB_HOST)
 CRM_DB_PORT=$($Config.CRM_DB_PORT)
 CRM_DB_USER=$($Config.CRM_DB_USER)
 CRM_DB_PASSWORD=$($Config.CRM_DB_PASSWORD)
@@ -197,120 +212,8 @@ INSTAGRAM_USER_ID=$($Config.INSTAGRAM_USER_ID)
 INSTAGRAM_API_VERSION=$($Config.INSTAGRAM_API_VERSION)
 "@
 
-if (-not (Test-Path "api")) {
-    New-Item -ItemType Directory -Path "api" | Out-Null
-}
-
 $apiEnv | Out-File -FilePath "api\.env" -Encoding UTF8 -NoNewline
 Write-Success "Arquivo api\.env criado para backend"
-
-Write-Info ""
-
-# ============================================
-# CRIAR DOCKER-COMPOSE PARA WINDOWS
-# ============================================
-
-Write-Info "Criando docker-compose.yml para Windows..."
-
-$dockerCompose = @"
-services:
-  phdstudio:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - GEMINI_API_KEY=$($Config.GEMINI_API_KEY)
-        - VITE_EMAILJS_SERVICE_ID=$($Config.VITE_EMAILJS_SERVICE_ID)
-        - VITE_EMAILJS_TEMPLATE_ID=$($Config.VITE_EMAILJS_TEMPLATE_ID)
-        - VITE_EMAILJS_PUBLIC_KEY=$($Config.VITE_EMAILJS_PUBLIC_KEY)
-        - VITE_RECIPIENT_EMAIL=$($Config.VITE_RECIPIENT_EMAIL)
-        - VITE_CHAT_WEBHOOK_URL=$($Config.VITE_CHAT_WEBHOOK_URL)
-        - VITE_CHAT_AUTH_TOKEN=$($Config.VITE_CHAT_AUTH_TOKEN)
-        - VITE_API_URL=$($Config.VITE_API_URL)
-        - VITE_INSTAGRAM_API_URL=$($Config.VITE_INSTAGRAM_API_URL)
-    container_name: phdstudio-app
-    ports:
-      - "8080:80"
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=$($Config.NODE_ENV)
-    networks:
-      - phd_network
-
-  phd-api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    container_name: phd-api
-    ports:
-      - "3001:3001"
-    restart: unless-stopped
-    env_file:
-      - ./api/.env
-    environment:
-      - NODE_ENV=$($Config.NODE_ENV)
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    depends_on:
-      phd-db-init:
-        condition: service_completed_successfully
-    networks:
-      - phd_network
-
-  phd-db-init:
-    image: postgres:15-alpine
-    container_name: phd-db-init
-    environment:
-      PGPASSWORD: $($Config.CRM_DB_PASSWORD)
-      POSTGRES_HOST: $($Config.CRM_DB_HOST)
-      POSTGRES_PORT: $($Config.CRM_DB_PORT)
-      POSTGRES_USER: $($Config.CRM_DB_USER)
-      POSTGRES_DB: $($Config.CRM_DB_NAME)
-    volumes:
-      - ./api/db/migrations:/migrations:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    entrypoint: ["/bin/sh"]
-    command:
-      - -c
-      - |
-        echo "Aguardando PostgreSQL estar disponível em host.docker.internal..."
-        # Se o host for localhost ou 127.0.0.1, usar host.docker.internal
-        if [ "$$POSTGRES_HOST" = "localhost" ] || [ "$$POSTGRES_HOST" = "127.0.0.1" ]; then
-          DB_HOST="host.docker.internal"
-        else
-          DB_HOST="$$POSTGRES_HOST"
-        fi
-        
-        until PGPASSWORD=$$POSTGRES_PASSWORD psql -h $$DB_HOST -p $$POSTGRES_PORT -U $$POSTGRES_USER -d postgres -c "SELECT 1" > /dev/null 2>&1; do
-          echo "PostgreSQL não está disponível ainda. Aguardando..."
-          sleep 2
-        done
-        echo "PostgreSQL está disponível!"
-        
-        # Criar banco se não existir
-        PGPASSWORD=$$POSTGRES_PASSWORD psql -h $$DB_HOST -p $$POSTGRES_PORT -U $$POSTGRES_USER -d postgres -c "SELECT 1 FROM pg_database WHERE datname='$$POSTGRES_DB'" | grep -q 1 || \
-        PGPASSWORD=$$POSTGRES_PASSWORD psql -h $$DB_HOST -p $$POSTGRES_PORT -U $$POSTGRES_USER -d postgres -c "CREATE DATABASE $$POSTGRES_DB;"
-        
-        # Executar migrations em ordem
-        echo "Executando migrations..."
-        for migration in /migrations/001_init_schema.sql /migrations/002_products.sql /migrations/003_messaging_custom_fields_timeline.sql /migrations/004_pipelines_deals_automation_integrations_files_profile.sql; do
-          if [ -f "$$migration" ]; then
-            echo "Executando: $$(basename $$migration)"
-            PGPASSWORD=$$POSTGRES_PASSWORD psql -h $$DB_HOST -p $$POSTGRES_PORT -U $$POSTGRES_USER -d $$POSTGRES_DB -f "$$migration" 2>&1 || echo "Aviso: Migration pode ter falhado (pode ser normal se já executada)"
-          fi
-        done
-        echo "Migrations concluídas!"
-    networks:
-      - phd_network
-
-networks:
-  phd_network:
-    driver: bridge
-"@
-
-$dockerCompose | Out-File -FilePath "docker-compose.windows.yml" -Encoding UTF8
-Write-Success "Arquivo docker-compose.windows.yml criado"
 
 Write-Info ""
 
@@ -318,122 +221,197 @@ Write-Info ""
 # EXECUTAR MIGRATIONS (se não pular)
 # ============================================
 
-if (-not $SkipMigrations) {
+if (-not $SkipMigrations -and $psqlFound) {
     Write-Info "Executando migrations do banco de dados..."
     
-    # Verificar se psql está disponível
-    $psqlAvailable = $false
-    try {
-        $null = Get-Command psql -ErrorAction Stop
-        $psqlAvailable = $true
-    } catch {
-        Write-Warning "psql não encontrado. Migrations serão executadas via Docker"
-    }
+    # Verificar conexão
+    Write-Info "Verificando conexão com PostgreSQL..."
+    $env:PGPASSWORD = $Config.CRM_DB_PASSWORD
     
-    if ($psqlAvailable) {
-        Write-Info "Executando migrations via psql local..."
+    $testConnection = & $psqlPath -h $Config.CRM_DB_HOST -p $Config.CRM_DB_PORT -U $Config.CRM_DB_USER -d postgres -c "SELECT 1;" 2>&1
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Não foi possível conectar ao PostgreSQL: $testConnection"
+        Write-Warning "Verifique se o PostgreSQL está rodando e as credenciais estão corretas"
+    } else {
+        Write-Success "Conexão com PostgreSQL OK"
         
         # Criar banco se não existir
-        $env:PGPASSWORD = $Config.CRM_DB_PASSWORD
-        $createDb = "SELECT 1 FROM pg_database WHERE datname='$($Config.CRM_DB_NAME)'"
-        $dbExists = & psql -h $Config.CRM_DB_HOST -p $Config.CRM_DB_PORT -U $Config.CRM_DB_USER -d postgres -tAc $createDb 2>&1
+        Write-Info "Verificando se o banco de dados existe..."
+        $dbCheck = & $psqlPath -h $Config.CRM_DB_HOST -p $Config.CRM_DB_PORT -U $Config.CRM_DB_USER -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$($Config.CRM_DB_NAME)';" 2>&1
         
-        if ($dbExists -notmatch "1") {
+        if ($dbCheck -notmatch "1") {
             Write-Info "Criando banco de dados $($Config.CRM_DB_NAME)..."
-            & psql -h $Config.CRM_DB_HOST -p $Config.CRM_DB_PORT -U $Config.CRM_DB_USER -d postgres -c "CREATE DATABASE $($Config.CRM_DB_NAME);" 2>&1 | Out-Null
-            Write-Success "Banco de dados criado"
+            & $psqlPath -h $Config.CRM_DB_HOST -p $Config.CRM_DB_PORT -U $Config.CRM_DB_USER -d postgres -c "CREATE DATABASE $($Config.CRM_DB_NAME);" 2>&1 | Out-Null
+            
+            if ($LASTEXITCODE -eq 0) {
+                Write-Success "Banco de dados criado"
+            } else {
+                Write-Warning "Falha ao criar banco de dados (pode já existir)"
+            }
         } else {
             Write-Info "Banco de dados já existe"
         }
         
-        # Executar migrations
-        $migrationFiles = Get-ChildItem -Path "api\db\migrations\*.sql" | Sort-Object Name
+        # Executar migrations em ordem
+        $migrationFiles = @(
+            "api\db\migrations\001_init_schema.sql",
+            "api\db\migrations\002_products.sql",
+            "api\db\migrations\003_messaging_custom_fields_timeline.sql",
+            "api\db\migrations\004_pipelines_deals_automation_integrations_files_profile.sql"
+        )
+        
         foreach ($migration in $migrationFiles) {
-            Write-Info "Executando migration: $($migration.Name)"
-            $env:PGPASSWORD = $Config.CRM_DB_PASSWORD
-            & psql -h $Config.CRM_DB_HOST -p $Config.CRM_DB_PORT -U $Config.CRM_DB_USER -d $Config.CRM_DB_NAME -f $migration.FullName 2>&1
-            if ($LASTEXITCODE -eq 0) {
-                Write-Success "Migration $($migration.Name) executada com sucesso"
+            if (Test-Path $migration) {
+                Write-Info "Executando: $(Split-Path $migration -Leaf)"
+                $env:PGPASSWORD = $Config.CRM_DB_PASSWORD
+                $result = & $psqlPath -h $Config.CRM_DB_HOST -p $Config.CRM_DB_PORT -U $Config.CRM_DB_USER -d $Config.CRM_DB_NAME -f $migration 2>&1
+                
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Success "Migration $(Split-Path $migration -Leaf) executada"
+                } else {
+                    # Alguns erros são esperados (ex: tabela já existe)
+                    if ($result -match "already exists" -or $result -match "duplicate key") {
+                        Write-Info "Migration $(Split-Path $migration -Leaf) já foi executada (ignorando)"
+                    } else {
+                        Write-Warning "Aviso ao executar migration $(Split-Path $migration -Leaf): $result"
+                    }
+                }
             } else {
-                Write-Warning "Migration $($migration.Name) pode ter falhado (pode ser normal se já executada)"
+                Write-Warning "Arquivo de migration não encontrado: $migration"
             }
         }
+        
+        Write-Success "Migrations concluídas!"
+    }
+} else {
+    if ($SkipMigrations) {
+        Write-Warning "Pulando migrations (flag -SkipMigrations)"
     } else {
-        Write-Info "Migrations serão executadas automaticamente pelo container phd-db-init"
-    }
-} else {
-    Write-Warning "Pulando migrations (serão executadas pelo container phd-db-init)"
-}
-
-Write-Info ""
-
-# ============================================
-# PARAR CONTAINERS ANTIGOS
-# ============================================
-
-Write-Info "Parando containers antigos (se existirem)..."
-docker compose -f docker-compose.windows.yml down 2>&1 | Out-Null
-Write-Success "Containers antigos removidos"
-
-Write-Info ""
-
-# ============================================
-# BUILD E DEPLOY
-# ============================================
-
-Write-Info "Construindo imagens Docker..."
-docker compose -f docker-compose.windows.yml build --no-cache
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Falha ao construir imagens Docker"
-    exit 1
-}
-
-Write-Success "Imagens construídas com sucesso"
-Write-Info ""
-
-Write-Info "Iniciando containers..."
-docker compose -f docker-compose.windows.yml up -d
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Falha ao iniciar containers"
-    exit 1
-}
-
-Write-Success "Containers iniciados"
-Write-Info ""
-
-# ============================================
-# AGUARDAR SERVIÇOS FICAREM PRONTOS
-# ============================================
-
-Write-Info "Aguardando serviços ficarem prontos..."
-Start-Sleep -Seconds 5
-
-$maxAttempts = 30
-$attempt = 0
-$apiReady = $false
-
-while ($attempt -lt $maxAttempts -and -not $apiReady) {
-    $attempt++
-    try {
-        $response = Invoke-WebRequest -Uri "http://localhost:3001/api/crm/v1/health" -Method GET -TimeoutSec 2 -ErrorAction SilentlyContinue
-        if ($response.StatusCode -eq 200) {
-            $apiReady = $true
-            Write-Success "API está respondendo"
-        }
-    } catch {
-        Write-Info "Aguardando API... ($attempt/$maxAttempts)"
-        Start-Sleep -Seconds 2
+        Write-Warning "psql não encontrado. Migrations não serão executadas."
+        Write-Warning "Execute manualmente: .\scripts\run-migrations.ps1"
     }
 }
 
-if (-not $apiReady) {
-    Write-Warning "API não respondeu após $maxAttempts tentativas"
-    Write-Info "Verifique os logs com: docker logs phd-api"
-} else {
-    Write-Success "API está pronta!"
+Write-Info ""
+
+# ============================================
+# INSTALAR DEPENDÊNCIAS
+# ============================================
+
+Write-Info "Instalando dependências do frontend..."
+Set-Location $PSScriptRoot
+npm install
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Falha ao instalar dependências do frontend"
+    exit 1
 }
+Write-Success "Dependências do frontend instaladas"
+
+Write-Info "Instalando dependências da API..."
+Set-Location api
+npm install
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Falha ao instalar dependências da API"
+    exit 1
+}
+Write-Success "Dependências da API instaladas"
+
+Set-Location $PSScriptRoot
+Write-Info ""
+
+# ============================================
+# BUILD DO FRONTEND
+# ============================================
+
+if (-not $SkipBuild) {
+    Write-Info "Fazendo build do frontend..."
+    Set-Location $PSScriptRoot
+    
+    # Carregar variáveis de ambiente para o build
+    $env:GEMINI_API_KEY = $Config.GEMINI_API_KEY
+    $env:VITE_EMAILJS_SERVICE_ID = $Config.VITE_EMAILJS_SERVICE_ID
+    $env:VITE_EMAILJS_TEMPLATE_ID = $Config.VITE_EMAILJS_TEMPLATE_ID
+    $env:VITE_EMAILJS_PUBLIC_KEY = $Config.VITE_EMAILJS_PUBLIC_KEY
+    $env:VITE_RECIPIENT_EMAIL = $Config.VITE_RECIPIENT_EMAIL
+    $env:VITE_CHAT_WEBHOOK_URL = $Config.VITE_CHAT_WEBHOOK_URL
+    $env:VITE_CHAT_AUTH_TOKEN = $Config.VITE_CHAT_AUTH_TOKEN
+    $env:VITE_API_URL = $Config.VITE_API_URL
+    $env:VITE_INSTAGRAM_API_URL = $Config.VITE_INSTAGRAM_API_URL
+    
+    npm run build
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Falha ao fazer build do frontend"
+        exit 1
+    }
+    Write-Success "Build do frontend concluído"
+} else {
+    Write-Warning "Pulando build do frontend (flag -SkipBuild)"
+}
+
+Write-Info ""
+
+# ============================================
+# CRIAR SCRIPTS DE INICIALIZAÇÃO
+# ============================================
+
+Write-Info "Criando scripts de inicialização..."
+
+# Script para iniciar API
+$startApiScript = @"
+# Iniciar API Node.js
+Write-Host "Iniciando API na porta $ApiPort..." -ForegroundColor Cyan
+Set-Location api
+`$env:NODE_ENV = "production"
+node server.js
+"@
+
+$startApiScript | Out-File -FilePath "start-api.ps1" -Encoding UTF8
+Write-Success "Script start-api.ps1 criado"
+
+# Script para iniciar Frontend (usando Vite preview)
+$startFrontendScript = @"
+# Iniciar Frontend (Vite Preview)
+Write-Host "Iniciando Frontend na porta $FrontendPort..." -ForegroundColor Cyan
+npm run preview -- --port $FrontendPort --host
+"@
+
+$startFrontendScript | Out-File -FilePath "start-frontend.ps1" -Encoding UTF8
+Write-Success "Script start-frontend.ps1 criado"
+
+# Script para iniciar ambos
+$startAllScript = @"
+# Iniciar API e Frontend
+Write-Host "============================================" -ForegroundColor Cyan
+Write-Host "  PHD STUDIO - Iniciando Serviços" -ForegroundColor Cyan
+Write-Host "============================================" -ForegroundColor Cyan
+Write-Host ""
+
+# Iniciar API em background
+Write-Host "Iniciando API..." -ForegroundColor Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-File", "start-api.ps1" -WindowStyle Normal
+
+# Aguardar um pouco para API iniciar
+Start-Sleep -Seconds 3
+
+# Iniciar Frontend em background
+Write-Host "Iniciando Frontend..." -ForegroundColor Yellow
+Start-Process powershell -ArgumentList "-NoExit", "-File", "start-frontend.ps1" -WindowStyle Normal
+
+Write-Host ""
+Write-Host "Serviços iniciados!" -ForegroundColor Green
+Write-Host "  API:      http://localhost:$ApiPort" -ForegroundColor Cyan
+Write-Host "  Frontend: http://localhost:$FrontendPort" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Pressione qualquer tecla para sair (os serviços continuarão rodando)..." -ForegroundColor Yellow
+`$null = `$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+"@
+
+$startAllScript | Out-File -FilePath "start-all.ps1" -Encoding UTF8
+Write-Success "Script start-all.ps1 criado"
 
 Write-Info ""
 
@@ -445,16 +423,20 @@ Write-Info "============================================"
 Write-Success "Deploy concluído com sucesso!"
 Write-Info "============================================"
 Write-Info ""
-Write-Info "Aplicação disponível em:"
-Write-Info "  Frontend: http://localhost:8080"
-Write-Info "  API:      http://localhost:3001"
-Write-Info "  Health:   http://localhost:3001/api/crm/v1/health"
+Write-Info "Próximos passos:"
 Write-Info ""
-Write-Info "Comandos úteis:"
-Write-Info "  Ver logs API:    docker logs -f phd-api"
-Write-Info "  Ver logs Frontend: docker logs -f phdstudio-app"
-Write-Info "  Parar tudo:      docker compose -f docker-compose.windows.yml down"
-Write-Info "  Reiniciar:       docker compose -f docker-compose.windows.yml restart"
+Write-Info "1. Iniciar API:"
+Write-Info "   .\start-api.ps1"
+Write-Info ""
+Write-Info "2. Iniciar Frontend (em outro terminal):"
+Write-Info "   .\start-frontend.ps1"
+Write-Info ""
+Write-Info "3. OU iniciar ambos:"
+Write-Info "   .\start-all.ps1"
+Write-Info ""
+Write-Info "URLs:"
+Write-Info "  Frontend: http://localhost:$FrontendPort"
+Write-Info "  API:      http://localhost:$ApiPort"
+Write-Info "  Health:   http://localhost:$ApiPort/api/crm/v1/health"
 Write-Info ""
 Write-Info "============================================"
-
