@@ -10,6 +10,7 @@ import ChatWidget from './src/components/ChatWidget';
 import ChatDiagnostic from './src/components/ChatDiagnostic';
 import ProductsAdmin from './src/components/ProductsAdmin';
 import InstagramCarousel from './src/components/InstagramCarousel';
+import MobileChatPage from './src/components/MobileChat/MobileChatPage';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 import AdminRoutes from './src/admin/routes';
 import {
@@ -3253,7 +3254,6 @@ function App() {
           <VisitorTracker />
           <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
             <CookieBanner />
-            <ChatWidgetWrapper />
             <Routes>
               <Route
                 path="/"
@@ -3264,6 +3264,7 @@ function App() {
                       <HomePage />
                     </main>
                     <Footer />
+                    <ChatWidgetWrapper />
                     {/* Floating WhatsApp Button */}
                     <a
                       href="https://wa.me/5511971490549"
@@ -3279,6 +3280,15 @@ function App() {
               />
               <Route path="/login" element={<LoginPage />} />
               <Route
+                path="/mobilechat"
+                element={<MobileChatPage />}
+              />
+              {/* Fallback para typo comum - redirecionar para rota correta */}
+              <Route
+                path="/modilechat"
+                element={<Navigate to="/mobilechat" replace />}
+              />
+              <Route
                 path="/politica-de-privacidade"
                 element={
                   <>
@@ -3287,6 +3297,7 @@ function App() {
                       <PrivacyPolicyPage />
                     </main>
                     <Footer />
+                    <ChatWidgetWrapper />
                   </>
                 }
               />
@@ -3349,6 +3360,19 @@ function App() {
 // Wrapper para ChatWidget com contexto
 const ChatWidgetWrapper = () => {
   const { isChatVisible } = useChatVisibility();
+  const location = useLocation();
+  
+  // Não renderizar ChatWidget na rota /mobilechat ou rotas admin
+  const currentPath = location.pathname;
+  if (currentPath === '/mobilechat' || currentPath.startsWith('/admin')) {
+    return null;
+  }
+  
+  // Verificação adicional com window.location para garantir
+  if (typeof window !== 'undefined' && window.location.pathname === '/mobilechat') {
+    return null;
+  }
+  
   return isChatVisible ? <ChatWidget /> : null;
 };
 

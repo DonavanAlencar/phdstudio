@@ -59,6 +59,36 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   webhookUrl: propWebhookUrl,
   authToken: propAuthToken
 }) => {
+  // Não renderizar na rota /mobilechat - verificação imediata
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+  if (currentPath === '/mobilechat' || currentPath.startsWith('/mobilechat')) {
+    return null;
+  }
+  
+  // Verificação adicional com useState para re-renderizar se a rota mudar
+  const [currentRoute, setCurrentRoute] = useState(currentPath);
+  
+  useEffect(() => {
+    const checkRoute = () => {
+      const path = window.location.pathname;
+      setCurrentRoute(path);
+      if (path === '/mobilechat' || path.startsWith('/mobilechat')) {
+        // Forçar remoção do componente
+        return;
+      }
+    };
+    
+    checkRoute();
+    // Verificar periodicamente
+    const interval = setInterval(checkRoute, 100);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  if (currentRoute === '/mobilechat' || currentRoute.startsWith('/mobilechat')) {
+    return null;
+  }
+
   // Verificar visibilidade do chat via localStorage (controlado pelo admin)
   const [isChatVisible, setIsChatVisible] = useState(() => {
     const stored = localStorage.getItem('phdstudio_chat_visible');
