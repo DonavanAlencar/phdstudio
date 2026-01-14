@@ -89,13 +89,20 @@ const InstagramCarousel: React.FC = () => {
         const apiUrl = `${INSTAGRAM_API_URL}/posts?limit=9`;
         console.log('📸 Buscando posts do Instagram de:', apiUrl);
         
+        // Criar AbortController para timeout de 10 segundos
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
         // Buscar posts do Instagram via endpoint da API (mais seguro - token não exposto no frontend)
         const response = await fetch(apiUrl, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: controller.signal,
         });
+        
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -122,7 +129,14 @@ const InstagramCarousel: React.FC = () => {
         setLoading(false);
       } catch (err: any) {
         console.error('❌ Erro ao buscar posts do Instagram:', err);
-        console.warn('⚠️ Usando posts de fallback (imagens do Unsplash)');
+        
+        // Verificar se foi timeout
+        if (err.name === 'AbortError') {
+          console.warn('⏱️ Timeout ao buscar posts do Instagram (10s), usando fallback');
+        } else {
+          console.warn('⚠️ Erro na requisição, usando posts de fallback (imagens do Unsplash)');
+        }
+        
         setError(true);
         // Fallback to mock data on error
         setPosts(FALLBACK_POSTS as any);

@@ -33,8 +33,31 @@ router.get('/posts', async (req, res) => {
     
     const url = `https://graph.facebook.com/${apiVersion}/${IG_USER_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count&access_token=${accessToken}&limit=${limit}`;
 
-    // Fazer requisição para Facebook Graph API
-    const response = await fetch(url);
+    // Fazer requisição para Facebook Graph API com timeout de 8 segundos
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    
+    let response;
+    try {
+      response = await fetch(url, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      if (fetchError.name === 'AbortError') {
+        console.error('⏱️ Timeout ao buscar posts do Instagram (8s)');
+        return res.status(504).json({
+          success: false,
+          error: 'Timeout ao buscar posts do Instagram',
+          message: 'A requisição demorou muito para responder. Tente novamente.'
+        });
+      }
+      
+      throw fetchError;
+    }
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -80,9 +103,14 @@ router.get('/posts', async (req, res) => {
       data: posts,
       count: posts.length
     });
-
   } catch (error) {
     console.error('❌ Erro ao processar requisição do Instagram:', error);
+    
+    // Se já foi enviada resposta, não enviar novamente
+    if (res.headersSent) {
+      return;
+    }
+    
     res.status(500).json({
       success: false,
       error: 'Erro interno ao buscar posts do Instagram',

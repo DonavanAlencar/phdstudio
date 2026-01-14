@@ -13,6 +13,9 @@ ARG VITE_CHAT_WEBHOOK_URL
 ARG VITE_CHAT_AUTH_TOKEN
 ARG VITE_API_URL
 ARG VITE_INSTAGRAM_API_URL
+ARG VITE_YOUTUBE_API_KEY
+ARG VITE_YOUTUBE_PLAYLIST_ID
+ARG VITE_YOUTUBE_CHANNEL_ID
 
 # Copiar arquivos de dependências
 COPY package.json package-lock.json ./
@@ -34,7 +37,10 @@ RUN echo "GEMINI_API_KEY=${GEMINI_API_KEY:-}" > .env.local && \
     echo "VITE_CHAT_WEBHOOK_URL=${VITE_CHAT_WEBHOOK_URL:-}" >> .env.local && \
     echo "VITE_CHAT_AUTH_TOKEN=${VITE_CHAT_AUTH_TOKEN:-}" >> .env.local && \
     echo "VITE_API_URL=${VITE_API_URL:-https://phdstudio.com.br/api}" >> .env.local && \
-    echo "VITE_INSTAGRAM_API_URL=${VITE_INSTAGRAM_API_URL:-https://phdstudio.com.br/api/instagram}" >> .env.local
+    echo "VITE_INSTAGRAM_API_URL=${VITE_INSTAGRAM_API_URL:-https://phdstudio.com.br/api/instagram}" >> .env.local && \
+    echo "VITE_YOUTUBE_API_KEY=${VITE_YOUTUBE_API_KEY:-}" >> .env.local && \
+    echo "VITE_YOUTUBE_PLAYLIST_ID=${VITE_YOUTUBE_PLAYLIST_ID:-}" >> .env.local && \
+    echo "VITE_YOUTUBE_CHANNEL_ID=${VITE_YOUTUBE_CHANNEL_ID:-}" >> .env.local
 
 # Build da aplicação
 RUN npm run build
