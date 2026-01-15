@@ -90,30 +90,54 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
   }, []);
 
   // Ajustar altura do container quando o teclado aparecer (mobile)
+  // Especialmente importante para iOS/Safari
   useEffect(() => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
     const handleResize = () => {
       if (messagesContainerRef.current) {
-        // Usar visualViewport se disponível (melhor para mobile), senão usar innerHeight
-        const viewportHeight = (window as any).visualViewport?.height || window.innerHeight;
+        // Para iOS, usar visualViewport que é mais preciso
+        // Para outros, usar innerHeight
+        let viewportHeight: number;
+        
+        if (isIOS && (window as any).visualViewport) {
+          viewportHeight = (window as any).visualViewport.height;
+        } else {
+          viewportHeight = window.innerHeight;
+        }
+        
         // Calcular altura disponível (altura total - header - input - padding)
-        const availableHeight = Math.max(viewportHeight - 200, 300); // Mínimo de 300px
+        // Header: ~80px, Input area: ~100px, padding: ~20px
+        const headerHeight = 80;
+        const inputAreaHeight = 100;
+        const availableHeight = Math.max(viewportHeight - headerHeight - inputAreaHeight, 300);
+        
         messagesContainerRef.current.style.height = `${availableHeight}px`;
+        messagesContainerRef.current.style.maxHeight = `${availableHeight}px`;
       }
     };
 
     // Ajustar inicialmente
     handleResize();
 
-    window.addEventListener('resize', handleResize);
-    // visualViewport é uma API mais recente, usar com verificação
+    // Para iOS, usar visualViewport que é mais confiável
     if ((window as any).visualViewport) {
       (window as any).visualViewport.addEventListener('resize', handleResize);
+      (window as any).visualViewport.addEventListener('scroll', handleResize);
     }
+    
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(handleResize, 100); // Delay para iOS recalcular
+    });
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
       if ((window as any).visualViewport) {
         (window as any).visualViewport.removeEventListener('resize', handleResize);
+        (window as any).visualViewport.removeEventListener('scroll', handleResize);
       }
     };
   }, []);
@@ -264,17 +288,24 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
     }
   };
 
+  // Detectar iOS para aplicar estilos específicos
+  const isIOS = typeof window !== 'undefined' && 
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) || 
+     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+
   return (
     <div 
       className="flex flex-col h-full w-full text-white" 
       style={{ 
-        height: '100vh', 
+        height: isIOS ? '-webkit-fill-available' : '100vh',
+        minHeight: isIOS ? '-webkit-fill-available' : '100vh',
         width: '100vw', 
         margin: 0, 
         padding: 0,
         backgroundColor: '#0A0A0A', // brand-dark fallback
-        minHeight: '100vh',
-        minWidth: '100vw'
+        minWidth: '100vw',
+        position: 'relative',
+        overflow: 'hidden'
       }}
     >
       {/* Header fixo */}
@@ -328,7 +359,11 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
       <div
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-4 space-y-4 bg-brand-gray/50"
-        style={{ minHeight: 0 }}
+        style={{ 
+          minHeight: 0,
+          paddingBottom: isIOS ? '120px' : '1rem', // Espaço para input fixo no iOS
+          WebkitOverflowScrolling: 'touch' // Scroll suave no iOS
+        }}
       >
         {messages.map((message) => (
           <MobileChatMessage key={message.id} message={message} />
@@ -351,7 +386,22 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
       </div>
 
       {/* Input fixo na parte inferior */}
-      <div className="p-4 bg-brand-dark border-t border-white/10 flex-shrink-0">
+      <div 
+        className="p-4 bg-brand-dark border-t border-white/10 flex-shrink-0"
+        style={{
+          display: 'block',
+          visibility: 'visible',
+          opacity: 1,
+          position: isIOS ? 'fixed' : 'relative',
+          bottom: isIOS ? 'env(safe-area-inset-bottom, 0px)' : 'auto',
+          left: 0,
+          right: 0,
+          width: '100%',
+          zIndex: 99999,
+          pointerEvents: 'auto',
+          paddingBottom: isIOS ? `calc(1rem + env(safe-area-inset-bottom, 0px))` : '1rem'
+        }}
+      >
         <div className="flex gap-2">
           <input
             ref={inputRef}
@@ -362,12 +412,33 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
             placeholder="Digite sua mensagem..."
             disabled={isLoading}
             className="flex-1 bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+            style={{
+              display: 'block',
+              visibility: 'visible',
+              opacity: 1,
+              position: 'relative',
+              zIndex: 100000,
+              pointerEvents: 'auto',
+              WebkitAppearance: 'none',
+              WebkitUserSelect: 'text',
+              userSelect: 'text'
+            }}
           />
           <button
             onClick={handleSendMessage}
             disabled={!inputText.trim() || isLoading}
             className="w-12 h-12 bg-brand-red hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 min-w-[48px] min-h-[48px]"
             aria-label="Enviar mensagem"
+            style={{
+              display: 'flex',
+              visibility: 'visible',
+              opacity: 1,
+              position: 'relative',
+              zIndex: 100000,
+              pointerEvents: 'auto',
+              WebkitTapHighlightColor: 'rgba(239, 68, 68, 0.3)',
+              touchAction: 'manipulation'
+            }}
           >
             <Send className="w-5 h-5" />
           </button>

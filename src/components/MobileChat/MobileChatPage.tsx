@@ -136,8 +136,19 @@ const MobileChatPage: React.FC = () => {
       });
 
       // Ocultar especificamente botões flutuantes de chat
+      // IMPORTANTE: Não ocultar elementos do MobileChatInterface
       const allButtons = document.querySelectorAll('button');
       allButtons.forEach(btn => {
+        // Verificar se o botão está dentro do MobileChatInterface
+        const isInMobileChat = btn.closest('[class*="MobileChat"]') || 
+                               btn.closest('div[class*="bg-brand-dark"][class*="border-t"]') ||
+                               btn.getAttribute('aria-label')?.toLowerCase().includes('enviar mensagem');
+        
+        // Se estiver no chat mobile, não ocultar
+        if (isInMobileChat) {
+          return;
+        }
+        
         const classes = btn.className || '';
         const ariaLabel = btn.getAttribute('aria-label') || '';
         const isFixed = btn.style.position === 'fixed' || classes.includes('fixed');
@@ -149,6 +160,30 @@ const MobileChatPage: React.FC = () => {
           (btn as HTMLElement).style.visibility = 'hidden';
           (btn as HTMLElement).style.opacity = '0';
           (btn as HTMLElement).style.pointerEvents = 'none';
+        }
+      });
+      
+      // Garantir que inputs e botões do chat mobile sejam sempre visíveis
+      const mobileChatInputs = document.querySelectorAll('input[type="text"][placeholder*="mensagem" i], input[type="text"][placeholder*="Digite sua mensagem"]');
+      mobileChatInputs.forEach(input => {
+        const htmlEl = input as HTMLElement;
+        htmlEl.style.display = 'block';
+        htmlEl.style.visibility = 'visible';
+        htmlEl.style.opacity = '1';
+        htmlEl.style.pointerEvents = 'auto';
+      });
+      
+      const mobileChatButtons = document.querySelectorAll('button[aria-label*="Enviar mensagem" i], button:has(svg[class*="Send"])');
+      mobileChatButtons.forEach(btn => {
+        const htmlEl = btn as HTMLElement;
+        // Verificar se não é um botão fixo flutuante (ChatWidget)
+        const isFixed = htmlEl.style.position === 'fixed' || htmlEl.className.includes('fixed');
+        const isBottomRight = htmlEl.className.includes('bottom-') && htmlEl.className.includes('right-');
+        if (!(isFixed && isBottomRight)) {
+          htmlEl.style.display = 'flex';
+          htmlEl.style.visibility = 'visible';
+          htmlEl.style.opacity = '1';
+          htmlEl.style.pointerEvents = 'auto';
         }
       });
     };
@@ -170,17 +205,23 @@ const MobileChatPage: React.FC = () => {
       subtree: true
     });
 
-    // Viewport otimizado
+    // Viewport otimizado para iOS e Android
     const viewport = document.querySelector('meta[name="viewport"]');
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
     if (viewport) {
-      viewport.setAttribute(
-        'content',
-        'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
-      );
+      // Para iOS, adicionar viewport-fit=cover para suportar safe-area
+      const content = isIOS 
+        ? 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'
+        : 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+      viewport.setAttribute('content', content);
     } else {
       const meta = document.createElement('meta');
       meta.name = 'viewport';
-      meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+      meta.content = isIOS 
+        ? 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'
+        : 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
       document.head.appendChild(meta);
     }
 
@@ -192,11 +233,11 @@ const MobileChatPage: React.FC = () => {
       styleElement.id = styleId;
       styleElement.textContent = `
         /* Ocultar ChatWidget e botões flutuantes na rota /mobilechat */
-        /* IMPORTANTE: Não ocultar botões dentro de formulários de login */
-        button[aria-label*="chat" i]:not(form button),
-        button[aria-label*="Abrir chat"]:not(form button),
-        button[aria-label*="abrir chat"]:not(form button),
-        button[aria-label*="chat"]:not(form button),
+        /* IMPORTANTE: Não ocultar botões dentro de formulários de login nem do chat mobile */
+        button[aria-label*="chat" i]:not(form button):not([aria-label*="Enviar mensagem" i]),
+        button[aria-label*="Abrir chat"]:not(form button):not([aria-label*="Enviar mensagem" i]),
+        button[aria-label*="abrir chat"]:not(form button):not([aria-label*="Enviar mensagem" i]),
+        button[aria-label*="chat"]:not(form button):not([aria-label*="Enviar mensagem" i]),
         .fixed.bottom-24.right-6:not(form),
         .fixed.bottom-24.right-6 button:not(form button),
         .fixed.bottom-24.right-6 > *:not(form *),
@@ -243,6 +284,64 @@ const MobileChatPage: React.FC = () => {
           position: relative !important;
           left: auto !important;
           z-index: 1 !important;
+        }
+        
+        /* GARANTIR VISIBILIDADE DOS ELEMENTOS DO CHAT MOBILE */
+        /* Input do chat mobile - sempre visível */
+        input[type="text"][placeholder*="mensagem" i],
+        input[type="text"][placeholder*="Digite sua mensagem"],
+        input[aria-label*="mensagem" i],
+        /* Container do input do chat mobile */
+        div[class*="bg-brand-dark"][class*="border-t"] input,
+        div[class*="bg-brand-dark"][class*="border-t"] button,
+        /* Botão de enviar do chat mobile */
+        button[aria-label*="Enviar mensagem" i],
+        button[aria-label*="enviar mensagem"],
+        button:has(svg[class*="Send"]):not(.fixed),
+        /* Garantir que todos os elementos dentro do MobileChatInterface sejam visíveis */
+        [class*="MobileChat"] input,
+        [class*="MobileChat"] button:not(.fixed),
+        [class*="MobileChat"] textarea {
+          display: flex !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          pointer-events: auto !important;
+          position: relative !important;
+          left: auto !important;
+          z-index: 99999 !important;
+        }
+        
+        /* Input específico - garantir que seja visível */
+        input[type="text"].flex-1.bg-brand-gray {
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          pointer-events: auto !important;
+          -webkit-appearance: none !important;
+          -webkit-user-select: text !important;
+          user-select: text !important;
+        }
+        
+        /* Container do input fixo no iOS */
+        div[class*="bg-brand-dark"][class*="border-t"][style*="position: fixed"],
+        div[class*="bg-brand-dark"][class*="border-t"][style*="position:fixed"] {
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          pointer-events: auto !important;
+          position: fixed !important;
+          bottom: env(safe-area-inset-bottom, 0px) !important;
+          left: 0 !important;
+          right: 0 !important;
+          width: 100% !important;
+          z-index: 99999 !important;
+        }
+        
+        /* Suporte para safe-area no iOS */
+        @supports (padding: max(0px)) {
+          div[class*="bg-brand-dark"][class*="border-t"] {
+            padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+          }
         }
       `;
       document.head.appendChild(styleElement);
