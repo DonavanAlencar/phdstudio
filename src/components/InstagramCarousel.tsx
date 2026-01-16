@@ -107,6 +107,13 @@ const InstagramCarousel: React.FC = () => {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
+          // Se for erro 503/504, usar fallback silenciosamente
+          if (response.status === 503 || response.status === 504) {
+            setPosts(FALLBACK_POSTS as any);
+            setError(true);
+            setLoading(false);
+            return;
+          }
           throw new Error(errorData.message || `Erro ${response.status}: Failed to fetch instagram posts`);
         }
 
@@ -116,7 +123,9 @@ const InstagramCarousel: React.FC = () => {
           setPosts(result.data);
           setError(false);
         } else {
-          throw new Error('Nenhum post encontrado');
+          // Se não houver posts, usar fallback
+          setPosts(FALLBACK_POSTS as any);
+          setError(true);
         }
         
         setLoading(false);
