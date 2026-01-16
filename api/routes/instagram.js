@@ -59,11 +59,20 @@ router.get('/posts', async (req, res) => {
       // Tratar erros de rede (ETIMEDOUT, ECONNREFUSED, etc)
       const errorMessage = fetchError.message?.toLowerCase() || '';
       const errorCode = fetchError.cause?.code || fetchError.code;
+      const errorCauseCode = fetchError.cause?.cause?.code || fetchError.cause?.code;
       
-      if (errorCode === 'ETIMEDOUT' || errorMessage.includes('timeout') || errorMessage.includes('fetch failed')) {
+      // Verificar se é erro de timeout ou conexão falhada
+      const isTimeoutError = errorCode === 'ETIMEDOUT' || 
+                             errorCauseCode === 'ETIMEDOUT' ||
+                             errorMessage.includes('timeout') || 
+                             errorMessage.includes('fetch failed') ||
+                             fetchError.message === 'fetch failed';
+      
+      if (isTimeoutError) {
         console.error('🌐 Erro de conexão ao buscar posts do Instagram:', {
-          code: errorCode,
-          message: fetchError.message
+          code: errorCode || errorCauseCode,
+          message: fetchError.message,
+          cause: fetchError.cause
         });
         return res.status(503).json({
           success: false,
@@ -120,12 +129,28 @@ router.get('/posts', async (req, res) => {
       count: posts.length
     });
   } catch (error) {
-    console.error('❌ Erro ao processar requisição do Instagram:', error);
-    
     // Se já foi enviada resposta, não enviar novamente
     if (res.headersSent) {
       return;
     }
+    
+    // Verificar se é erro de timeout ou conexão no catch externo também
+    const errorCode = error.cause?.code || error.cause?.cause?.code || error.code;
+    const errorMessage = error.message?.toLowerCase() || '';
+    
+    if (errorCode === 'ETIMEDOUT' || errorMessage.includes('fetch failed')) {
+      console.error('🌐 Erro de conexão ao buscar posts do Instagram (catch externo):', {
+        code: errorCode,
+        message: error.message
+      });
+      return res.status(503).json({
+        success: false,
+        error: 'Serviço temporariamente indisponível',
+        message: 'Não foi possível conectar à API do Instagram. Tente novamente mais tarde.'
+      });
+    }
+    
+    console.error('❌ Erro ao processar requisição do Instagram:', error);
     
     res.status(500).json({
       success: false,
