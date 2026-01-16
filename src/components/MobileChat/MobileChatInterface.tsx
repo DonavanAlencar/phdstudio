@@ -203,18 +203,21 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const responseData = await response.json();
+      
+      // Se a resposta for um array, extrair o primeiro elemento
+      const data = Array.isArray(responseData) ? responseData[0] : responseData;
       
       // Extrair a resposta do bot
       let botResponseText = 'Desculpe, não consegui processar sua mensagem.';
       
-      if (data.output) {
+      if (data && data.output) {
         botResponseText = data.output;
-      } else if (data.response || data.message || data.text) {
+      } else if (data && (data.response || data.message || data.text)) {
         botResponseText = data.response || data.message || data.text;
       } else if (typeof data === 'string') {
         botResponseText = data;
-      } else if (data.output_text) {
+      } else if (data && data.output_text) {
         botResponseText = data.output_text;
       }
 
