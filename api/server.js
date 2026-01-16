@@ -1,6 +1,6 @@
 /**
  * API REST para produtos PHD Studio
- * Acessa o banco de dados MySQL do WordPress
+ * Acessa o banco de dados PostgreSQL
  * 
  * SEGURANÇA:
  * - Autenticação via API Key
@@ -12,13 +12,13 @@
  */
 
 import express from 'express';
-import mysql from 'mysql2/promise';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 // Swagger/OpenAPI Documentation
 import { swaggerSpec, swaggerUi } from './swagger.js';
+import { queryCRM, closeConnections, crmPool } from './utils/db.js';
 // Importar rotas do CRM
 import authRoutes from './routes/auth.js';
 import leadsRoutes from './routes/leads.js';
@@ -55,11 +55,6 @@ app.set('trust proxy', true);
 if (!process.env.PHD_API_KEY) {
     console.error('❌ ERRO: PHD_API_KEY não definida no .env');
     process.exit(1);
-}
-
-// WP_DB_PASSWORD is now optional (MySQL is only used for the products section)
-if (!process.env.WP_DB_PASSWORD) {
-    console.warn('⚠️  AVISO: WP_DB_PASSWORD não definida no .env. As rotas de produtos não funcionarão.');
 }
 
 // Middleware simples de log de requisições (debug)
@@ -104,6 +99,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+const MEDIA_BASE_URL = process.env.PRODUCTS_MEDIA_BASE_URL || process.env.WP_URL || 'https://phdstudio.com.br';
+
 // Rate limiting - proteção contra brute force
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
@@ -127,38 +124,6 @@ app.use('/phd/v1/', authLimiter);
 
 // Limitar tamanho do body
 app.use(express.json({ limit: '10kb' }));
-
-// Configuração do banco de dados MySQL (WordPress)
-const dbConfig = {
-    host: process.env.WP_DB_HOST || 'localhost',
-    user: process.env.WP_DB_USER || 'root',
-    password: process.env.WP_DB_PASSWORD,
-    database: process.env.WP_DB_NAME || 'wordpress',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    connectTimeout: 10000, // 10 segundos timeout
-    acquireTimeout: 10000,
-    timeout: 10000,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0,
-    ssl: process.env.WP_DB_SSL === 'true' ? { rejectUnauthorized: false } : false
-};
-
-// Pool de conexões MySQL - Inicializado apenas se as credenciais básicas estiverem presentes
-let pool = null;
-const isMysqlConfigured = process.env.WP_DB_HOST && process.env.WP_DB_USER && process.env.WP_DB_PASSWORD;
-
-if (isMysqlConfigured) {
-    try {
-        pool = mysql.createPool(dbConfig);
-        console.log('✅ Pool de conexões MySQL carregado (WordPress)');
-    } catch (err) {
-        console.error('❌ Erro ao criar pool MySQL:', err.message);
-    }
-} else {
-    console.warn('⚠️  MySQL não configurado. Funcionalidade de produtos desativada.');
-}
 
 // API Key para autenticação (OBRIGATÓRIA via .env)
 const API_KEY = process.env.PHD_API_KEY;
@@ -248,64 +213,55 @@ function sanitizeString(str) {
 }
 
 /**
+ * Normaliza campo de atributos vindo do Postgres ou legado em texto
+ */
+function parseAttributesField(raw) {
+    if (!raw) return {};
+
+    if (typeof raw === 'object' && !Array.isArray(raw)) {
+        return raw;
+    }
+
+    if (typeof raw === 'string') {
+        try {
+            const parsed = JSON.parse(raw);
+            if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+                return parsed;
+            }
+        } catch (e) {
+            return {};
+        }
+    }
+
+    return {};
+}
+
+/**
  * GET /phd/v1/products
  * Lista todos os produtos
  * Nota: O prefixo /api é removido pelo Traefik
  */
 app.get('/phd/v1/products', authenticateApiKey, async (req, res) => {
-    let connection = null;
     try {
-        if (!pool) {
-            return res.status(503).json({
-                success: false,
-                error: 'Serviço de produtos indisponível',
-                message: 'A conexão com o banco de dados WordPress (MySQL) não está configurada.'
-            });
-        }
-
-        // Validar e sanitizar prefixo da tabela
-        const tablePrefix = sanitizeString(process.env.WP_TABLE_PREFIX || 'wp_');
-        if (!/^[a-z0-9_]+$/i.test(tablePrefix)) {
-            throw new Error('Prefixo de tabela inválido');
-        }
-        const tableName = `${tablePrefix}phd_products`;
-
-        connection = await pool.getConnection();
-
-        // Query segura usando prepared statements
-        const [rows] = await connection.query(
+        const result = await queryCRM(
             `SELECT id, nome, categoria, atributos, preco_estimado, foto_url, updated_at 
-             FROM ?? 
+             FROM products
+             WHERE deleted_at IS NULL
              ORDER BY categoria, nome ASC 
-             LIMIT 1000`,
-            [tableName]
+             LIMIT 1000`
         );
 
-        connection.release();
-        connection = null;
-
         // Processar produtos e formatar atributos JSON com sanitização
-        const products = rows.map(product => {
-            let atributos = {};
-            try {
-                const parsed = JSON.parse(product.atributos || '{}');
-                // Validar que é um objeto
-                if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-                    atributos = parsed;
-                }
-            } catch (e) {
-                atributos = {};
-            }
+        const products = result.rows.map(product => {
+            const atributos = parseAttributesField(product.atributos);
 
             // Sanitizar e validar URL da foto
             let foto_url = sanitizeString(product.foto_url || '');
             if (foto_url && !foto_url.startsWith('http')) {
-                const wpUrl = process.env.WP_URL || 'https://phdstudio.com.br';
-                // Validar URL antes de construir
-                if (wpUrl.match(/^https?:\/\/.+/)) {
+                if (MEDIA_BASE_URL.match(/^https?:\/\/.+/)) {
                     foto_url = foto_url.startsWith('/')
-                        ? `${wpUrl}${foto_url}`
-                        : `${wpUrl}/${foto_url}`;
+                        ? `${MEDIA_BASE_URL}${foto_url}`
+                        : `${MEDIA_BASE_URL}/${foto_url}`;
                 }
             }
 
@@ -333,9 +289,6 @@ app.get('/phd/v1/products', authenticateApiKey, async (req, res) => {
         });
 
     } catch (error) {
-        if (connection) {
-            connection.release();
-        }
         console.error('Erro ao buscar produtos:', error);
 
         // Não expor detalhes do erro em produção
@@ -357,7 +310,6 @@ app.get('/phd/v1/products', authenticateApiKey, async (req, res) => {
  * Nota: O prefixo /api é removido pelo Traefik
  */
 app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
-    let connection = null;
     try {
         // Validar e sanitizar ID
         const productId = validateId(req.params.id);
@@ -370,60 +322,31 @@ app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
             });
         }
 
-        if (!pool) {
-            return res.status(503).json({
-                success: false,
-                error: 'Serviço de produtos indisponível',
-                message: 'A conexão com o banco de dados WordPress (MySQL) não está configurada.'
-            });
-        }
-
-        // Validar e sanitizar prefixo da tabela
-        const tablePrefix = sanitizeString(process.env.WP_TABLE_PREFIX || 'wp_');
-        if (!/^[a-z0-9_]+$/i.test(tablePrefix)) {
-            throw new Error('Prefixo de tabela inválido');
-        }
-        const tableName = `${tablePrefix}phd_products`;
-
-        connection = await pool.getConnection();
-
-        // Query segura usando prepared statements
-        const [rows] = await connection.query(
+        // Query segura usando prepared statements no PostgreSQL
+        const result = await queryCRM(
             `SELECT id, nome, categoria, atributos, preco_estimado, foto_url, updated_at 
-             FROM ?? 
-             WHERE id = ? 
+             FROM products
+             WHERE id = $1 AND deleted_at IS NULL
              LIMIT 1`,
-            [tableName, productId]
+            [productId]
         );
 
-        connection.release();
-        connection = null;
-
-        if (rows.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 error: 'Produto não encontrado'
             });
         }
 
-        const product = rows[0];
-        let atributos = {};
-        try {
-            const parsed = JSON.parse(product.atributos || '{}');
-            if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-                atributos = parsed;
-            }
-        } catch (e) {
-            atributos = {};
-        }
+        const product = result.rows[0];
+        const atributos = parseAttributesField(product.atributos);
 
         let foto_url = sanitizeString(product.foto_url || '');
         if (foto_url && !foto_url.startsWith('http')) {
-            const wpUrl = process.env.WP_URL || 'https://phdstudio.com.br';
-            if (wpUrl.match(/^https?:\/\/.+/)) {
+            if (MEDIA_BASE_URL.match(/^https?:\/\/.+/)) {
                 foto_url = foto_url.startsWith('/')
-                    ? `${wpUrl}${foto_url}`
-                    : `${wpUrl}/${foto_url}`;
+                    ? `${MEDIA_BASE_URL}${foto_url}`
+                    : `${MEDIA_BASE_URL}/${foto_url}`;
             }
         }
 
@@ -447,9 +370,6 @@ app.get('/phd/v1/products/:id', authenticateApiKey, async (req, res) => {
         });
 
     } catch (error) {
-        if (connection) {
-            connection.release();
-        }
         console.error('Erro ao buscar produto:', error);
 
         const errorMessage = process.env.NODE_ENV === 'production'
@@ -608,13 +528,17 @@ process.on('uncaughtException', (error) => {
 // Graceful shutdown
 process.on('SIGTERM', async () => {
     console.log('🛑 SIGTERM recebido, encerrando servidor...');
-    await pool.end();
+    if (crmPool) {
+        await closeConnections();
+    }
     process.exit(0);
 });
 
 process.on('SIGINT', async () => {
     console.log('🛑 SIGINT recebido, encerrando servidor...');
-    await pool.end();
+    if (crmPool) {
+        await closeConnections();
+    }
     process.exit(0);
 });
 

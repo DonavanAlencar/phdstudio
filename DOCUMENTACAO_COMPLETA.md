@@ -32,7 +32,7 @@ O PHD Studio CRM é um sistema completo de gerenciamento de relacionamento com c
 
 - **Frontend:** React + Vite + TypeScript
 - **Backend:** Node.js + Express
-- **Banco de Dados:** PostgreSQL (CRM) + MySQL (Produtos)
+- **Banco de Dados:** PostgreSQL (CRM e Produtos)
 - **Proxy Reverso:** Traefik
 - **Containerização:** Docker + Docker Compose
 - **Autenticação:** JWT (JSON Web Tokens)
@@ -1282,6 +1282,5 @@ Para dúvidas ou problemas:
 **Última atualização:** Dezembro 2024  
 **Versão da API:** 1.0.0  
 **Versão do Documento:** 1.0.0
-
 
 

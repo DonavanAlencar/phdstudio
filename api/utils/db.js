@@ -1,18 +1,15 @@
 /**
- * Gerenciamento de conexões com banco de dados
- * - PostgreSQL para CRM
- * - MySQL para produtos (WordPress)
+ * Gerenciamento de conexões com PostgreSQL (CRM e Produtos)
  */
 
 import pg from 'pg';
-import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const { Pool } = pg;
 
-// Pool PostgreSQL para CRM
+// Pool PostgreSQL para CRM + Produtos
 const crmPool = new Pool({
   host: process.env.CRM_DB_HOST || 'localhost',
   port: parseInt(process.env.CRM_DB_PORT || '5432', 10),
@@ -28,36 +25,9 @@ const crmPool = new Pool({
   keepAliveInitialDelayMillis: 10000,
 });
 
-// Flag para indicar se o MySQL está configurado
-const isMysqlConfigured = !!(process.env.WP_DB_HOST && process.env.WP_DB_USER && process.env.WP_DB_PASSWORD);
-
-// Pool MySQL para produtos (WordPress) - Opcional
-let productsPool = null;
-if (isMysqlConfigured) {
-  try {
-    productsPool = mysql.createPool({
-      host: process.env.WP_DB_HOST || 'localhost',
-      user: process.env.WP_DB_USER || 'root',
-      password: process.env.WP_DB_PASSWORD,
-      database: process.env.WP_DB_NAME || 'wordpress',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-      connectTimeout: 10000,
-      acquireTimeout: 10000,
-      timeout: 10000,
-      enableKeepAlive: true,
-      keepAliveInitialDelay: 0,
-      ssl: process.env.WP_DB_SSL === 'true' ? { rejectUnauthorized: false } : false
-    });
-  } catch (err) {
-    console.error('❌ Erro ao inicializar pool MySQL:', err.message);
-  }
-}
-
 // Testar conexão PostgreSQL
 crmPool.on('connect', () => {
-  console.log('✅ PostgreSQL (CRM) conectado');
+  console.log('✅ PostgreSQL conectado');
 });
 
 crmPool.on('error', (err) => {
@@ -67,8 +37,8 @@ crmPool.on('error', (err) => {
 // Testar conexão explicitamente na inicialização
 (async () => {
   try {
-    const testResult = await crmPool.query('SELECT 1 as test');
-    console.log('✅ PostgreSQL (CRM) conectado e testado');
+    await crmPool.query('SELECT 1 as test');
+    console.log('✅ PostgreSQL conectado e testado');
   } catch (error) {
     if (error.code === '28P01') {
       console.error('❌ ERRO DE AUTENTICAÇÃO POSTGRESQL: A senha para o usuário "' + (process.env.CRM_DB_USER || 'phd_crm_user') + '" está incorreta no .env');
@@ -80,22 +50,8 @@ crmPool.on('error', (err) => {
   }
 })();
 
-// Testar conexão MySQL apenas se configurado
-if (isMysqlConfigured && productsPool) {
-  productsPool.getConnection()
-    .then((connection) => {
-      console.log('✅ MySQL (Produtos) conectado');
-      connection.release();
-    })
-    .catch((err) => {
-      console.warn('⚠️  MySQL configurado mas não responde (ECONNREFUSED). Funcionalidade de produtos limitada.');
-    });
-} else {
-  console.info('ℹ️  MySQL não configurado na utility level. Rotas de produtos desativadas.');
-}
-
 /**
- * Executar query no PostgreSQL (CRM)
+ * Executar query no PostgreSQL
  */
 export async function queryCRM(text, params) {
   const startTime = Date.now();
@@ -141,19 +97,6 @@ export async function queryCRM(text, params) {
 }
 
 /**
- * Executar query no MySQL (Produtos)
- */
-export async function queryProducts(text, params) {
-  try {
-    const [rows] = await productsPool.execute(text, params);
-    return rows;
-  } catch (error) {
-    console.error('Erro na query MySQL:', error);
-    throw error;
-  }
-}
-
-/**
  * Obter cliente do pool PostgreSQL (para transações)
  */
 export function getCRMClient() {
@@ -161,20 +104,11 @@ export function getCRMClient() {
 }
 
 /**
- * Obter conexão MySQL (para transações)
- */
-export function getProductsConnection() {
-  return productsPool.getConnection();
-}
-
-/**
- * Fechar todas as conexões (usado em shutdown)
+ * Fechar conexões (usado em shutdown)
  */
 export async function closeConnections() {
   await crmPool.end();
-  await productsPool.end();
-  console.log('Conexões fechadas');
+  console.log('Conexões PostgreSQL fechadas');
 }
 
-export { crmPool, productsPool };
-
+export { crmPool };

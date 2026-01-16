@@ -71,15 +71,9 @@ $Config = @{
     VITE_YOUTUBE_PLAYLIST_ID = "PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa"
     VITE_YOUTUBE_CHANNEL_ID = "UCxasZ2ECtL0RH4iV6Cjsv3g"
 
-    # WordPress DB (MySQL)
-    WP_DB_HOST = "localhost"
-    WP_DB_USER = "wp_user"
-    WP_DB_PASSWORD = "WpUser@2024!Strong#Pass"
-    WP_DB_NAME = "wordpress_db"
-    WP_TABLE_PREFIX = "wp_"
-    WP_DB_SSL = "false"
-    WP_URL = "http://localhost:8080"
-    
+    # Media base URL para fotos dos produtos
+    PRODUCTS_MEDIA_BASE_URL = "http://localhost:8080"
+   
     # URLs
     VITE_API_URL = "http://localhost:$ApiPort/api"
     VITE_INSTAGRAM_API_URL = "http://localhost:$ApiPort/api/instagram"
@@ -227,14 +221,8 @@ INSTAGRAM_ACCESS_TOKEN=$($Config.INSTAGRAM_ACCESS_TOKEN)
 INSTAGRAM_USER_ID=$($Config.INSTAGRAM_USER_ID)
 INSTAGRAM_API_VERSION=$($Config.INSTAGRAM_API_VERSION)
 
-# WordPress DB (MySQL)
-WP_DB_HOST=$($Config.WP_DB_HOST)
-WP_DB_USER=$($Config.WP_DB_USER)
-WP_DB_PASSWORD=$($Config.WP_DB_PASSWORD)
-WP_DB_NAME=$($Config.WP_DB_NAME)
-WP_TABLE_PREFIX=$($Config.WP_TABLE_PREFIX)
-WP_DB_SSL=$($Config.WP_DB_SSL)
-WP_URL=$($Config.WP_URL)
+# Media base para fotos de produtos
+PRODUCTS_MEDIA_BASE_URL=$($Config.PRODUCTS_MEDIA_BASE_URL)
 "@
 
 $apiEnv | Out-File -FilePath "api\.env" -Encoding UTF8 -NoNewline

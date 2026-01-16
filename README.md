@@ -1,15 +1,13 @@
 # PHD Studio - Sistema de Gerenciamento de Produtos
 
 Sistema completo de gerenciamento de produtos/serviços do PHD Studio com:
-- **Plugin WordPress** para painel administrativo (CRUD)
 - **API REST** para integração com n8n e outros sistemas
-- **Banco de dados MySQL** no WordPress Docker
+- **Banco de dados PostgreSQL** para CRM e produtos
 
 ## 📋 Status Atual
 
-✅ **Plugin WordPress:** Instalado e ativado em `/root/wordpress/wp_data/plugins/phd-products/`  
 ✅ **API REST:** Rodando na porta 3001  
-✅ **Banco de Dados:** 9 produtos cadastrados (seed automático)  
+✅ **Banco de Dados:** PostgreSQL configurado  
 ✅ **Docker:** Configurado e funcionando
 
 ## 🚀 Início Rápido

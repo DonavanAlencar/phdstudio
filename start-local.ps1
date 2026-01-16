@@ -26,7 +26,7 @@ Write-Host "`n[3/3] Iniciando serviços..." -ForegroundColor Blue
 $startApi = Read-Host "`nDeseja iniciar a API Backend? (S/N) [N]"
 if ($startApi -eq "S" -or $startApi -eq "s") {
     Write-Host "Iniciando Backend em uma nova janela (Porta 3002)..." -ForegroundColor Cyan
-    Write-Host "NOTA: A API precisa de MySQL e PostgreSQL configurados para funcionar completamente." -ForegroundColor Yellow
+    Write-Host "NOTA: A API usa PostgreSQL (CRM + Produtos). Certifique-se de que ele está rodando." -ForegroundColor Yellow
     Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd api; `$env:API_PORT=3002; npm run dev"
 } else {
     Write-Host "API Backend não será iniciada. Apenas o Frontend será executado." -ForegroundColor Gray

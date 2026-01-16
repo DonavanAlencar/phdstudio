@@ -53,20 +53,13 @@ services:
       - "3001"
     restart: unless-stopped
     environment:
-      # MySQL do WordPress Docker (container wp_db)
-      - WP_DB_HOST=wp_db
-      - WP_DB_USER=${WP_DB_USER:-wp_user}
-      - WP_DB_PASSWORD=${WP_DB_PASSWORD:-WpUser@2024!Strong#Pass}
-      - WP_DB_NAME=${WP_DB_NAME:-wordpress_db}
-      - WP_TABLE_PREFIX=${WP_TABLE_PREFIX:-wp_}
-      - WP_DB_SSL=false
-      - WP_URL=${WP_URL:-http://localhost:8080}
       # PostgreSQL para CRM
       - CRM_DB_HOST=phd-crm-db
       - CRM_DB_PORT=5432
       - CRM_DB_USER=${CRM_DB_USER:-phd_crm_user}
       - CRM_DB_PASSWORD=${CRM_DB_PASSWORD:-PhdCrm@2024!Strong#Pass}
       - CRM_DB_NAME=${CRM_DB_NAME:-phd_crm}
+      - PRODUCTS_MEDIA_BASE_URL=${PRODUCTS_MEDIA_BASE_URL:-https://phdstudio.com.br}
       # JWT para autenticação CRM
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret-key-change-in-production}
@@ -93,7 +86,6 @@ services:
       - "traefik.http.middlewares.phd-api-stripprefix.stripprefix.prefixes=/api"
     networks:
       - n8n_default
-      - wordpress_wp_network
       - phd_crm_network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3001/api/crm/v1/health"]
@@ -110,9 +102,6 @@ services:
 networks:
   n8n_default:
     external: true
-  wordpress_wp_network:
-    external: true
   phd_crm_network:
     external: true
     name: phdstudio_phd_crm_network
-
