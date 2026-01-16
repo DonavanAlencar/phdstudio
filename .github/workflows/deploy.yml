@@ -71,8 +71,8 @@ jobs:
             root@${{ secrets.SERVER_HOST }} '
           set -e
           cd /root/phdstudio || exit 1
-          chmod +x deploy-remote.sh || exit 1
-          ./deploy-remote.sh || exit 1
+          chmod +x deploy/docker/scripts/deploy-remote.sh || exit 1
+          ./deploy/docker/scripts/deploy-remote.sh || exit 1
         '
     
     - name: Notify deployment
