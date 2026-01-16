@@ -33,9 +33,9 @@ router.get('/posts', async (req, res) => {
     
     const url = `https://graph.facebook.com/${apiVersion}/${IG_USER_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count&access_token=${accessToken}&limit=${limit}`;
 
-    // Fazer requisição para Facebook Graph API com timeout de 8 segundos
+    // Fazer requisição para Facebook Graph API com timeout de 15 segundos
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     
     let response;
     try {
@@ -48,7 +48,7 @@ router.get('/posts', async (req, res) => {
       clearTimeout(timeoutId);
       
       if (fetchError.name === 'AbortError' || fetchError.cause?.name === 'AbortError') {
-        console.error('⏱️ Timeout ao buscar posts do Instagram (8s)');
+        console.error('⏱️ Timeout ao buscar posts do Instagram (15s)');
         return res.status(504).json({
           success: false,
           error: 'Timeout ao buscar posts do Instagram',
