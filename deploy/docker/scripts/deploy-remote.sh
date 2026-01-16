@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 # Configurações
 PROJECT_DIR="${PROJECT_DIR_OVERRIDE:-$ROOT_DIR}"
