@@ -23,23 +23,43 @@ jobs:
     
     - name: Test server connectivity
       timeout-minutes: 2
+      continue-on-error: true
       run: |
         echo "🔍 Testando conectividade com o servidor..."
         echo "IP do servidor: ${{ secrets.SERVER_HOST }}"
         
         # Testar ping (pode falhar se ICMP estiver bloqueado, mas não é crítico)
-        ping -c 2 -W 5 ${{ secrets.SERVER_HOST }} || echo "⚠️ Ping não respondeu (pode ser normal se ICMP estiver bloqueado)"
+        if ping -c 2 -W 5 ${{ secrets.SERVER_HOST }} 2>/dev/null; then
+          echo "✅ Ping respondeu"
+        else
+          echo "⚠️ Ping não respondeu (pode ser normal se ICMP estiver bloqueado)"
+        fi
         
-        # Testar porta 22
+        # Testar porta 22 com timeout e retry
         echo "🔌 Testando porta SSH (22)..."
-        timeout 10 bash -c "echo > /dev/tcp/${{ secrets.SERVER_HOST }}/22" && echo "✅ Porta 22 está acessível" || {
-          echo "❌ Porta 22 não está acessível"
+        PORT_ACCESSIBLE=false
+        for i in {1..3}; do
+          if timeout 5 bash -c "echo > /dev/tcp/${{ secrets.SERVER_HOST }}/22" 2>/dev/null; then
+            echo "✅ Porta 22 está acessível (tentativa $i/3)"
+            PORT_ACCESSIBLE=true
+            break
+          else
+            echo "⚠️ Tentativa $i/3: Porta 22 não acessível (pode ser firewall temporário)"
+            if [ $i -lt 3 ]; then
+              sleep 2
+            fi
+          fi
+        done
+        
+        if [ "$PORT_ACCESSIBLE" = "false" ]; then
+          echo "⚠️ Porta 22 não está acessível (testando continuará com SSH direto)"
           echo "Possíveis causas:"
-          echo "  - Firewall bloqueando conexões do GitHub Actions"
-          echo "  - Servidor offline"
-          echo "  - IP mudou"
-          exit 1
-        }
+          echo "  - Firewall bloqueando conexões do GitHub Actions (mas pode permitir SSH)"
+          echo "  - Porta SSH pode estar em outra porta (2222, 22022, etc)"
+          echo "  - Servidor pode estar em manutenção"
+          echo ""
+          echo "ℹ️ Continuando com teste SSH direto (pode funcionar mesmo se teste de porta falhar)"
+        fi
     
     - name: Test SSH connection
       timeout-minutes: 2
