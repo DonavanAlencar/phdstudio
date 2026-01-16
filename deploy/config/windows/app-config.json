@@ -1,0 +1,16 @@
+{
+  "apiPort": 3001,
+  "frontendPort": 8080,
+  "nodeVersion": ">=18.18.0",
+  "installDependencies": true,
+  "runMigrations": true,
+  "envFile": "deploy/config/shared/.env",
+  "envExample": "deploy/config/shared/.env.example",
+  "npmClient": "npm",
+  "buildScript": "build",
+  "skipApiStart": true,
+  "healthChecks": {
+    "api": "/api/crm/v1/health",
+    "frontend": "/"
+  }
+}

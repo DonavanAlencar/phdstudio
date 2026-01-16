@@ -14,11 +14,14 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
 # Configurações
-PROJECT_DIR="/root/phdstudio"
+PROJECT_DIR="${PROJECT_DIR_OVERRIDE:-$ROOT_DIR}"
 GIT_BRANCH="main"
-COMPOSE_FILE="docker-compose.yml"
-ENV_FILE=".env"
+COMPOSE_FILE="${ROOT_DIR}/deploy/docker/config/docker-compose.yml"
+ENV_FILE="${ROOT_DIR}/deploy/config/shared/.env"
 CONTAINER_NAME="phdstudio-app"
 
 # Funções de log
@@ -62,7 +65,8 @@ check_docker() {
 
 check_env() {
     if [ ! -f "$ENV_FILE" ]; then
-        warning "Arquivo $ENV_FILE não encontrado. Continuando sem carregar variáveis adicionais."
+        warning "Arquivo $ENV_FILE não encontrado. Crie a partir de deploy/config/shared/.env.example"
+        exit 1
     else
         success "Arquivo $ENV_FILE encontrado"
         # Carregar variáveis do .env
@@ -189,5 +193,4 @@ main() {
 }
 
 main "$@"
-
 

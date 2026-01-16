@@ -13,19 +13,21 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
 # Configurações
 IMAGE_NAME="phdstudio"
 CONTAINER_NAME="phdstudio-app"
 PORT_HTTP="80"
 PORT_HTTPS="443"
-COMPOSE_FILE="docker-compose.yml"
-ENV_FILE=".env"
+COMPOSE_FILE="${ROOT_DIR}/deploy/docker/config/docker-compose.yml"
+ENV_FILE="${ROOT_DIR}/deploy/config/shared/.env"
 
 # Verificar se Traefik está rodando
 check_traefik() {
     if docker ps --format '{{.Names}}' | grep -q "traefik"; then
         log "Traefik detectado - configurando para phdstudio.com.br"
-        COMPOSE_FILE="docker-compose.yml"
         success "Configuração: phdstudio.com.br via Traefik (portas 80/443)"
     else
         error "Traefik não encontrado! A aplicação requer Traefik para funcionar."
@@ -37,15 +39,8 @@ check_traefik() {
 check_env() {
     if [ ! -f "$ENV_FILE" ]; then
         warning "Arquivo $ENV_FILE não encontrado"
-        read -p "Deseja criar o arquivo .env agora? (s/N): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Ss]$ ]]; then
-            read -p "Digite sua GEMINI_API_KEY: " api_key
-            echo "GEMINI_API_KEY=$api_key" > $ENV_FILE
-            success "Arquivo .env criado"
-        else
-            warning "Continuando sem GEMINI_API_KEY (pode causar erros no build)"
-        fi
+        warning "Crie a partir do template: cp deploy/config/shared/.env.example deploy/config/shared/.env"
+        exit 1
     else
         success "Arquivo .env encontrado"
     fi
@@ -192,9 +187,6 @@ main() {
     echo "Configurar SSL:"
     echo "  ./ssl-setup.sh seu-dominio.com seu-email@exemplo.com"
     echo ""
-    echo "Configurar SSL:"
-    echo "  ./ssl-setup.sh seu-dominio.com seu-email@exemplo.com"
-    echo ""
     
     read -p "Deseja ver os logs agora? (s/N): " -n 1 -r
     echo
@@ -205,4 +197,3 @@ main() {
 
 # Executar
 main
-

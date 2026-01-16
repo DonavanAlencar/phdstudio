@@ -1,8 +1,14 @@
 #!/bin/bash
 # Script para testar a API PHD Products
+set -euo pipefail
 
-API_URL="http://localhost:3001"
-API_KEY="${PHD_API_KEY:-CNZZoJ6rz7Gcb8Z80rYNSHfCW1jPxZTU}"
+API_URL="${API_URL:-http://localhost:3001}"
+API_KEY="${PHD_API_KEY:-}"
+
+if [ -z "$API_KEY" ]; then
+    echo "Defina a variável de ambiente PHD_API_KEY antes de rodar os testes."
+    exit 1
+fi
 
 echo "🧪 Testando API PHD Products"
 echo "================================"
@@ -73,6 +79,3 @@ echo ""
 
 echo "================================"
 echo "✅ Testes concluídos!"
-
-
-

@@ -63,7 +63,7 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Olá! Sou o assistente virtual da PHD Studio. Como posso ajudá-lo hoje?',
+      text: 'Vamos começar?',
       sender: 'bot',
       timestamp: new Date()
     }

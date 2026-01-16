@@ -1,0 +1,44 @@
+services:
+  phdstudio:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/config/Dockerfile
+    container_name: phdstudio-app-local
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    env_file:
+      - ../../env.dev
+      - ../../deploy/config/shared/.env
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001/api
+
+  phd-api:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/config/api.Dockerfile
+    container_name: phd-api-local
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    env_file:
+      - ../../api/env.dev
+      - ../../deploy/config/shared/.env
+    environment:
+      - NODE_ENV=development
+      - CRM_DB_HOST=phd-crm-db
+      - PRODUCTS_MEDIA_BASE_URL=http://localhost:8080
+    depends_on:
+      - phd-crm-db
+
+  phd-crm-db:
+    image: postgres:15-alpine
+    container_name: phd-crm-db-local
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: phd_crm
+      POSTGRES_USER: phd_crm_user
+      POSTGRES_PASSWORD: PhdCrm@2024!Strong#Pass

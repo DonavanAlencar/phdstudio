@@ -1,0 +1,13 @@
+{
+  "engine": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "database": "phd_crm",
+  "user": "phd_crm_user",
+  "password": "change-me",
+  "adminUser": "postgres",
+  "adminPassword": "",
+  "schema": "public",
+  "ssl": false,
+  "migrationDir": "api/db/migrations"
+}

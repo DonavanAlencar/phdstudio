@@ -34,37 +34,39 @@ curl -X GET http://localhost:3001/api/phd/v1/products \
 ### 3. Executar Testes Automatizados
 
 ```bash
-/root/phdstudio/TESTE_API.sh
+PHD_API_KEY=sua-api-key ./scripts/test-api.sh
 ```
 
 ## 📚 Documentação
 
-- **[DOCUMENTACAO_COMPLETA.md](DOCUMENTACAO_COMPLETA.md)** - Documentação completa do projeto, APIs, instalação e troubleshooting
+- **docs/README.md** - Índice da documentação e navegação centralizada
+- **docs/api/overview.md** - Guia completo da API, instalação e troubleshooting
+- **docs/deployment/** - Guias de deploy para Windows, Linux e Docker
+- **docs/archive/** - Histórico preservado de documentos e análises
 
-**Documentação histórica:** Arquivos antigos foram movidos para `docs/archive/` para referência.
+**Documentação histórica:** Arquivos antigos foram movidos para `docs/archive/`.
 
 ## 🔧 Scripts Úteis
 
-- **`ativar-plugin.sh`** - Ativar/reativar plugin WordPress
-- **`TESTE_API.sh`** - Testar todos os endpoints da API
+- **`deploy/windows/deploy.ps1`** - Deploy no Windows com validação de banco (sem Docker)
+- **`deploy/linux/deploy.sh`** - Deploy no Ubuntu com validação de banco
+- **`deploy/docker/scripts/`** - Automação de deploy Docker (Traefik, remoto e local)
+- **`scripts/test-api.sh`** - Smoke tests dos endpoints principais
+- **`scripts/backup-db.sh`** - Backup do banco PostgreSQL
 
 ## 🗄️ Estrutura do Projeto
 
 ```
-/root/phdstudio/
-├── api/                    # API REST (Node.js/Express)
-│   ├── server.js          # Servidor da API
-│   ├── package.json       # Dependências
-│   ├── Dockerfile         # Container da API
-│   └── env.example        # Template de configuração
-├── docker-compose.yml      # Configuração Docker
-├── INSTALACAO_DOCKER.md   # Guia de instalação
-├── README_PLUGIN.md       # Documentação do plugin
-├── STATUS_INSTALACAO.md   # Status atual
-├── SEGURANCA.md           # Segurança
-├── SETUP_SEGURANCA.md     # Setup de segurança
-├── ativar-plugin.sh       # Script de ativação
-└── TESTE_API.sh           # Script de testes
+phdstudio-1/
+├── api/                       # API REST (Node.js/Express)
+├── deploy/
+│   ├── windows/               # Scripts PowerShell sem Docker
+│   ├── linux/                 # Scripts Bash sem Docker
+│   └── docker/                # Dockerfiles, docker-compose e scripts
+├── docs/                      # Documentação centralizada + archive
+├── public/                    # Assets do frontend
+├── scripts/                   # Utilitários ativos (tests, backup, admin)
+└── src/                       # Frontend React/Vite
 ```
 
 ## 🔐 Segurança
@@ -79,17 +81,11 @@ curl -X GET http://localhost:3001/api/phd/v1/products \
 
 ## 📖 Próximos Passos
 
-1. Configure API Key segura (veja `SETUP_SEGURANCA.md`)
+1. Configure API Key segura (veja `docs/archive/SETUP_SEGURANCA.md`)
 2. Integre com n8n usando a API REST
 3. Configure backup regular do banco de dados
 
 ## 🆘 Troubleshooting
-
-### Plugin não aparece no WordPress
-
-```bash
-/root/phdstudio/ativar-plugin.sh
-```
 
 ### API não responde
 

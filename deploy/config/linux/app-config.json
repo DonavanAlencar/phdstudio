@@ -1,0 +1,16 @@
+{
+  "apiPort": 3001,
+  "frontendPort": 8080,
+  "nodeVersion": ">=18.18.0",
+  "installDependencies": true,
+  "installSystemPackages": ["curl", "python3", "postgresql-client", "mysql-client", "netcat-openbsd"],
+  "runMigrations": true,
+  "envFile": "deploy/config/shared/.env",
+  "envExample": "deploy/config/shared/.env.example",
+  "npmClient": "npm",
+  "buildScript": "build",
+  "healthChecks": {
+    "api": "http://localhost:3001/api/crm/v1/health",
+    "frontend": "http://localhost:8080"
+  }
+}
