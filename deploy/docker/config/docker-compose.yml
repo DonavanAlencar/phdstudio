@@ -1,7 +1,7 @@
 services:
   phdstudio:
     build:
-      context: ../..
+      context: ${PROJECT_ROOT:-/root/phdstudio}
       dockerfile: deploy/docker/config/Dockerfile
       args:
         - GEMINI_API_KEY=${GEMINI_API_KEY:-}
@@ -17,7 +17,7 @@ services:
         - VITE_YOUTUBE_PLAYLIST_ID=${VITE_YOUTUBE_PLAYLIST_ID:-}
         - VITE_YOUTUBE_CHANNEL_ID=${VITE_YOUTUBE_CHANNEL_ID:-}
     env_file:
-      - ../../deploy/config/shared/.env
+      - ../../config/shared/.env
     container_name: phdstudio-app
     # Porta exposta para o Easypanel/Traefik rotear
     expose:
@@ -55,7 +55,7 @@ services:
       - "3001"
     restart: unless-stopped
     env_file:
-      - ../../deploy/config/shared/.env
+      - ../../config/shared/.env
     environment:
       # PostgreSQL para CRM
       - CRM_DB_HOST=phd-crm-db

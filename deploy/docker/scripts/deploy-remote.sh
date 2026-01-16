@@ -155,7 +155,7 @@ stop_existing() {
 
 build_image() {
     log "Construindo imagem Docker (docker compose build)..."
-    if docker compose -f "$COMPOSE_FILE" build; then
+    if PROJECT_ROOT="$ROOT_DIR" docker compose -f "$COMPOSE_FILE" build; then
         success "Imagem construída com sucesso"
     else
         error "Falha ao construir imagem"
@@ -164,7 +164,7 @@ build_image() {
 
 deploy() {
     log "Iniciando deploy (docker compose up -d)..."
-    if docker compose -f "$COMPOSE_FILE" up -d; then
+    if PROJECT_ROOT="$ROOT_DIR" docker compose -f "$COMPOSE_FILE" up -d; then
         success "Deploy concluído com sucesso"
     else
         error "Falha no deploy"
