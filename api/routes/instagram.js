@@ -47,12 +47,28 @@ router.get('/posts', async (req, res) => {
     } catch (fetchError) {
       clearTimeout(timeoutId);
       
-      if (fetchError.name === 'AbortError') {
+      if (fetchError.name === 'AbortError' || fetchError.cause?.name === 'AbortError') {
         console.error('⏱️ Timeout ao buscar posts do Instagram (8s)');
         return res.status(504).json({
           success: false,
           error: 'Timeout ao buscar posts do Instagram',
           message: 'A requisição demorou muito para responder. Tente novamente.'
+        });
+      }
+      
+      // Tratar erros de rede (ETIMEDOUT, ECONNREFUSED, etc)
+      const errorMessage = fetchError.message?.toLowerCase() || '';
+      const errorCode = fetchError.cause?.code || fetchError.code;
+      
+      if (errorCode === 'ETIMEDOUT' || errorMessage.includes('timeout') || errorMessage.includes('fetch failed')) {
+        console.error('🌐 Erro de conexão ao buscar posts do Instagram:', {
+          code: errorCode,
+          message: fetchError.message
+        });
+        return res.status(503).json({
+          success: false,
+          error: 'Serviço temporariamente indisponível',
+          message: 'Não foi possível conectar à API do Instagram. Tente novamente mais tarde.'
         });
       }
       
