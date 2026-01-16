@@ -64,11 +64,41 @@ check_docker() {
 }
 
 check_env() {
+    ENV_EXAMPLE="${ROOT_DIR}/deploy/config/shared/.env.example"
+    ENV_DIR="$(dirname "$ENV_FILE")"
+    
     if [ ! -f "$ENV_FILE" ]; then
-        warning "Arquivo $ENV_FILE não encontrado. Crie a partir de deploy/config/shared/.env.example"
-        exit 1
+        warning "Arquivo $ENV_FILE não encontrado"
+        
+        # Tentar criar a partir do .env.example se existir
+        if [ -f "$ENV_EXAMPLE" ]; then
+            log "Criando arquivo .env a partir do .env.example..."
+            
+            # Garantir que o diretório existe
+            mkdir -p "$ENV_DIR" || {
+                warning "Não foi possível criar o diretório $ENV_DIR"
+                warning "O deploy continuará, mas configure as variáveis de ambiente manualmente se necessário"
+            }
+            
+            cp "$ENV_EXAMPLE" "$ENV_FILE" || {
+                warning "Não foi possível criar $ENV_FILE a partir do exemplo"
+                warning "O deploy continuará, mas configure as variáveis de ambiente manualmente se necessário"
+            }
+            
+            if [ -f "$ENV_FILE" ]; then
+                success "Arquivo $ENV_FILE criado a partir do exemplo"
+                warning "⚠️ IMPORTANTE: Configure as variáveis de ambiente em $ENV_FILE antes de usar em produção"
+            fi
+        else
+            warning "Arquivo exemplo $ENV_EXAMPLE também não encontrado"
+            warning "O deploy continuará, mas configure as variáveis de ambiente manualmente se necessário"
+        fi
     else
         success "Arquivo $ENV_FILE encontrado"
+    fi
+    
+    # Carregar variáveis do .env se existir (agora ou após criação)
+    if [ -f "$ENV_FILE" ]; then
         # Carregar variáveis do .env
         set -a
         # shellcheck source=/dev/null
