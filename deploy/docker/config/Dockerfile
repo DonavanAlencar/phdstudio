@@ -45,11 +45,18 @@ RUN echo "GEMINI_API_KEY=${GEMINI_API_KEY:-}" > .env.local && \
 # Build da aplicação
 RUN npm run build
 
+# Verificar se os arquivos foram gerados (apenas warning, não bloqueia)
+RUN ls -la /app/dist/ || echo "⚠️ Aviso: Build pode não ter gerado arquivos"
+RUN test -f /app/dist/index.html || echo "⚠️ Aviso: index.html não encontrado no build"
+
 # Stage 2: Production
 FROM nginx:alpine
 
 # Copiar build da aplicação
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Garantir permissões corretas
+RUN chmod -R 755 /usr/share/nginx/html || true
 
 # Copiar configuração inicial do nginx (será substituída após obter certificados)
 COPY deploy/docker/config/nginx-init.conf /etc/nginx/conf.d/default.conf
