@@ -31,7 +31,6 @@ const parseISO8601Duration = (duration: string) => {
 
 export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> => {
     if (!YOUTUBE_API_KEY) {
-        console.warn('⚠️ VITE_YOUTUBE_API_KEY não configurada. O carrossel do YouTube não funcionará.');
         return [];
     }
 
@@ -52,7 +51,7 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
                 const uploadsId = channelResponse.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
                 if (uploadsId) targetPlaylistId = uploadsId;
             } catch (e) {
-                console.error('Erro ao buscar playlist de uploads do canal:', e);
+                // Silently fail and use default playlist
             }
         }
 
@@ -94,7 +93,6 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
             };
         });
     } catch (error) {
-        console.error('❌ Erro ao buscar vídeos do YouTube:', error);
         return [];
     }
 };

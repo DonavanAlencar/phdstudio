@@ -20,7 +20,6 @@ router.get('/posts', async (req, res) => {
     const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
     
     if (!accessToken) {
-      console.warn('⚠️  INSTAGRAM_ACCESS_TOKEN não configurado');
       return res.status(503).json({
         success: false,
         error: 'Instagram feed não configurado',
@@ -48,7 +47,6 @@ router.get('/posts', async (req, res) => {
       clearTimeout(timeoutId);
       
       if (fetchError.name === 'AbortError' || fetchError.cause?.name === 'AbortError') {
-        console.error('⏱️ Timeout ao buscar posts do Instagram (15s)');
         return res.status(504).json({
           success: false,
           error: 'Timeout ao buscar posts do Instagram',
@@ -69,11 +67,6 @@ router.get('/posts', async (req, res) => {
                              fetchError.message === 'fetch failed';
       
       if (isTimeoutError) {
-        console.error('🌐 Erro de conexão ao buscar posts do Instagram:', {
-          code: errorCode || errorCauseCode,
-          message: fetchError.message,
-          cause: fetchError.cause
-        });
         return res.status(503).json({
           success: false,
           error: 'Serviço temporariamente indisponível',
@@ -86,11 +79,6 @@ router.get('/posts', async (req, res) => {
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('❌ Erro ao buscar posts do Instagram:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorData
-      });
       
       return res.status(response.status).json({
         success: false,
@@ -103,7 +91,6 @@ router.get('/posts', async (req, res) => {
     const data = await response.json();
     
     if (!data.data || !Array.isArray(data.data)) {
-      console.error('❌ Resposta inválida da API do Instagram:', data);
       return res.status(500).json({
         success: false,
         error: 'Resposta inválida da API do Instagram',
@@ -139,18 +126,12 @@ router.get('/posts', async (req, res) => {
     const errorMessage = error.message?.toLowerCase() || '';
     
     if (errorCode === 'ETIMEDOUT' || errorMessage.includes('fetch failed')) {
-      console.error('🌐 Erro de conexão ao buscar posts do Instagram (catch externo):', {
-        code: errorCode,
-        message: error.message
-      });
       return res.status(503).json({
         success: false,
         error: 'Serviço temporariamente indisponível',
         message: 'Não foi possível conectar à API do Instagram. Tente novamente mais tarde.'
       });
     }
-    
-    console.error('❌ Erro ao processar requisição do Instagram:', error);
     
     res.status(500).json({
       success: false,

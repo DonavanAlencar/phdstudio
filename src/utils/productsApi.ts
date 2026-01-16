@@ -7,7 +7,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' 
   ? `${window.location.protocol}//${window.location.host}/api`
   : 'http://localhost:3001');
-const API_KEY = import.meta.env.VITE_PHD_API_KEY || 'CNZZoJ6rz7Gcb8Z80rYNSHfCW1jPxZTU';
+const API_KEY = import.meta.env.VITE_PHD_API_KEY || '';
 
 export interface Product {
   id: number;

@@ -87,7 +87,6 @@ const InstagramCarousel: React.FC = () => {
     const fetchInstagramPosts = async () => {
       try {
         const apiUrl = `${INSTAGRAM_API_URL}/posts?limit=9`;
-        console.log('📸 Buscando posts do Instagram de:', apiUrl);
         
         // Criar AbortController para timeout de 18 segundos (API tem timeout de 15s + margem)
         const controller = new AbortController();
@@ -108,36 +107,20 @@ const InstagramCarousel: React.FC = () => {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          console.error('❌ Erro na resposta da API:', {
-            status: response.status,
-            statusText: response.statusText,
-            error: errorData
-          });
           throw new Error(errorData.message || `Erro ${response.status}: Failed to fetch instagram posts`);
         }
 
         const result = await response.json();
-        console.log('✅ Resposta da API do Instagram:', result);
         
         if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
           setPosts(result.data);
           setError(false);
-          console.log(`✅ ${result.data.length} posts do Instagram carregados com sucesso`);
         } else {
-          console.warn('⚠️ Nenhum post encontrado ou formato inválido, usando fallback');
           throw new Error('Nenhum post encontrado');
         }
         
         setLoading(false);
       } catch (err: any) {
-        // Verificar se foi timeout
-        if (err.name === 'AbortError' || err instanceof DOMException) {
-          console.warn('⏱️ Timeout ao buscar posts do Instagram (18s), usando fallback');
-        } else {
-          console.error('❌ Erro ao buscar posts do Instagram:', err);
-          console.warn('⚠️ Erro na requisição, usando posts de fallback (imagens do Unsplash)');
-        }
-        
         setError(true);
         // Fallback to mock data on error
         setPosts(FALLBACK_POSTS as any);
