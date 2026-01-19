@@ -34,21 +34,57 @@ router.get('/posts', async (req, res) => {
 
     console.log(`📸 [Instagram] Buscando posts do Instagram de: ${IG_USER_ID}`);
     
-    // Fazer requisição para Facebook Graph API com timeout de 20 segundos (aumentado de 15s)
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    // Função para fazer requisição com retry
+    const fetchWithRetry = async (url, retries = 2, timeout = 30000) => {
+      for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), timeout);
+          
+          if (attempt > 0) {
+            console.log(`🔄 [Instagram] Tentativa ${attempt + 1}/${retries}...`);
+            // Esperar antes de tentar novamente (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+          
+          const response = await fetch(url, {
+            signal: controller.signal,
+            // Adicionar headers adicionais para melhorar conexão
+            headers: {
+              'Connection': 'keep-alive',
+              'User-Agent': 'phdstudio-instagram-feed/1.0'
+            }
+          });
+          
+          clearTimeout(timeoutId);
+          return response;
+        } catch (fetchError) {
+          if (attempt === retries - 1) {
+            throw fetchError;
+          }
+          console.warn(`⚠️ [Instagram] Tentativa ${attempt + 1} falhou, tentando novamente...`);
+        }
+      }
+    };
     
+    // Fazer requisição com retry e timeout de 30 segundos
     let response;
     try {
-      response = await fetch(url, {
-        signal: controller.signal
+      response = await fetchWithRetry(url, 2, 30000);
+    } catch (fetchError) {
+      
+      // Log detalhado do erro
+      console.error('❌ [Instagram] Erro ao buscar posts:', {
+        name: fetchError.name,
+        message: fetchError.message,
+        code: fetchError.code,
+        cause: fetchError.cause?.code,
+        causeMessage: fetchError.cause?.message,
+        stack: fetchError.stack?.substring(0, 500)
       });
       
-      clearTimeout(timeoutId);
-    } catch (fetchError) {
-      clearTimeout(timeoutId);
-      
       if (fetchError.name === 'AbortError' || fetchError.cause?.name === 'AbortError') {
+        console.error('❌ [Instagram] Timeout ao buscar posts');
         return res.status(504).json({
           success: false,
           error: 'Timeout ao buscar posts do Instagram',
@@ -64,18 +100,29 @@ router.get('/posts', async (req, res) => {
       // Verificar se é erro de timeout ou conexão falhada
       const isTimeoutError = errorCode === 'ETIMEDOUT' || 
                              errorCauseCode === 'ETIMEDOUT' ||
+                             errorCode === 'ECONNREFUSED' ||
+                             errorCauseCode === 'ECONNREFUSED' ||
+                             errorCode === 'ENOTFOUND' ||
+                             errorCauseCode === 'ENOTFOUND' ||
                              errorMessage.includes('timeout') || 
                              errorMessage.includes('fetch failed') ||
+                             errorMessage.includes('network') ||
                              fetchError.message === 'fetch failed';
       
       if (isTimeoutError) {
+        console.error('❌ [Instagram] Erro de conexão:', errorCode || errorMessage);
         return res.status(503).json({
           success: false,
           error: 'Serviço temporariamente indisponível',
-          message: 'Não foi possível conectar à API do Instagram. Tente novamente mais tarde.'
+          message: 'Não foi possível conectar à API do Instagram. Tente novamente mais tarde.',
+          details: process.env.NODE_ENV === 'development' ? {
+            errorCode,
+            errorMessage: fetchError.message
+          } : undefined
         });
       }
       
+      console.error('❌ [Instagram] Erro inesperado:', fetchError);
       throw fetchError;
     }
     
