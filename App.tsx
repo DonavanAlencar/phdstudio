@@ -58,14 +58,18 @@ const ASSETS = {
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Sistema%20Gigantes.svg",
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Dr%20Carlos.svg",
     {
-      url: "https://raw.githubusercontent.com/DonavanAlencar/phdstudio/main/Logo%20Site%20Hajir.svg",
+      url: "/hajir-logo.svg",
       alt: "Hajir",
-      // MARGENS: 0 16px => px-4 (16px padding on left/right makes 32px space, assuming layout works that way. Or user meant mx-4)
-      // HOVER: NONE => opacity-100 (always visible)
-      // ALINHAMENTO_VERTICAL: CENTER (flex items-center handles this)
+      // MARGENS: 0 16px => px-4.
+      // TAMANHO: 36px => h-[36px].
+      // ALINHAMENTO: CENTER (flex defaults).
+      // COR: UNIFICAR (tons neutros) => Adicionando grayscale e brightness se necessário, mas 'sem inversão' sugere manter o original se for preto/escuro.
+      // Se o fundo é dark, logo preto some. Se logo for colorido, grayscale ajuda.
+      // Vou aplicar grayscale e brilho ajustado para garantir visibilidade sutil se for o caso, 
+      // ou deixar natural se 'sem inversão' for estrito.
+      // "UNIFICAR_COM_ESTILO_PADRÃO" + "CONTRASTE: PADRÃO (sem inversão)" => Tentar manter natural mas talvez desaturado?
+      // O prompt anterior dizia: "COR_DE_FUNDO: TRANSPARENTE", "ESCALA: FIT_CONTAIN".
       wrapperClass: "flex-shrink-0 px-4 flex items-center justify-center opacity-100 hover:opacity-100 transition-opacity duration-300",
-      // ALTURA_PADRÃO: 36px => h-[36px]
-      // CONTRASTE: PADRÃO => Removed brightness-0 invert
       imgClass: "h-[36px] w-auto object-contain"
     }
   ],
