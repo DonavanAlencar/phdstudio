@@ -542,12 +542,16 @@ process.on('SIGINT', async () => {
     process.exit(0);
 });
 
-// Iniciar servidor
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 API PHD Products rodando na porta ${PORT}`);
-    console.log(`📡 Endpoint: http://0.0.0.0:${PORT}/phd/v1/products`);
-    console.log(`🌐 Via Traefik: https://phdstudio.com.br/api/phd/v1/products`);
-    console.log(`🔒 Modo: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`✅ Segurança: Rate limiting, Helmet, Validação ativados`);
-    console.log(`🌍 CORS: ${allowedOrigins.join(', ')}`);
-});
+// Iniciar servidor apenas se não estiver no Vercel production flow
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 API PHD Products rodando na porta ${PORT}`);
+        console.log(`📡 Endpoint: http://0.0.0.0:${PORT}/phd/v1/products`);
+        console.log(`🌐 Via Traefik: https://phdstudio.com.br/api/phd/v1/products`);
+        console.log(`🔒 Modo: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`✅ Segurança: Rate limiting, Helmet, Validação ativados`);
+        console.log(`🌍 CORS: ${allowedOrigins.join(', ')}`);
+    });
+}
+
+export default app;

@@ -553,6 +553,7 @@ const Navbar = () => {
     { name: 'Metodologia', href: '#metodologia' },
     { name: 'Cases', href: '#cases' },
     { name: 'Depoimentos', href: '#depoimentos' },
+    { name: 'PORTFÓLIO', href: '/portfolio-video', internal: true, ariaLabel: "Portfólio de Vídeo da PHD Studio" },
     { name: 'FAQ', href: '#faq' },
     { name: 'Blog', href: 'https://www.phdstudio.blog.br/', external: true },
   ];
@@ -622,6 +623,15 @@ const Navbar = () => {
                 >
                   {link.name}
                 </a>
+              ) : link.internal ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-sm font-medium text-gray-300 hover:text-brand-red hover:underline transition-colors uppercase tracking-wider"
+                  aria-label={link.ariaLabel}
+                >
+                  {link.name}
+                </Link>
               ) : (
                 <a key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                   {link.name}
@@ -715,6 +725,16 @@ const Navbar = () => {
                   >
                     {link.name}
                   </a>
+                ) : link.internal ? (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="text-2xl font-bold text-white hover:text-brand-red hover:underline"
+                    aria-label={link.ariaLabel}
+                  >
+                    {link.name}
+                  </Link>
                 ) : (
                   <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
                     {link.name}

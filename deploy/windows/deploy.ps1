@@ -62,10 +62,10 @@ function Ensure-EnvFile {
     }
 
     $destFrontend = Join-Path $RepoRoot ".env"
-    $destApi = Join-Path $RepoRoot "api/.env"
+    $destApi = Join-Path $RepoRoot "backend/.env"
     Copy-Item $envPath $destFrontend -Force
     Copy-Item $envPath $destApi -Force
-    Write-Log "INFO" "Arquivos .env sincronizados (raiz e api/.env)"
+    Write-Log "INFO" "Arquivos .env sincronizados (raiz e backend/.env)"
     return $envPath
 }
 
@@ -86,7 +86,7 @@ function Validate-EnvVars {
     $required = @("CRM_DB_HOST","CRM_DB_PORT","CRM_DB_USER","CRM_DB_PASSWORD","CRM_DB_NAME","PHD_API_KEY","JWT_SECRET","JWT_REFRESH_SECRET")
     foreach ($key in $required) {
         if (-not $data.ContainsKey($key) -or [string]::IsNullOrWhiteSpace($data[$key])) {
-            Write-Log "WARN" "Variável obrigatória ausente ou vazia em $envPath: $key"
+            Write-Log "WARN" "Variável obrigatória ausente ou vazia em ${envPath}: $key"
         }
     }
 }
@@ -142,11 +142,11 @@ try {
     Validate-EnvVars -envPath $envPath
 
     $dbScript = Join-Path $RepoRoot "deploy/windows/setup-database.ps1"
-    & $dbScript -ConfigPath $DbConfigPath -MigrationsPath (Join-Path $RepoRoot "api/db/migrations") -SkipMigrations:$SkipMigrations
+    & $dbScript -ConfigPath $DbConfigPath -MigrationsPath (Join-Path $RepoRoot "backend/db/migrations") -SkipMigrations:$SkipMigrations
 
     if ($appConfig.installDependencies) {
         Run-NpmInstall -Path $RepoRoot
-        Run-NpmInstall -Path (Join-Path $RepoRoot "api")
+        Run-NpmInstall -Path (Join-Path $RepoRoot "backend")
     }
 
     if ($appConfig.runMigrations -and -not $SkipMigrations) {
