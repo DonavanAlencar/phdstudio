@@ -56,7 +56,18 @@ const ASSETS = {
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/IS%20WE%20TV.svg",
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ruvolo.svg",
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Sistema%20Gigantes.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Dr%20Carlos.svg"
+    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Dr%20Carlos.svg",
+    {
+      url: "https://raw.githubusercontent.com/DonavanAlencar/phdstudio/main/Logo%20Site%20Hajir.svg",
+      alt: "Hajir",
+      // MARGENS: 0 16px => px-4 (16px padding on left/right makes 32px space, assuming layout works that way. Or user meant mx-4)
+      // HOVER: NONE => opacity-100 (always visible)
+      // ALINHAMENTO_VERTICAL: CENTER (flex items-center handles this)
+      wrapperClass: "flex-shrink-0 px-4 flex items-center justify-center opacity-100 hover:opacity-100 transition-opacity duration-300",
+      // ALTURA_PADRÃO: 36px => h-[36px]
+      // CONTRASTE: PADRÃO => Removed brightness-0 invert
+      imgClass: "h-[36px] w-auto object-contain"
+    }
   ],
 
   // Case Studies
@@ -809,20 +820,81 @@ const ClientMarquee = () => {
 
       {/* Faixa contínua de logos */}
       <div className="flex items-center animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
-        {logos.map((logo, index) => (
-          <div
-            key={`${logo}-${index}`}
-            className="flex-shrink-0 px-10 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300"
-          >
-            <img
-              src={logo}
-              alt={`Logomarca de cliente ${index + 1}`}
-              className="h-12 w-auto object-contain brightness-0 invert"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        ))}
+        {logos.map((logo, index) => {
+          const isObj = typeof logo === 'object' && logo !== null;
+          const src = isObj ? logo.url : logo;
+          const alt = isObj && logo.alt ? logo.alt : `Logomarca de cliente ${index + 1}`;
+          // Default classes
+          let wrapperClass = "flex-shrink-0 px-10 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300";
+          let imgClass = "h-12 w-auto object-contain brightness-0 invert";
+
+          // Custom overrides
+          if (isObj) {
+            if (logo.className) {
+              // Replace layout/opacity classes if provided, but keep flex/centering structure if needed or assume className has it all?
+              // Safer to just append/override specific parts.
+              // User prompt: MARGENS: 0 16px (px-4), HEIGHT: 36px, HOVER: NONE
+              // My config uses className to pass these.
+              // Let's use a base wrapper and conditional overrides.
+
+              // If we want to strictly follow the prompt's stats for this item:
+              // Margins: px-4 (16px x-axis) vs px-10.
+              wrapperClass = `flex-shrink-0 flex items-center justify-center transition-opacity duration-300 ${logo.className}`;
+            }
+            if (logo.keepColor) {
+              imgClass = "w-auto object-contain"; // Removed brightness-0 invert
+            }
+            // Height is handled in wrapper or img? Usually img has the height constraint.
+            // In my config passed to ASSETS, I put h-[36px] in className. 
+            // Wait, the className in ASSETS object above was "h-[36px] px-4...".
+            // If I apply that to WRAPPER, the wrapper gets height? No, wrapper gets padding.
+            // Image gets height.
+            // I should split them or be smart.
+
+            // Let's refine the strategy:
+            // Standard logos: wrapper has px-10 opacity...; img has h-12 invert...
+            // Custom logo: wrapper has px-4 (if specified); img has h-[36px] (if specified) and NO invert.
+
+            // Re-evaluating the ASSETS obj structure I injected above:
+            // className: "h-[36px] px-4 opacity-100 hover:opacity-100"
+            // This mixes image sizing (h) and wrapper spacing (px) and wrapper opacity.
+            // I should split or apply to wrapper and let img inherit? Image needs explicit height usually.
+
+            // Let's change the logic in the map:
+            wrapperClass = `flex-shrink-0 flex items-center justify-center transition-opacity duration-300 ${isObj && logo.className && logo.className.includes('px-') ? '' : 'px-10'} ${isObj && logo.className && logo.className.includes('opacity') ? '' : 'opacity-40 hover:opacity-100'}`;
+
+            // Simplification: Custom logos provide full wrapper classes for positioning/opacity?
+            // Or allow overrides.
+
+            // Let's go effectively:
+            if (isObj && logo.className) {
+              // Assume logo.className targets the wrapper for positioning/opacity
+              // But wait, h-[36px] should be on image?
+              // The prompt asked for specific image properties.
+            }
+          }
+
+          // Let's use a simpler approach inside this replacement block to avoid complex logic in JSX
+          // I will rewrite the mapping function.
+
+          const customWrapperClass = isObj && logo.wrapperClass ? logo.wrapperClass : "flex-shrink-0 px-10 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300";
+          const customImgClass = isObj ? (logo.imgClass || "h-12 w-auto object-contain brightness-0 invert") : "h-12 w-auto object-contain brightness-0 invert";
+
+          return (
+            <div
+              key={`${src}-${index}`}
+              className={customWrapperClass}
+            >
+              <img
+                src={src}
+                alt={alt}
+                className={customImgClass}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -3361,18 +3433,18 @@ function App() {
 const ChatWidgetWrapper = () => {
   const { isChatVisible } = useChatVisibility();
   const location = useLocation();
-  
+
   // Não renderizar ChatWidget na rota /mobilechat ou rotas admin
   const currentPath = location.pathname;
   if (currentPath === '/mobilechat' || currentPath.startsWith('/admin')) {
     return null;
   }
-  
+
   // Verificação adicional com window.location para garantir
   if (typeof window !== 'undefined' && window.location.pathname === '/mobilechat') {
     return null;
   }
-  
+
   return isChatVisible ? <ChatWidget /> : null;
 };
 
