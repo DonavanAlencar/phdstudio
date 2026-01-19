@@ -84,31 +84,86 @@ const InstagramCarousel: React.FC = () => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    const CACHE_KEY = 'instagram_posts_cache';
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+    
+    // Função para buscar posts com retry
+    const fetchWithRetry = async (url: string, retries = 2): Promise<Response> => {
+      for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => {
+            controller.abort(new DOMException(`Request timeout after 25 seconds (attempt ${attempt + 1}/${retries})`, 'AbortError'));
+          }, 25000);
+          
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            signal: controller.signal,
+          });
+          
+          clearTimeout(timeoutId);
+          
+          if (response.ok) {
+            return response;
+          }
+          
+          // Se for 404, não tentar novamente
+          if (response.status === 404) {
+            throw new Error(`Endpoint não encontrado (404): ${url}`);
+          }
+          
+          // Se não for último attempt, esperar antes de tentar novamente
+          if (attempt < retries - 1) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+            continue;
+          }
+          
+          return response;
+        } catch (err: any) {
+          if (attempt === retries - 1) {
+            throw err;
+          }
+          // Esperar antes de tentar novamente
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        }
+      }
+      throw new Error('Todas as tentativas falharam');
+    };
+
     const fetchInstagramPosts = async () => {
       try {
+        // Verificar cache primeiro
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          try {
+            const { data, timestamp } = JSON.parse(cached);
+            if (Date.now() - timestamp < CACHE_DURATION) {
+              console.log('📸 [Instagram] Usando posts do cache');
+              setPosts(data);
+              setError(false);
+              setLoading(false);
+              return;
+            }
+          } catch (e) {
+            // Cache inválido, continuar com fetch
+          }
+        }
+
         const apiUrl = `${INSTAGRAM_API_URL}/posts?limit=9`;
+        console.log('📸 [Instagram] Buscando posts de:', apiUrl);
         
-        // Criar AbortController para timeout de 18 segundos (API tem timeout de 15s + margem)
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          controller.abort(new DOMException('Request timeout after 18 seconds', 'AbortError'));
-        }, 18000);
-        
-        // Buscar posts do Instagram via endpoint da API (mais seguro - token não exposto no frontend)
-        const response = await fetch(apiUrl, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: controller.signal,
-        });
-        
-        clearTimeout(timeoutId);
+        const response = await fetchWithRetry(apiUrl);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          // Se for erro 503/504, usar fallback silenciosamente
-          if (response.status === 503 || response.status === 504) {
+          console.error('❌ [Instagram] Erro na resposta:', response.status, errorData);
+          
+          // Se for erro 503/504/404, usar fallback silenciosamente
+          if (response.status === 503 || response.status === 504 || response.status === 404) {
+            console.warn('⚠️ [Instagram] Usando fallback devido a erro', response.status);
             setPosts(FALLBACK_POSTS as any);
             setError(true);
             setLoading(false);
@@ -118,18 +173,27 @@ const InstagramCarousel: React.FC = () => {
         }
 
         const result = await response.json();
+        console.log('✅ [Instagram] Resposta recebida:', { success: result.success, count: result.data?.length || 0 });
         
         if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
+          // Salvar no cache
+          localStorage.setItem(CACHE_KEY, JSON.stringify({
+            data: result.data,
+            timestamp: Date.now()
+          }));
+          
           setPosts(result.data);
           setError(false);
+          console.log('✅ [Instagram] Posts carregados com sucesso:', result.data.length);
         } else {
-          // Se não houver posts, usar fallback
+          console.warn('⚠️ [Instagram] Nenhum post encontrado, usando fallback');
           setPosts(FALLBACK_POSTS as any);
           setError(true);
         }
         
         setLoading(false);
       } catch (err: any) {
+        console.error('❌ [Instagram] Erro ao buscar posts:', err.message || err);
         setError(true);
         // Fallback to mock data on error
         setPosts(FALLBACK_POSTS as any);

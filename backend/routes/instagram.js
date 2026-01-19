@@ -32,9 +32,11 @@ router.get('/posts', async (req, res) => {
     
     const url = `https://graph.facebook.com/${apiVersion}/${IG_USER_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count&access_token=${accessToken}&limit=${limit}`;
 
-    // Fazer requisição para Facebook Graph API com timeout de 15 segundos
+    console.log(`📸 [Instagram] Buscando posts do Instagram de: ${IG_USER_ID}`);
+    
+    // Fazer requisição para Facebook Graph API com timeout de 20 segundos (aumentado de 15s)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
     
     let response;
     try {
