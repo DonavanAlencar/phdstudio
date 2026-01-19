@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "bash scripts/block-vercel.sh && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "block-vercel": "bash scripts/block-vercel.sh"
   },
