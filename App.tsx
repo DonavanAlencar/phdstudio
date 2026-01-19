@@ -60,17 +60,9 @@ const ASSETS = {
     {
       url: "/hajir-logo.svg",
       alt: "Hajir",
-      // MARGENS: 0 16px => px-4.
-      // TAMANHO: 36px => h-[36px].
-      // ALINHAMENTO: CENTER (flex defaults).
-      // COR: UNIFICAR (tons neutros) => Adicionando grayscale e brightness se necessário, mas 'sem inversão' sugere manter o original se for preto/escuro.
-      // Se o fundo é dark, logo preto some. Se logo for colorido, grayscale ajuda.
-      // Vou aplicar grayscale e brilho ajustado para garantir visibilidade sutil se for o caso, 
-      // ou deixar natural se 'sem inversão' for estrito.
-      // "UNIFICAR_COM_ESTILO_PADRÃO" + "CONTRASTE: PADRÃO (sem inversão)" => Tentar manter natural mas talvez desaturado?
-      // O prompt anterior dizia: "COR_DE_FUNDO: TRANSPARENTE", "ESCALA: FIT_CONTAIN".
-      wrapperClass: "flex-shrink-0 px-4 flex items-center justify-center opacity-100 hover:opacity-100 transition-opacity duration-300",
-      // FILTRO: REMOVER CORES ORIGINAIS -> brightness-0 invert (Torna branco puro, igual aos outros)
+      // Unificando com padrão: opacity-40 hover:opacity-100 (gera o tom cinza visualmente)
+      wrapperClass: "flex-shrink-0 px-4 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300",
+      // Mantendo branco puro na base para que a opacidade gere o cinza correto
       imgClass: "h-[36px] w-auto object-contain brightness-0 invert"
     }
   ],
@@ -793,8 +785,9 @@ const Hero = () => {
         </div>
 
         {/* Right side video */}
-        <div className="relative block animate-fade-in-up mt-8 md:mt-0" style={{ animationDelay: '0.2s' }}>
-          <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
+        <div className="relative block animate-fade-in-up mt-12 md:mt-0 mb-16 md:mb-0" style={{ animationDelay: '0.2s' }}>
+          {/* rotate-0 no mobile (horizontal fixo), rotate-[-2deg] no desktop */}
+          <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-0 md:rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
               <iframe
                 className="w-full h-full rounded-xl"
