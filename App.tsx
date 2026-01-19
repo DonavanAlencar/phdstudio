@@ -793,7 +793,7 @@ const Hero = () => {
         </div>
 
         {/* Right side video */}
-        <div className="relative hidden md:block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <div className="relative block animate-fade-in-up mt-8 md:mt-0" style={{ animationDelay: '0.2s' }}>
           <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
               <iframe
