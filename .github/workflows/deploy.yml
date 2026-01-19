@@ -79,6 +79,46 @@ jobs:
           exit 1
         }
     
+    - name: Ensure Git is up to date before deploy
+      timeout-minutes: 5
+      run: |
+        echo "🔄 Garantindo que o código está sincronizado no servidor..."
+        ssh -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=20 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=3 \
+            -o BatchMode=yes \
+            root@${{ secrets.SERVER_HOST }} '
+          set -e
+          cd /root/phdstudio || exit 1
+          
+          echo "📥 Fazendo fetch do repositório..."
+          git fetch origin main || git fetch origin master || exit 1
+          
+          echo "🔄 Verificando branch atual..."
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          TARGET_BRANCH="main"
+          if [ "$CURRENT_BRANCH" != "main" ]; then
+            if git show-ref --verify --quiet refs/heads/master; then
+              TARGET_BRANCH="master"
+            fi
+          else
+            TARGET_BRANCH="main"
+          fi
+          
+          echo "📍 Branch alvo: $TARGET_BRANCH"
+          if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
+            echo "🔄 Mudando para branch $TARGET_BRANCH..."
+            git checkout "$TARGET_BRANCH" || exit 1
+          fi
+          
+          echo "📥 Fazendo pull para garantir sincronização..."
+          git pull origin "$TARGET_BRANCH" || exit 1
+          
+          echo "✅ Código sincronizado. Commit atual:"
+          git log -1 --oneline
+        '
+    
     - name: Deploy to server (Docker / Traefik)
       timeout-minutes: 10
       run: |
@@ -91,6 +131,36 @@ jobs:
             root@${{ secrets.SERVER_HOST }} '
           set -e
           cd /root/phdstudio || exit 1
+          
+          # Garantir que estamos no branch correto e atualizado
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          TARGET_BRANCH="main"
+          if [ "$CURRENT_BRANCH" != "main" ]; then
+            if git show-ref --verify --quiet refs/heads/master; then
+              TARGET_BRANCH="master"
+            fi
+          else
+            TARGET_BRANCH="main"
+          fi
+          
+          if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
+            git checkout "$TARGET_BRANCH" || exit 1
+          fi
+          
+          # Última verificação de sincronização antes do deploy
+          echo "🔄 Última verificação de sincronização..."
+          git fetch origin "$TARGET_BRANCH" || exit 1
+          LOCAL=$(git rev-parse @)
+          REMOTE=$(git rev-parse "origin/$TARGET_BRANCH")
+          
+          if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "⚠️ Código não está sincronizado. Fazendo pull final..."
+            git pull origin "$TARGET_BRANCH" || exit 1
+          else
+            echo "✅ Código já está sincronizado (commit: $LOCAL)"
+          fi
+          
+          echo "🚀 Executando script de deploy..."
           chmod +x deploy/docker/scripts/deploy-remote.sh || exit 1
           ./deploy/docker/scripts/deploy-remote.sh || exit 1
         '

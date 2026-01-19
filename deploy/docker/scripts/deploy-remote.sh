@@ -119,26 +119,73 @@ check_traefik() {
 git_pull() {
     log "Atualizando repositório Git..."
     
+    # Sempre fazer fetch primeiro para garantir que temos as últimas referências
     git fetch origin "$GIT_BRANCH" || error "Falha ao fazer fetch do Git"
     
-    LOCAL=$(git rev-parse @)
-    REMOTE=$(git rev-parse "origin/$GIT_BRANCH")
-    BASE=$(git merge-base @ "origin/$GIT_BRANCH")
+    # Verificar se estamos no branch correto
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ "$CURRENT_BRANCH" != "$GIT_BRANCH" ]; then
+        log "Mudando para o branch $GIT_BRANCH..."
+        git checkout "$GIT_BRANCH" || error "Falha ao mudar para o branch $GIT_BRANCH"
+    fi
     
+    # Obter commits locais e remotos
+    LOCAL=$(git rev-parse @ 2>/dev/null || echo "")
+    REMOTE=$(git rev-parse "origin/$GIT_BRANCH" 2>/dev/null || echo "")
+    
+    if [ -z "$LOCAL" ] || [ -z "$REMOTE" ]; then
+        error "Não foi possível obter referências do Git. Verifique a conexão e o branch."
+    fi
+    
+    # Se já está atualizado, ainda assim garantir que está sincronizado
     if [ "$LOCAL" = "$REMOTE" ]; then
-        warning "Repositório já está atualizado. Nenhuma mudança detectada."
-        return 1
-    elif [ "$LOCAL" = "$BASE" ]; then
+        log "Repositório já está atualizado (local e remoto no mesmo commit)"
+        log "Commit atual: $LOCAL"
+        # Mesmo atualizado, garantir que não há mudanças locais não commitadas
+        if [ -n "$(git status --porcelain)" ]; then
+            warning "Há mudanças locais não commitadas. Fazendo stash..."
+            git stash || warning "Falha ao fazer stash, continuando..."
+        fi
+        return 0
+    fi
+    
+    # Verificar se há commits locais não enviados
+    BASE=$(git merge-base @ "origin/$GIT_BRANCH" 2>/dev/null || echo "")
+    if [ -z "$BASE" ]; then
+        error "Não foi possível encontrar base comum entre local e remoto"
+    fi
+    
+    if [ "$LOCAL" = "$BASE" ]; then
+        # Local está atrás, fazer pull simples
         log "Atualizações encontradas. Fazendo pull..."
         git pull origin "$GIT_BRANCH" || error "Falha ao fazer pull do Git"
         success "Pull do Git concluído com sucesso"
-        return 0
-    else
+    elif [ "$REMOTE" = "$BASE" ]; then
+        # Local está à frente (commits não enviados)
         warning "Repositório local tem commits não enviados. Fazendo pull com merge..."
-        git pull origin "$GIT_BRANCH" || error "Falha ao fazer pull do Git"
+        git pull origin "$GIT_BRANCH" --no-rebase || error "Falha ao fazer pull do Git"
         success "Pull do Git concluído com sucesso"
-        return 0
+    else
+        # Divergência (ambos têm commits diferentes)
+        warning "Repositório local e remoto divergiram. Fazendo pull com merge..."
+        git pull origin "$GIT_BRANCH" --no-rebase || error "Falha ao fazer pull do Git (divergência)"
+        success "Pull do Git concluído com sucesso (merge realizado)"
     fi
+    
+    # Validar que agora está sincronizado
+    LOCAL_AFTER=$(git rev-parse @)
+    REMOTE_AFTER=$(git rev-parse "origin/$GIT_BRANCH")
+    
+    if [ "$LOCAL_AFTER" != "$REMOTE_AFTER" ]; then
+        warning "Aviso: Após pull, local e remoto ainda diferem"
+        warning "Local: $LOCAL_AFTER"
+        warning "Remoto: $REMOTE_AFTER"
+        warning "Continuando com deploy, mas pode haver inconsistências"
+    else
+        success "Repositório sincronizado com sucesso (commit: $LOCAL_AFTER)"
+    fi
+    
+    return 0
 }
 
 stop_existing() {
@@ -190,6 +237,15 @@ cleanup_images() {
     success "Limpeza concluída"
 }
 
+block_vercel() {
+    log "Verificando bloqueio de Vercel..."
+    if [ -f "${ROOT_DIR}/scripts/block-vercel.sh" ]; then
+        bash "${ROOT_DIR}/scripts/block-vercel.sh" || warning "Aviso: Verificação do Vercel falhou, mas continuando..."
+    else
+        warning "Script de bloqueio do Vercel não encontrado"
+    fi
+}
+
 main() {
     echo ""
     echo "=========================================="
@@ -198,16 +254,16 @@ main() {
     echo ""
     
     check_directory
+    block_vercel
     check_docker
     check_env
     check_traefik
     
-    if git_pull; then
-        log "Mudanças detectadas. Iniciando processo de deploy..."
-    else
-        log "Nenhuma mudança detectada. Nada para implantar."
-        exit 0
-    fi
+    # SEMPRE fazer git pull antes do deploy para garantir sincronização
+    log "Sincronizando código com repositório remoto..."
+    git_pull || error "Falha ao sincronizar código do repositório"
+    
+    log "Código sincronizado. Iniciando processo de deploy..."
     
     stop_existing
     build_image

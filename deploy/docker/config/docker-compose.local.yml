@@ -1,30 +1,30 @@
 services:
   phdstudio:
     build:
-      context: ../..
+      context: ${PROJECT_ROOT:-/root/phdstudio}
       dockerfile: deploy/docker/config/Dockerfile
     container_name: phdstudio-app-local
     ports:
       - "8080:80"
     restart: unless-stopped
     env_file:
-      - ../../env.dev
-      - ../../deploy/config/shared/.env
+      - ${PROJECT_ROOT:-/root/phdstudio}/env.dev
+      - ${PROJECT_ROOT:-/root/phdstudio}/deploy/config/shared/.env
     environment:
       - NODE_ENV=development
       - VITE_API_URL=http://localhost:3001/api
 
   phd-api:
     build:
-      context: ../..
+      context: ${PROJECT_ROOT:-/root/phdstudio}
       dockerfile: deploy/docker/config/api.Dockerfile
     container_name: phd-api-local
     ports:
       - "3001:3001"
     restart: unless-stopped
     env_file:
-      - ../../api/env.dev
-      - ../../deploy/config/shared/.env
+      - ${PROJECT_ROOT:-/root/phdstudio}/api/env.dev
+      - ${PROJECT_ROOT:-/root/phdstudio}/deploy/config/shared/.env
     environment:
       - NODE_ENV=development
       - CRM_DB_HOST=phd-crm-db

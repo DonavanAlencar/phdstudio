@@ -1,0 +1,5 @@
+# BLOQUEIO DE DEPLOY NO VERCEL
+# Este projeto NÃO deve ser publicado no Vercel
+# Use apenas Docker/Docker Compose para deploy
+
+*

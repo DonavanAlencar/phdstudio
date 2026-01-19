@@ -1,0 +1,37 @@
+name: Block Vercel Deployment
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  block-vercel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Block Vercel deployment
+        run: |
+          echo "🚫 Este projeto NÃO deve ser publicado no Vercel"
+          echo "✅ Use apenas Docker/Docker Compose para deploy"
+          
+          # Verificar se há configuração do Vercel
+          if [ -f "vercel.json" ]; then
+            echo "❌ ERRO: Arquivo vercel.json encontrado!"
+            echo "Removendo arquivo vercel.json..."
+            rm -f vercel.json
+            exit 1
+          fi
+          
+          if [ -d ".vercel" ]; then
+            echo "❌ ERRO: Diretório .vercel encontrado!"
+            echo "Removendo diretório .vercel..."
+            rm -rf .vercel
+            exit 1
+          fi
+          
+          echo "✅ Nenhuma configuração do Vercel encontrada"

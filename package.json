@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "bash scripts/block-vercel.sh && vite build",
+    "preview": "vite preview",
+    "block-vercel": "bash scripts/block-vercel.sh"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
