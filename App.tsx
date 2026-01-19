@@ -70,7 +70,8 @@ const ASSETS = {
       // "UNIFICAR_COM_ESTILO_PADRÃO" + "CONTRASTE: PADRÃO (sem inversão)" => Tentar manter natural mas talvez desaturado?
       // O prompt anterior dizia: "COR_DE_FUNDO: TRANSPARENTE", "ESCALA: FIT_CONTAIN".
       wrapperClass: "flex-shrink-0 px-4 flex items-center justify-center opacity-100 hover:opacity-100 transition-opacity duration-300",
-      imgClass: "h-[36px] w-auto object-contain"
+      // FILTRO: REMOVER CORES ORIGINAIS -> brightness-0 invert (Torna branco puro, igual aos outros)
+      imgClass: "h-[36px] w-auto object-contain brightness-0 invert"
     }
   ],
 
