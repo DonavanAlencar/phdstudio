@@ -40,7 +40,7 @@ const YouTubeCarousel: React.FC = () => {
     };
 
     return (
-        <section className="py-20 bg-brand-dark relative overflow-hidden border-t border-white/5">
+        <section id="portfolio-audiovisual" className="py-20 bg-brand-dark relative overflow-hidden border-t border-white/5">
             <div className="container mx-auto px-4">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">

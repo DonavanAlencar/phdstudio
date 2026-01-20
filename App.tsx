@@ -553,7 +553,7 @@ const Navbar = () => {
     { name: 'Metodologia', href: '#metodologia' },
     { name: 'Cases', href: '#cases' },
     { name: 'Depoimentos', href: '#depoimentos' },
-    { name: 'PORTFÓLIO', href: '/portfolio-video', internal: true, ariaLabel: "Portfólio de Vídeo da PHD Studio" },
+    { name: 'PORTFÓLIO', href: '#portfolio-audiovisual' },
     { name: 'FAQ', href: '#faq' },
     { name: 'Blog', href: 'https://www.phdstudio.blog.br/', external: true },
   ];
