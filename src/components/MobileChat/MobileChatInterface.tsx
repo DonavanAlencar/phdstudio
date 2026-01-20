@@ -196,7 +196,8 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
             session_id: sessionId
           }),
         },
-        10000 // 10 segundos de timeout
+        15000, // 15 segundos de timeout (aumentado)
+        2 // 2 retries (total de 3 tentativas)
       );
 
       if (!response.ok) {
@@ -238,6 +239,17 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
       
       const errorMessageStr = error?.message?.toLowerCase() || '';
       const errorNameStr = error?.name?.toLowerCase() || '';
+      const errorCode = error?.code?.toLowerCase() || '';
+      
+      // Log detalhado do erro para diagnóstico (apenas em desenvolvimento)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[MobileChat] Erro detalhado:', {
+          message: error?.message,
+          name: error?.name,
+          code: error?.code,
+          stack: error?.stack?.substring(0, 200)
+        });
+      }
       
       // Detectar Mixed Content
       if (errorMessageStr.includes('mixed content') || 
@@ -249,26 +261,42 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
       // Detectar CORS
       else if (errorMessageStr.includes('cors') || 
                errorMessageStr.includes('cross-origin') ||
-               errorNameStr === 'typeerror') {
+               errorMessageStr.includes('access-control') ||
+               (errorNameStr === 'typeerror' && errorMessageStr.includes('fetch'))) {
         errorType = 'cors';
-        errorText = '⚠️ Erro de conexão: O servidor não permitiu a requisição. Isso pode ser um problema de configuração do servidor.';
+        errorText = '⚠️ Erro de conexão: O servidor não permitiu a requisição. Isso pode ser um problema de configuração do servidor (CORS).';
       } 
       // Detectar falha de rede ou timeout
       else if (errorMessageStr.includes('failed to fetch') || 
                errorMessageStr.includes('networkerror') ||
                errorMessageStr.includes('network request failed') ||
-               errorMessageStr.includes('timeout')) {
+               errorMessageStr.includes('timeout') ||
+               errorMessageStr.includes('múltiplas tentativas') ||
+               errorMessageStr.includes('aborted') ||
+               errorMessageStr.includes('abort') ||
+               errorCode === 'net::err_internet_disconnected' ||
+               errorCode === 'net::err_network_changed' ||
+               errorCode === 'net::err_connection_refused' ||
+               errorCode === 'net::err_connection_timed_out' ||
+               errorCode === 'net::err_name_not_resolved') {
         errorType = 'network';
         if (hasMixedContent) {
           errorText = '⚠️ Erro de conexão: O servidor do webhook precisa estar configurado com HTTPS para funcionar em páginas seguras.';
         } else {
-          errorText = '⚠️ Erro de rede: Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.';
+          errorText = '⚠️ Erro de rede: Não foi possível conectar ao servidor após várias tentativas. O servidor pode estar temporariamente indisponível ou sua conexão com a internet pode estar instável. Por favor, verifique sua conexão e tente novamente.';
         }
       }
       // Erro HTTP
       else if (error?.message?.match(/erro \d{3}/i)) {
         errorType = 'http_error';
-        errorText = `⚠️ Erro do servidor: ${error.message}. Por favor, tente novamente em alguns instantes.`;
+        const statusMatch = error.message.match(/\d{3}/);
+        const statusCode = statusMatch ? statusMatch[0] : 'desconhecido';
+        
+        if (statusCode.startsWith('5')) {
+          errorText = `⚠️ Erro do servidor (${statusCode}): O servidor está temporariamente indisponível. Por favor, tente novamente em alguns instantes.`;
+        } else {
+          errorText = `⚠️ Erro do servidor (${statusCode}): ${error.message}. Por favor, tente novamente.`;
+        }
       }
       
       const errorBotMessage: Message = {
