@@ -29,6 +29,10 @@ services:
       - NODE_ENV=development
       - CRM_DB_HOST=phd-crm-db
       - PRODUCTS_MEDIA_BASE_URL=http://localhost:8080
+      # Instagram Feed (valores vêm do env_file, mas explicitamente passados para garantir)
+      - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN:-}
+      - INSTAGRAM_USER_ID=${INSTAGRAM_USER_ID:-17841403453191047}
+      - INSTAGRAM_API_VERSION=${INSTAGRAM_API_VERSION:-v22.0}
     depends_on:
       - phd-crm-db
 
