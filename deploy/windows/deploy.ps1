@@ -83,7 +83,7 @@ function Parse-DotEnv {
 function Validate-EnvVars {
     param($envPath)
     $data = Parse-DotEnv -Path $envPath
-    $required = @("CRM_DB_HOST","CRM_DB_PORT","CRM_DB_USER","CRM_DB_PASSWORD","CRM_DB_NAME","PHD_API_KEY","JWT_SECRET","JWT_REFRESH_SECRET")
+    $required = @("CRM_DB_HOST","CRM_DB_PORT","CRM_DB_USER","CRM_DB_PASSWORD","CRM_DB_NAME","PHD_API_KEY","JWT_SECRET","JWT_REFRESH_SECRET","INSTAGRAM_ACCESS_TOKEN")
     foreach ($key in $required) {
         if (-not $data.ContainsKey($key) -or [string]::IsNullOrWhiteSpace($data[$key])) {
             Write-Log "WARN" "Variável obrigatória ausente ou vazia em ${envPath}: $key"
