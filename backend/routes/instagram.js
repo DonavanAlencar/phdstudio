@@ -4,6 +4,11 @@
  */
 
 import express from 'express';
+import axios from 'axios';
+import dns from 'dns';
+
+// Forçar IPv4 primeiro para evitar problemas de conectividade
+dns.setDefaultResultOrder('ipv4first');
 
 const router = express.Router();
 
@@ -34,56 +39,64 @@ router.get('/posts', async (req, res) => {
 
     console.log(`📸 [Instagram] Buscando posts do Instagram de: ${IG_USER_ID}`);
     
-    // Função para fazer requisição com retry
-    const fetchWithRetry = async (url, retries = 2, timeout = 30000) => {
+    // Função para fazer requisição com retry usando axios
+    // Axios oferece melhor compatibilidade e tratamento de erros
+    const axiosWithRetry = async (url, retries = 3, timeout = 60000) => {
       for (let attempt = 0; attempt < retries; attempt++) {
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), timeout);
-          
           if (attempt > 0) {
             console.log(`🔄 [Instagram] Tentativa ${attempt + 1}/${retries}...`);
             // Esperar antes de tentar novamente (exponential backoff)
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
           }
           
-          const response = await fetch(url, {
-            signal: controller.signal,
-            // Adicionar headers adicionais para melhorar conexão
+          const response = await axios.get(url, {
+            timeout: timeout,
             headers: {
-              'Connection': 'keep-alive',
-              'User-Agent': 'phdstudio-instagram-feed/1.0'
-            }
+              'User-Agent': 'phdstudio-instagram-feed/1.0',
+              'Accept': 'application/json',
+              'Accept-Encoding': 'gzip, deflate',
+              'Connection': 'keep-alive'
+            },
+            // Configurações adicionais para melhorar conectividade
+            validateStatus: (status) => status >= 200 && status < 500, // Não lançar erro para 4xx
+            // Axios usa http/https do Node.js nativo que pode ter melhor compatibilidade
+            maxRedirects: 5,
+            // Forçar IPv4 para evitar problemas de conectividade
+            family: 4,
+            // Configurações de DNS
+            lookup: dns.lookup
           });
           
-          clearTimeout(timeoutId);
           return response;
-        } catch (fetchError) {
+        } catch (axiosError) {
+          // Se é a última tentativa, lançar o erro
           if (attempt === retries - 1) {
-            throw fetchError;
+            throw axiosError;
           }
-          console.warn(`⚠️ [Instagram] Tentativa ${attempt + 1} falhou, tentando novamente...`);
+          
+          // Log do erro (mas não finalizar ainda)
+          console.warn(`⚠️ [Instagram] Tentativa ${attempt + 1} falhou: ${axiosError.code || axiosError.message}`);
         }
       }
     };
     
-    // Fazer requisição com retry e timeout de 30 segundos
+    // Fazer requisição com retry e timeout de 60 segundos usando axios
     let response;
     try {
-      response = await fetchWithRetry(url, 2, 30000);
-    } catch (fetchError) {
-      
+      response = await axiosWithRetry(url, 3, 60000);
+    } catch (axiosError) {
       // Log detalhado do erro
       console.error('❌ [Instagram] Erro ao buscar posts:', {
-        name: fetchError.name,
-        message: fetchError.message,
-        code: fetchError.code,
-        cause: fetchError.cause?.code,
-        causeMessage: fetchError.cause?.message,
-        stack: fetchError.stack?.substring(0, 500)
+        message: axiosError.message,
+        code: axiosError.code,
+        response: axiosError.response?.status,
+        responseData: axiosError.response?.data,
+        stack: axiosError.stack?.substring(0, 500)
       });
       
-      if (fetchError.name === 'AbortError' || fetchError.cause?.name === 'AbortError') {
+      // Verificar se é erro de timeout
+      if (axiosError.code === 'ECONNABORTED' || axiosError.code === 'ETIMEDOUT') {
         console.error('❌ [Instagram] Timeout ao buscar posts');
         return res.status(504).json({
           success: false,
@@ -92,24 +105,21 @@ router.get('/posts', async (req, res) => {
         });
       }
       
-      // Tratar erros de rede (ETIMEDOUT, ECONNREFUSED, etc)
-      const errorMessage = fetchError.message?.toLowerCase() || '';
-      const errorCode = fetchError.cause?.code || fetchError.code;
-      const errorCauseCode = fetchError.cause?.cause?.code || fetchError.cause?.code;
+      // Verificar se é erro de conexão/rede
+      const errorMessage = axiosError.message?.toLowerCase() || '';
+      const errorCode = axiosError.code;
       
-      // Verificar se é erro de timeout ou conexão falhada
-      const isTimeoutError = errorCode === 'ETIMEDOUT' || 
-                             errorCauseCode === 'ETIMEDOUT' ||
+      const isNetworkError = errorCode === 'ETIMEDOUT' || 
                              errorCode === 'ECONNREFUSED' ||
-                             errorCauseCode === 'ECONNREFUSED' ||
                              errorCode === 'ENOTFOUND' ||
-                             errorCauseCode === 'ENOTFOUND' ||
+                             errorCode === 'ECONNRESET' ||
+                             errorCode === 'ENETUNREACH' ||
                              errorMessage.includes('timeout') || 
-                             errorMessage.includes('fetch failed') ||
                              errorMessage.includes('network') ||
-                             fetchError.message === 'fetch failed';
+                             errorMessage.includes('getaddrinfo') ||
+                             errorMessage.includes('connect');
       
-      if (isTimeoutError) {
+      if (isNetworkError) {
         console.error('❌ [Instagram] Erro de conexão:', errorCode || errorMessage);
         return res.status(503).json({
           success: false,
@@ -117,27 +127,28 @@ router.get('/posts', async (req, res) => {
           message: 'Não foi possível conectar à API do Instagram. Tente novamente mais tarde.',
           details: process.env.NODE_ENV === 'development' ? {
             errorCode,
-            errorMessage: fetchError.message
+            errorMessage: axiosError.message
           } : undefined
         });
       }
       
-      console.error('❌ [Instagram] Erro inesperado:', fetchError);
-      throw fetchError;
+      // Verificar se é erro da API do Facebook (4xx, 5xx)
+      if (axiosError.response) {
+        const errorData = axiosError.response.data || {};
+        return res.status(axiosError.response.status).json({
+          success: false,
+          error: 'Erro ao buscar posts do Instagram',
+          message: errorData.error?.message || 'Falha na comunicação com a API do Instagram',
+          details: errorData.error
+        });
+      }
+      
+      console.error('❌ [Instagram] Erro inesperado:', axiosError);
+      throw axiosError;
     }
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      
-      return res.status(response.status).json({
-        success: false,
-        error: 'Erro ao buscar posts do Instagram',
-        message: errorData.error?.message || 'Falha na comunicação com a API do Instagram',
-        details: errorData.error
-      });
-    }
-
-    const data = await response.json();
+    // Extrair dados da resposta do axios
+    const data = response.data;
     
     if (!data.data || !Array.isArray(data.data)) {
       return res.status(500).json({
@@ -171,10 +182,16 @@ router.get('/posts', async (req, res) => {
     }
     
     // Verificar se é erro de timeout ou conexão no catch externo também
-    const errorCode = error.cause?.code || error.cause?.cause?.code || error.code;
+    const errorCode = error.code || error.cause?.code || error.cause?.cause?.code;
     const errorMessage = error.message?.toLowerCase() || '';
     
-    if (errorCode === 'ETIMEDOUT' || errorMessage.includes('fetch failed')) {
+    // Tratar erros específicos do axios
+    if (errorCode === 'ETIMEDOUT' || 
+        errorCode === 'ECONNABORTED' ||
+        errorCode === 'ECONNREFUSED' ||
+        errorCode === 'ENOTFOUND' ||
+        errorMessage.includes('timeout') || 
+        errorMessage.includes('network')) {
       return res.status(503).json({
         success: false,
         error: 'Serviço temporariamente indisponível',

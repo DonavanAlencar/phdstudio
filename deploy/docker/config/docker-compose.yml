@@ -54,6 +54,10 @@ services:
     expose:
       - "3001"
     restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    dns_search: []
     env_file:
       - ../../config/shared/.env
     environment:
@@ -69,9 +73,9 @@ services:
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret-key-change-in-production}
       # API Key (configure no .env)
       - PHD_API_KEY=${PHD_API_KEY:-CNZZoJ6rz7Gcb8Z80rYNSHfCW1jPxZTU}
-      # Instagram Feed (configure no .env - valores vêm do env_file)
-      - INSTAGRAM_USER_ID=${INSTAGRAM_USER_ID:-17841403453191047}
-      - INSTAGRAM_API_VERSION=${INSTAGRAM_API_VERSION:-v22.0}
+      # Instagram Feed (valores vêm do env_file - não sobrescrever aqui)
+      # As variáveis INSTAGRAM_ACCESS_TOKEN, INSTAGRAM_USER_ID e INSTAGRAM_API_VERSION
+      # são carregadas automaticamente do arquivo ../../config/shared/.env via env_file
       - ALLOWED_ORIGINS=https://phdstudio.com.br,http://phdstudio.com.br
       - CORS_ORIGIN=https://phdstudio.com.br
       - API_PORT=3001

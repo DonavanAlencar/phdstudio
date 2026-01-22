@@ -151,55 +151,112 @@ export const validateOrigin = (url: string): boolean => {
     
     // Permitir apenas HTTPS (segurança)
     if (urlObj.protocol !== 'https:') {
+      // Em desenvolvimento, permitir HTTP para localhost
+      if (process.env.NODE_ENV === 'development' && 
+          (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1')) {
+        return true;
+      }
       return false;
     }
     
     // Permitir webhooks n8n e outros serviços conhecidos
     const allowedDomains = [
       'n8n.546digitalservices.com',
+      '546digitalservices.com', // Permitir domínio base também
       'webhook.site',
       'hook.integromat.com',
       'n8n.io',
-      'make.com'
+      'make.com',
+      'zapier.com',
+      'ifttt.com'
     ];
     
     // Verificar se o hostname corresponde a algum domínio permitido
     const hostname = urlObj.hostname.toLowerCase();
-    return allowedDomains.some(domain => hostname.includes(domain.toLowerCase()));
+    return allowedDomains.some(domain => {
+      // Permitir domínio exato ou subdomínios
+      return hostname === domain || hostname.endsWith('.' + domain);
+    });
   } catch (error) {
+    // Em caso de erro ao parsear URL, retornar false por segurança
     return false;
   }
 };
 
 /**
- * Cria um fetch com timeout
+ * Cria um fetch com timeout e retry logic
  * @param url - URL da requisição
  * @param options - Opções do fetch
- * @param timeout - Timeout em milissegundos (padrão: 10 segundos)
+ * @param timeout - Timeout em milissegundos (padrão: 15 segundos)
+ * @param retries - Número de tentativas (padrão: 2)
  * @returns Promise da resposta
  */
 export const fetchWithTimeout = async (
   url: string,
   options: RequestInit = {},
-  timeout: number = 10000
+  timeout: number = 15000, // Aumentado de 10s para 15s
+  retries: number = 2 // Adicionar retry logic
 ): Promise<Response> => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  let lastError: any;
   
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error: any) {
-    clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      throw new Error('Timeout: A requisição demorou muito para responder');
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+      // Esperar antes de retry (exponential backoff)
+      if (attempt > 0) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5s
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+        // Adicionar headers para melhorar compatibilidade
+        headers: {
+          ...options.headers,
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // Se a resposta não for OK, mas não for erro de rede, retornar
+      if (!response.ok && response.status >= 400 && response.status < 500) {
+        return response; // Erros 4xx não devem fazer retry
+      }
+      
+      // Se for sucesso ou erro 5xx, retornar (5xx pode fazer retry)
+      return response;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      lastError = error;
+      
+      // Se não for timeout ou erro de rede, não fazer retry
+      if (error.name !== 'AbortError' && 
+          !error.message?.toLowerCase().includes('failed to fetch') &&
+          !error.message?.toLowerCase().includes('network')) {
+        throw error;
+      }
+      
+      // Se for a última tentativa, lançar erro
+      if (attempt === retries) {
+        if (error.name === 'AbortError') {
+          throw new Error('Timeout: A requisição demorou muito para responder após múltiplas tentativas');
+        }
+        throw error;
+      }
     }
-    throw error;
   }
+  
+  // Se chegou aqui, todas as tentativas falharam
+  if (lastError) {
+    throw lastError;
+  }
+  
+  throw new Error('Falha na requisição após múltiplas tentativas');
 };
 
 /**
