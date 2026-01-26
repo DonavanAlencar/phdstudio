@@ -1628,7 +1628,7 @@ const Footer = () => (
 
       <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4">
         <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
-          <p>&copy; 2024 PHD Studio. Todos os direitos reservados.</p>
+          <p>&copy; 2026 PHD Studio. Todos os direitos reservados.</p>
           <Link
             to="/politica-de-privacidade"
             className="text-xs md:text-sm text-gray-500 hover:text-white underline underline-offset-4"
