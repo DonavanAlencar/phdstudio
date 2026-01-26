@@ -52,7 +52,7 @@ const UsersManagement: React.FC = () => {
         setUsers(data.data);
       }
     } catch (error) {
-      console.error('Erro ao carregar usuários:', error);
+      // console.error('Erro ao carregar usuários:', error);
     } finally {
       setLoading(false);
     }
@@ -73,7 +73,7 @@ const UsersManagement: React.FC = () => {
         setClients(data.data);
       }
     } catch (error) {
-      console.error('Erro ao carregar clientes:', error);
+      // console.error('Erro ao carregar clientes:', error);
     }
   };
 
@@ -111,7 +111,7 @@ const UsersManagement: React.FC = () => {
         alert(error.message || 'Erro ao criar usuário');
       }
     } catch (error) {
-      console.error('Erro ao criar usuário:', error);
+      // console.error('Erro ao criar usuário:', error);
       alert('Erro ao criar usuário');
     }
   };
@@ -141,7 +141,7 @@ const UsersManagement: React.FC = () => {
         alert(error.message || 'Erro ao resetar senha');
       }
     } catch (error) {
-      console.error('Erro ao resetar senha:', error);
+      // console.error('Erro ao resetar senha:', error);
       alert('Erro ao resetar senha');
     }
   };
@@ -162,7 +162,7 @@ const UsersManagement: React.FC = () => {
         loadUsers();
       }
     } catch (error) {
-      console.error('Erro ao atualizar usuário:', error);
+      // console.error('Erro ao atualizar usuário:', error);
     }
   };
 

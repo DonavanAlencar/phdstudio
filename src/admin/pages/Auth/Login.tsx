@@ -76,7 +76,7 @@ export default function Login() {
       await login(email.trim().toLowerCase(), password);
       navigate('/admin/dashboard');
     } catch (err: any) {
-      console.error('Erro no login:', err);
+      // console.error('Erro no login:', err);
       // Tratar erros de validação especificamente
       if (err.response?.status === 400) {
         const errors = err.response?.data?.errors || [];

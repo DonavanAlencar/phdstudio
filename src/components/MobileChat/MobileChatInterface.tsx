@@ -76,7 +76,7 @@ const fetchClientMobilechatConfig = async (): Promise<{ webhookUrl: string; auth
       };
     }
   } catch (error) {
-    console.error('Erro ao buscar configuração:', error);
+    // console.error('Erro ao buscar configuração:', error);
   }
   return null;
 };
@@ -364,14 +364,14 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
       const errorCode = error?.code?.toLowerCase() || '';
       
       // Log detalhado do erro para diagnóstico (apenas em desenvolvimento)
-      if (process.env.NODE_ENV === 'development') {
-        console.error('[MobileChat] Erro detalhado:', {
-          message: error?.message,
-          name: error?.name,
-          code: error?.code,
-          stack: error?.stack?.substring(0, 200)
-        });
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   console.error('[MobileChat] Erro detalhado:', {
+      //     message: error?.message,
+      //     name: error?.name,
+      //     code: error?.code,
+      //     stack: error?.stack?.substring(0, 200)
+      //   });
+      // }
       
       // Detectar Mixed Content
       if (errorMessageStr.includes('mixed content') || 

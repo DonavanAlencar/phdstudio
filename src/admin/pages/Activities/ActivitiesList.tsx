@@ -39,7 +39,7 @@ export default function ActivitiesList() {
       const response = await api.getActivities(params);
       setActivities(response.data);
     } catch (error) {
-      console.error('Erro ao carregar atividades:', error);
+      // console.error('Erro ao carregar atividades:', error);
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ export default function ActivitiesList() {
       await api.completeActivity(id);
       loadActivities();
     } catch (error) {
-      console.error('Erro ao completar atividade:', error);
+      // console.error('Erro ao completar atividade:', error);
     }
   };
 
@@ -61,7 +61,7 @@ export default function ActivitiesList() {
       await api.deleteActivity(id);
       loadActivities();
     } catch (error) {
-      console.error('Erro ao deletar atividade:', error);
+      // console.error('Erro ao deletar atividade:', error);
     }
   };
 

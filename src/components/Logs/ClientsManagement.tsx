@@ -36,7 +36,7 @@ const ClientsManagement: React.FC = () => {
       // Verificar se há token antes de fazer a requisição
       const token = localStorage.getItem('accessToken');
       if (!token) {
-        console.warn('⚠️ [ClientsManagement] Nenhum token encontrado. Redirecionando para login...');
+        // console.warn('⚠️ [ClientsManagement] Nenhum token encontrado. Redirecionando para login...');
         alert('Você precisa fazer login para acessar esta página.');
         window.location.href = '/login';
         return;
@@ -45,7 +45,7 @@ const ClientsManagement: React.FC = () => {
       const data = await api.getClients();
       setClients(data);
     } catch (error: any) {
-      console.error('Erro ao carregar clientes:', error);
+      // console.error('Erro ao carregar clientes:', error);
       if (error.response?.status === 401) {
         // Limpar tokens inválidos
         localStorage.removeItem('accessToken');
@@ -86,12 +86,12 @@ const ClientsManagement: React.FC = () => {
       });
       loadClients();
     } catch (error: any) {
-      console.error('Erro ao salvar cliente:', error);
+      // console.error('Erro ao salvar cliente:', error);
       const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Erro ao salvar cliente';
       alert(errorMessage);
       if (error.response?.status === 401) {
         // Admin CRM removido - apenas logar erro
-        console.error('Sessão expirada');
+        // console.error('Sessão expirada');
       }
     }
   };
@@ -113,11 +113,11 @@ const ClientsManagement: React.FC = () => {
       await api.updateClient(client.id, { is_active: !client.is_active });
       loadClients();
     } catch (error: any) {
-      console.error('Erro ao atualizar cliente:', error);
+      // console.error('Erro ao atualizar cliente:', error);
       if (error.response?.status === 401) {
         alert('Sessão expirada. Por favor, faça login novamente.');
         // Admin CRM removido - apenas logar erro
-        console.error('Sessão expirada');
+        // console.error('Sessão expirada');
       }
     }
   };
@@ -128,11 +128,11 @@ const ClientsManagement: React.FC = () => {
       await api.deleteClient(client.id);
       loadClients();
     } catch (error: any) {
-      console.error('Erro ao desativar cliente:', error);
+      // console.error('Erro ao desativar cliente:', error);
       if (error.response?.status === 401) {
         alert('Sessão expirada. Por favor, faça login novamente.');
         // Admin CRM removido - apenas logar erro
-        console.error('Sessão expirada');
+        // console.error('Sessão expirada');
       }
     }
   };

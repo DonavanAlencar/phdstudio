@@ -6,14 +6,15 @@ Write-Host ""
 
 # Iniciar API em background
 Write-Host "Iniciando API..." -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-File", "start-api.ps1" -WindowStyle Normal
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+Start-Process powershell -ArgumentList "-NoExit", "-File", "$scriptPath\start-api.ps1" -WindowStyle Normal
 
 # Aguardar um pouco para API iniciar
 Start-Sleep -Seconds 3
 
 # Iniciar Frontend em background
 Write-Host "Iniciando Frontend..." -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-File", "start-frontend.ps1" -WindowStyle Normal
+Start-Process powershell -ArgumentList "-NoExit", "-File", "$scriptPath\start-frontend.ps1" -WindowStyle Normal
 
 Write-Host ""
 Write-Host "ServiÃ§os iniciados!" -ForegroundColor Green

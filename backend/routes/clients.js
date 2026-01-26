@@ -15,16 +15,24 @@ const router = express.Router();
  */
 router.get('/', authenticateToken, requireRole('admin', 'manager'), async (req, res) => {
   try {
+    // Query otimizada: usar subquery para contagem de usuários
     const result = await queryCRM(
-      `SELECT c.*, 
-              COUNT(DISTINCT uc.user_id) AS user_count,
+      `SELECT c.id,
+              c.name,
+              c.email,
+              c.phone,
+              c.company_name,
+              c.is_active,
+              c.created_at,
+              c.updated_at,
+              (SELECT COUNT(DISTINCT uc.user_id) 
+               FROM user_clients uc 
+               WHERE uc.client_id = c.id) AS user_count,
               cmc.n8n_webhook_url,
               cmc.is_active AS mobilechat_active
        FROM clients c
-       LEFT JOIN user_clients uc ON c.id = uc.client_id
        LEFT JOIN client_mobilechat_configs cmc ON c.id = cmc.client_id
        WHERE c.is_active = true
-       GROUP BY c.id, cmc.n8n_webhook_url, cmc.is_active
        ORDER BY c.created_at DESC`
     );
 
@@ -35,7 +43,8 @@ router.get('/', authenticateToken, requireRole('admin', 'manager'), async (req, 
   } catch (error) {
     console.error('Erro ao listar clientes:', error);
     res.status(500).json({
-      error: 'Erro interno do servidor'
+      error: 'Erro interno do servidor',
+      message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

@@ -43,7 +43,7 @@ export default function LeadDetail() {
       setLead(leadData);
       setActivities(activitiesData.data);
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      // console.error('Erro ao carregar dados:', error);
     } finally {
       setLoading(false);
     }

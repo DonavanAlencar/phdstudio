@@ -33,7 +33,7 @@ export default function Dashboard() {
       setStats(statsData);
       setMyStats(myStatsData);
     } catch (error) {
-      console.error('Erro ao carregar dashboard:', error);
+      // console.error('Erro ao carregar dashboard:', error);
     } finally {
       setLoading(false);
     }

@@ -67,7 +67,7 @@ export default function LeadsList() {
       const response = await api.getTags({ limit: 100 });
       setTags(response.data);
     } catch (error) {
-      console.error('Erro ao carregar tags:', error);
+      // console.error('Erro ao carregar tags:', error);
     }
   };
 
@@ -111,7 +111,7 @@ export default function LeadsList() {
         return;
       }
       
-      console.error('Erro ao carregar leads:', error);
+      // console.error('Erro ao carregar leads:', error);
       
       // Determinar mensagem de erro amigável
       let errorMessage = 'Erro ao carregar leads';
@@ -149,7 +149,7 @@ export default function LeadsList() {
       await api.deleteLead(id);
       loadLeads();
     } catch (error) {
-      console.error('Erro ao deletar lead:', error);
+      // console.error('Erro ao deletar lead:', error);
       alert('Erro ao deletar lead');
     }
   };

@@ -24,7 +24,7 @@ export default function TagsList() {
       const response = await api.getTags({ limit: 100, search });
       setTags(response.data);
     } catch (error) {
-      console.error('Erro ao carregar tags:', error);
+      // console.error('Erro ao carregar tags:', error);
     } finally {
       setLoading(false);
     }
@@ -41,7 +41,7 @@ export default function TagsList() {
       await api.deleteTag(id);
       loadTags();
     } catch (error) {
-      console.error('Erro ao deletar tag:', error);
+      // console.error('Erro ao deletar tag:', error);
       alert('Erro ao deletar tag');
     }
   };

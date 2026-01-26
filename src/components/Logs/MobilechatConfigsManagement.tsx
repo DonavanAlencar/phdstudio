@@ -74,7 +74,7 @@ const MobilechatConfigsManagement: React.FC = () => {
         setConfigs(configsResults.filter(c => c !== null) as MobilechatConfig[]);
       }
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      // console.error('Erro ao carregar dados:', error);
     } finally {
       setLoading(false);
     }
@@ -112,7 +112,7 @@ const MobilechatConfigsManagement: React.FC = () => {
         alert(error.message || 'Erro ao salvar configuração');
       }
     } catch (error) {
-      console.error('Erro ao salvar configuração:', error);
+      // console.error('Erro ao salvar configuração:', error);
       alert('Erro ao salvar configuração');
     }
   };

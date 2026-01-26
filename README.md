@@ -39,20 +39,33 @@ PHD_API_KEY=sua-api-key ./scripts/test-api.sh
 
 ## 📚 Documentação
 
+Toda a documentação está centralizada no diretório `docs/`:
+
 - **docs/README.md** - Índice da documentação e navegação centralizada
 - **docs/api/overview.md** - Guia completo da API, instalação e troubleshooting
 - **docs/deployment/** - Guias de deploy para Windows, Linux e Docker
 - **docs/archive/** - Histórico preservado de documentos e análises
+- **docs/*.md** - Documentação específica (checklists, correções, relatórios, etc.)
 
 **Documentação histórica:** Arquivos antigos foram movidos para `docs/archive/`.
 
 ## 🔧 Scripts Úteis
 
+Todos os scripts estão organizados no diretório `scripts/`:
+
+- **`scripts/test-api.sh`** - Smoke tests dos endpoints principais
+- **`scripts/backup-db.sh`** - Backup do banco PostgreSQL
+- **`scripts/reset-admin-password.sh`** - Reset de senha de administrador
+- **`scripts/start-all.ps1`** - Inicia API e Frontend simultaneamente (Windows)
+- **`scripts/start-api.ps1`** - Inicia apenas a API (Windows)
+- **`scripts/start-frontend.ps1`** - Inicia apenas o Frontend (Windows)
+- **`scripts/start-local.ps1`** - Inicia serviços localmente sem Docker (Windows)
+- **`scripts/ROLLBACK.sh`** - Script de rollback para Docker
+
+**Scripts de deploy:**
 - **`deploy/windows/deploy.ps1`** - Deploy no Windows com validação de banco (sem Docker)
 - **`deploy/linux/deploy.sh`** - Deploy no Ubuntu com validação de banco
 - **`deploy/docker/scripts/`** - Automação de deploy Docker (Traefik, remoto e local)
-- **`scripts/test-api.sh`** - Smoke tests dos endpoints principais
-- **`scripts/backup-db.sh`** - Backup do banco PostgreSQL
 
 ## 🗄️ Estrutura do Projeto
 

@@ -35,7 +35,7 @@ export default function ActivityForm() {
       const response = await api.getLeads({ limit: 100 });
       setLeads(response.data);
     } catch (error) {
-      console.error('Erro ao carregar leads:', error);
+      // console.error('Erro ao carregar leads:', error);
     }
   };
 

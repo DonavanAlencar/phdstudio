@@ -104,7 +104,7 @@ export default function KanbanBoard() {
         await loadBoard(defaultBoard.id);
       }
     } catch (error) {
-      console.error('Erro ao carregar board:', error);
+      // console.error('Erro ao carregar board:', error);
     } finally {
       setLoading(false);
     }
@@ -115,7 +115,7 @@ export default function KanbanBoard() {
       const boardData = await api.getBoard(id);
       setBoard(boardData);
     } catch (error) {
-      console.error('Erro ao carregar board:', error);
+      // console.error('Erro ao carregar board:', error);
     }
   };
 
@@ -221,7 +221,7 @@ export default function KanbanBoard() {
     try {
       await api.moveCard(sourceCard.id, destColumn.id, newPosition);
     } catch (error) {
-      console.error('Erro ao mover card:', error);
+      // console.error('Erro ao mover card:', error);
       // Reverter em caso de erro
       if (boardId) await loadBoard(boardId);
     }
@@ -239,7 +239,7 @@ export default function KanbanBoard() {
       });
       if (boardId) await loadBoard(boardId);
     } catch (error) {
-      console.error('Erro ao criar card:', error);
+      // console.error('Erro ao criar card:', error);
     }
   };
 
@@ -250,7 +250,7 @@ export default function KanbanBoard() {
       await api.deleteCard(cardId);
       if (boardId) await loadBoard(boardId);
     } catch (error) {
-      console.error('Erro ao deletar card:', error);
+      // console.error('Erro ao deletar card:', error);
     }
   };
 

@@ -141,7 +141,7 @@ const InstagramCarousel: React.FC = () => {
           try {
             const { data, timestamp } = JSON.parse(cached);
             if (Date.now() - timestamp < CACHE_DURATION) {
-              console.log('📸 [Instagram] Usando posts do cache');
+              // console.log('📸 [Instagram] Usando posts do cache');
               setPosts(data);
               setError(false);
               setLoading(false);
@@ -153,17 +153,17 @@ const InstagramCarousel: React.FC = () => {
         }
 
         const apiUrl = `${INSTAGRAM_API_URL}/posts?limit=9`;
-        console.log('📸 [Instagram] Buscando posts de:', apiUrl);
+        // console.log('📸 [Instagram] Buscando posts de:', apiUrl);
         
         const response = await fetchWithRetry(apiUrl);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          console.error('❌ [Instagram] Erro na resposta:', response.status, errorData);
+          // console.error('❌ [Instagram] Erro na resposta:', response.status, errorData);
           
           // Se for erro 503/504/404, usar fallback silenciosamente
           if (response.status === 503 || response.status === 504 || response.status === 404) {
-            console.warn('⚠️ [Instagram] Usando fallback devido a erro', response.status);
+            // console.warn('⚠️ [Instagram] Usando fallback devido a erro', response.status);
             setPosts(FALLBACK_POSTS as any);
             setError(true);
             setLoading(false);
@@ -173,7 +173,7 @@ const InstagramCarousel: React.FC = () => {
         }
 
         const result = await response.json();
-        console.log('✅ [Instagram] Resposta recebida:', { success: result.success, count: result.data?.length || 0 });
+        // console.log('✅ [Instagram] Resposta recebida:', { success: result.success, count: result.data?.length || 0 });
         
         if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
           // Salvar no cache
@@ -184,16 +184,16 @@ const InstagramCarousel: React.FC = () => {
           
           setPosts(result.data);
           setError(false);
-          console.log('✅ [Instagram] Posts carregados com sucesso:', result.data.length);
+          // console.log('✅ [Instagram] Posts carregados com sucesso:', result.data.length);
         } else {
-          console.warn('⚠️ [Instagram] Nenhum post encontrado, usando fallback');
+          // console.warn('⚠️ [Instagram] Nenhum post encontrado, usando fallback');
           setPosts(FALLBACK_POSTS as any);
           setError(true);
         }
         
         setLoading(false);
       } catch (err: any) {
-        console.error('❌ [Instagram] Erro ao buscar posts:', err.message || err);
+        // console.error('❌ [Instagram] Erro ao buscar posts:', err.message || err);
         setError(true);
         // Fallback to mock data on error
         setPosts(FALLBACK_POSTS as any);

@@ -42,7 +42,7 @@ export default function AdminLayout() {
     if (confirm('Deseja realmente sair?')) {
       await logout();
       // Admin CRM removido - não redirecionar
-      console.error('Logout realizado');
+      // console.error('Logout realizado');
     }
   };
 

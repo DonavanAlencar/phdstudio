@@ -52,7 +52,7 @@ export default function LeadForm() {
       const response = await api.getTags({ limit: 100 });
       setTags(response.data);
     } catch (error) {
-      console.error('Erro ao carregar tags:', error);
+      // console.error('Erro ao carregar tags:', error);
     }
   };
 
@@ -75,7 +75,7 @@ export default function LeadForm() {
         custom_fields: lead.custom_fields || {},
       });
     } catch (error) {
-      console.error('Erro ao carregar lead:', error);
+      // console.error('Erro ao carregar lead:', error);
       setError('Erro ao carregar lead');
     } finally {
       setLoadingLead(false);
