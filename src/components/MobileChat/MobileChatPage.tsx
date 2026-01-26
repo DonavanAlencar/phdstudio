@@ -56,8 +56,9 @@ const MobileChatPage: React.FC = () => {
     const checkAuth = () => {
       const authStatus = localStorage.getItem('isAuthenticated');
       const username = localStorage.getItem('username');
+      const userRole = localStorage.getItem('userRole');
       
-      if (authStatus === 'true' && (username === 'vexin' || username === 'phdstudioadmin')) {
+      if (authStatus === 'true' && (userRole === 'client' || userRole === 'admin' || username === 'vexin' || username === 'phdstudioadmin')) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
@@ -510,4 +511,3 @@ const MobileChatPage: React.FC = () => {
 };
 
 export default MobileChatPage;
-

@@ -17,7 +17,7 @@ if (-not $ConfigPath) {
 }
 
 if (-not $MigrationsPath) {
-    $MigrationsPath = Join-Path $RepoRoot "api/db/migrations"
+    $MigrationsPath = Join-Path $RepoRoot "backend/db/migrations"
 }
 
 function Write-Log {

@@ -10,8 +10,11 @@ import { body, param, query, validationResult } from 'express-validator';
 export function validateRequest(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('❌ [VALIDATION] Erros de validação:', JSON.stringify(errors.array(), null, 2));
     return res.status(400).json({
+      success: false,
       error: 'Dados inválidos',
+      message: 'Verifique os campos enviados',
       errors: errors.array()
     });
   }
@@ -424,6 +427,19 @@ export const validateId = [
     .withMessage('ID deve ser um número válido'),
   validateRequest
 ];
+
+/**
+ * Validação de ID numérico para nomes de parâmetro customizados
+ */
+export const buildValidateId = (paramName = 'id') => [
+  param(paramName)
+    .isInt({ min: 1 })
+    .withMessage(`${paramName} deve ser um número válido`),
+  validateRequest
+];
+
+export const validateClientId = buildValidateId('clientId');
+export const validateUserIdParam = buildValidateId('userId');
 
 /**
  * Validações para query params de listagem

@@ -10,6 +10,12 @@ import {
   sanitizeText
 } from '../../utils/mobileChatUtils';
 
+type WebhookConfig = {
+  webhookUrl: string;
+  authToken?: string;
+  usingEnvVars: boolean;
+};
+
 // Função para gerar ou obter ID de sessão do browser (reutilizada do ChatWidget)
 const getSessionId = (): string => {
   const STORAGE_KEY = 'phdstudio_chat_session_id';
@@ -37,16 +43,59 @@ const fixMixedContent = (url: string): { url: string; hasMixedContent: boolean }
   return { url, hasMixedContent: false };
 };
 
-// Obter configurações de variáveis de ambiente ou usar padrões (reutilizada do ChatWidget)
-const getWebhookConfig = () => {
+// Obter configuração padrão de webhook
+const getDefaultWebhookConfig = (): WebhookConfig => {
   const envWebhookUrl = import.meta.env.VITE_CHAT_WEBHOOK_URL;
   const envAuthToken = import.meta.env.VITE_CHAT_AUTH_TOKEN;
   
   return {
     webhookUrl: envWebhookUrl || 'https://n8n.546digitalservices.com/webhook/32f58b69-ef50-467f-b884-50e72a5eefa2',
-    authToken: envAuthToken || 'T!Hm9Y1Sc#0!F2ZxVZvvS2@#UQ5bqqQKly',
+    authToken: envAuthToken,
     usingEnvVars: !!(envWebhookUrl || envAuthToken)
   };
+};
+
+// Buscar configuração específica do cliente
+const fetchClientMobilechatConfig = async (): Promise<{ webhookUrl: string; authToken?: string } | null> => {
+  try {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return null;
+
+    const response = await fetch('/api/crm/v1/client-mobilechat/my-config', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        webhookUrl: data.data.n8n_webhook_url,
+        authToken: data.data.n8n_auth_token
+      };
+    }
+  } catch (error) {
+    console.error('Erro ao buscar configuração:', error);
+  }
+  return null;
+};
+
+// Obter configurações considerando role do usuário
+const getWebhookConfig = async (): Promise<WebhookConfig> => {
+  const userRole = localStorage.getItem('userRole');
+  
+  if (userRole === 'client') {
+    const clientConfig = await fetchClientMobilechatConfig();
+    if (clientConfig) {
+      return {
+        ...clientConfig,
+        usingEnvVars: false
+      };
+    }
+  }
+  
+  return getDefaultWebhookConfig();
 };
 
 interface MobileChatInterfaceProps {
@@ -56,8 +105,9 @@ interface MobileChatInterfaceProps {
 const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) => {
   // Na página mobile dedicada, não há necessidade de botão de fechar
   const isMobilePage = window.location.pathname === '/mobilechat';
-  const config = getWebhookConfig();
-  const { url: safeWebhookUrl, hasMixedContent } = fixMixedContent(config.webhookUrl);
+  const [webhookConfig, setWebhookConfig] = useState<WebhookConfig>(getDefaultWebhookConfig());
+  const [hasClientConfig, setHasClientConfig] = useState<boolean | null>(null); // null = ainda verificando
+  const { url: safeWebhookUrl, hasMixedContent } = fixMixedContent(webhookConfig.webhookUrl);
   const sessionId = getSessionId();
 
   const [messages, setMessages] = useState<Message[]>([
@@ -74,6 +124,33 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadConfig = async () => {
+      const userRole = localStorage.getItem('userRole');
+      const config = await getWebhookConfig();
+      
+      if (isMounted) {
+        setWebhookConfig(config);
+        
+        // Verificar se usuário cliente tem configuração válida
+        if (userRole === 'client') {
+          const clientConfig = await fetchClientMobilechatConfig();
+          setHasClientConfig(clientConfig !== null && !!clientConfig.webhookUrl);
+        } else {
+          setHasClientConfig(true); // Admin/outros roles podem usar config padrão
+        }
+      }
+    };
+
+    loadConfig();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Scroll automático para a última mensagem
   useEffect(() => {
@@ -149,6 +226,46 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
       return;
     }
 
+    // Verificar se usuário cliente tem configuração válida
+    const userRole = localStorage.getItem('userRole');
+    if (userRole === 'client') {
+      if (hasClientConfig === null) {
+        // Ainda verificando configuração
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: '⏳ Verificando configuração... Aguarde um momento.',
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
+      
+      if (hasClientConfig === false) {
+        // Cliente sem configuração
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: '⚠️ Configuração de chat não encontrada. Entre em contato com o administrador para configurar o webhook.',
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
+      
+      // Validar se a URL do webhook está presente
+      if (!webhookConfig.webhookUrl || !safeWebhookUrl) {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: '⚠️ URL do webhook não configurada. Entre em contato com o administrador.',
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
+    }
+
     // Verificar rate limiting
     if (!checkRateLimit()) {
       const timeRemaining = getRateLimitTimeRemaining();
@@ -183,14 +300,19 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
     setIsLoading(true);
 
     try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      if (webhookConfig.authToken) {
+        headers['Authentication'] = webhookConfig.authToken;
+      }
+
       const response = await fetchWithTimeout(
         safeWebhookUrl,
         {
           method: 'POST',
-          headers: {
-            'Authentication': config.authToken,
-            'Content-Type': 'application/json',
-          },
+          headers,
           body: JSON.stringify({
             input_text: sanitizedInput,
             session_id: sessionId
@@ -483,4 +605,3 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
 };
 
 export default MobileChatInterface;
-

@@ -59,11 +59,38 @@ export default function Login() {
     setError('');
     setLoading(true);
 
+    // Validação básica no frontend
+    if (!email || !email.includes('@')) {
+      setError('Por favor, informe um email válido.');
+      setLoading(false);
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      setError('A senha deve ter no mínimo 6 caracteres.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      await login(email, password);
+      await login(email.trim().toLowerCase(), password);
       navigate('/admin/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.');
+      console.error('Erro no login:', err);
+      // Tratar erros de validação especificamente
+      if (err.response?.status === 400) {
+        const errors = err.response?.data?.errors || [];
+        if (errors.length > 0) {
+          const errorMessages = errors.map((e: any) => e.msg).join(', ');
+          setError(errorMessages || 'Dados inválidos. Verifique email e senha.');
+        } else {
+          setError(err.response?.data?.message || 'Dados inválidos. Verifique email e senha.');
+        }
+      } else if (err.response?.status === 401) {
+        setError('Email ou senha incorretos.');
+      } else {
+        setError(err.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.');
+      }
     } finally {
       setLoading(false);
     }
@@ -81,6 +108,9 @@ export default function Login() {
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">PHD Studio CRM</h1>
             <p className="text-gray-400">Faça login para acessar o painel administrativo</p>
+            <p className="text-xs text-gray-500 mt-2">
+              Use seu email cadastrado (ex: admin@phdstudio.com.br)
+            </p>
           </div>
 
           {/* Formulário */}
@@ -106,7 +136,7 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent"
-                  placeholder="seu@email.com"
+                  placeholder="admin@phdstudio.com.br"
                 />
               </div>
             </div>

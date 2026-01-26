@@ -114,23 +114,75 @@ router.post('/login', validateLogin, async (req, res) => {
       passwordHex: req.body.password ? Buffer.from(req.body.password).toString('hex') : 'null'
     }));
     
+    // IMPORTANTE: req.body.email já foi normalizado pelo express-validator (normalizeEmail)
+    // O normalizeEmail() do validator REMOVE pontos do Gmail, então marcelo.narita23@gmail.com vira marcelonarita23@gmail.com
+    // Precisamos usar esse email normalizado para buscar no banco
     const { email, password } = req.body;
+    console.log(`🔍 [LOGIN] [${requestId}] Email após normalização do validator: ${email}`);
 
     if (!email || !password) {
       console.log(`❌ [LOGIN] [${requestId}] Email ou senha não fornecidos`);
       return res.status(400).json({
+        success: false,
         error: 'Dados inválidos',
         message: 'Email e senha são obrigatórios'
       });
     }
 
     // Buscar usuário
-    console.log(`🔍 [LOGIN] [${requestId}] Buscando usuário no banco: ${email}`);
+    // IMPORTANTE: req.body.email já foi normalizado pelo express-validator (normalizeEmail)
+    // O normalizeEmail() REMOVE pontos do Gmail, então marcelo.narita23@gmail.com vira marcelonarita23@gmail.com
+    // O email já está sem pontos quando chega aqui, então precisamos buscar no banco usando busca flexível
+    const normalizedEmail = email.toLowerCase().trim();
+    const emailParts = normalizedEmail.split('@');
+    
+    console.log(`🔍 [LOGIN] [${requestId}] Email normalizado recebido: ${normalizedEmail}`);
+    console.log(`🔍 [LOGIN] [${requestId}] Email parts: localPart="${emailParts[0]}", domain="${emailParts[1]}"`);
+    
     const queryStart = Date.now();
-    const userResult = await queryCRM(
-      'SELECT * FROM users WHERE email = $1',
-      [email]
-    );
+    let userResult = { rows: [] }; // Inicializar com estrutura vazia
+    
+    // Se for Gmail, fazer busca flexível diretamente (pois o email já está sem pontos do normalizeEmail)
+    if (emailParts.length === 2 && (emailParts[1] === 'gmail.com' || emailParts[1] === 'googlemail.com')) {
+      const localPartWithoutDots = emailParts[0]; // Já está sem pontos devido ao normalizeEmail
+      console.log(`🔍 [LOGIN] [${requestId}] Buscando Gmail com busca flexível - localPart: "${localPartWithoutDots}", domain: "${emailParts[1]}"`);
+      
+      try {
+        // Buscar por email onde o local part sem pontos corresponde (Gmail ignora pontos)
+        // IMPORTANTE: No PostgreSQL, REGEXP_REPLACE precisa de escape duplo no JavaScript
+        // '\.' no SQL precisa ser '\\\\.' no JavaScript template string
+        userResult = await queryCRM(
+          `SELECT * FROM users 
+           WHERE LOWER(REGEXP_REPLACE(SPLIT_PART(LOWER(TRIM(email)), '@', 1), E'\\\\.', '', 'g')) = $1 
+           AND LOWER(SPLIT_PART(LOWER(TRIM(email)), '@', 2)) = $2`,
+          [localPartWithoutDots, emailParts[1].toLowerCase()]
+        );
+        
+        console.log(`🔍 [LOGIN] [${requestId}] Resultado da busca flexível Gmail: ${userResult.rows.length} usuário(s) encontrado(s)`);
+        
+        if (userResult.rows.length > 0) {
+          console.log(`✅ [LOGIN] [${requestId}] Usuário encontrado via busca flexível (Gmail): ${userResult.rows[0].email}`);
+        } else {
+          console.log(`❌ [LOGIN] [${requestId}] Nenhum usuário encontrado na busca flexível Gmail`);
+        }
+      } catch (error) {
+        console.error(`❌ [LOGIN] [${requestId}] Erro na busca flexível Gmail:`, error.message);
+        userResult = { rows: [] };
+      }
+    } else {
+      // Para emails não-Gmail, buscar por email exato
+      console.log(`🔍 [LOGIN] [${requestId}] Buscando usuário por email exato: ${normalizedEmail}`);
+      try {
+        userResult = await queryCRM(
+          'SELECT * FROM users WHERE LOWER(TRIM(email)) = $1',
+          [normalizedEmail]
+        );
+      } catch (error) {
+        console.error(`❌ [LOGIN] [${requestId}] Erro na busca por email exato:`, error.message);
+        userResult = { rows: [] };
+      }
+    }
+    
     console.log(`✅ [LOGIN] [${requestId}] Query usuário concluída em ${Date.now() - queryStart}ms`);
 
     if (userResult.rows.length === 0) {
@@ -184,20 +236,26 @@ router.post('/login', validateLogin, async (req, res) => {
     // Salvar sessão no banco
     console.log(`💾 [LOGIN] [${requestId}] Salvando sessão no banco...`);
     const sessionStart = Date.now();
-    await queryCRM(
-      `INSERT INTO sessions (user_id, token, refresh_token, expires_at, refresh_expires_at, ip_address, user_agent)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [
-        user.id,
-        accessToken,
-        refreshToken,
-        expiresAt,
-        refreshExpiresAt,
-        req.ip || req.connection.remoteAddress,
-        req.get('user-agent')
-      ]
-    );
-    console.log(`✅ [LOGIN] [${requestId}] Sessão salva em ${Date.now() - sessionStart}ms`);
+    try {
+      await queryCRM(
+        `INSERT INTO sessions (user_id, token, refresh_token, expires_at, refresh_expires_at, ip_address, user_agent)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          user.id,
+          accessToken,
+          refreshToken,
+          expiresAt,
+          refreshExpiresAt,
+          req.ip || req.connection.remoteAddress,
+          req.get('user-agent')
+        ]
+      );
+      console.log(`✅ [LOGIN] [${requestId}] Sessão salva em ${Date.now() - sessionStart}ms`);
+    } catch (sessionError) {
+      console.error(`❌ [LOGIN] [${requestId}] Erro ao salvar sessão:`, sessionError);
+      // Continuar mesmo se houver erro ao salvar sessão (para não bloquear o login)
+      // Mas logar o erro para debug
+    }
 
     // Atualizar último login
     console.log(`🔄 [LOGIN] [${requestId}] Atualizando último login...`);

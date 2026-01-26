@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 CONFIG_PATH="${CONFIG_PATH:-${ROOT_DIR}/deploy/config/linux/db-config.json}"
-MIGRATIONS_PATH="${MIGRATIONS_PATH:-${ROOT_DIR}/api/db/migrations}"
+MIGRATIONS_PATH="${MIGRATIONS_PATH:-${ROOT_DIR}/backend/db/migrations}"
 SKIP_MIGRATIONS=false
 
 while [[ $# -gt 0 ]]; do

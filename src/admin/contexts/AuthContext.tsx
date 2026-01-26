@@ -87,14 +87,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response: AuthResponse = await api.login(email, password);
-    const { user: userData, accessToken, refreshToken } = response.data;
+    try {
+      console.log('🔐 [AUTH] Tentando fazer login para:', email);
+      const response: AuthResponse = await api.login(email, password);
+      console.log('✅ [AUTH] Login bem-sucedido:', response);
+      
+      // A resposta tem estrutura { success, message, data: { user, accessToken, refreshToken, expiresAt } }
+      const { user: userData, accessToken, refreshToken } = response.data;
+      console.log('💾 [AUTH] Salvando tokens no localStorage');
+      console.log('   Token length:', accessToken?.length);
 
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('user', JSON.stringify(userData));
 
-    setUser(userData);
+      setUser(userData);
+      console.log('✅ [AUTH] Login concluído com sucesso');
+    } catch (error: any) {
+      console.error('❌ [AUTH] Erro no login:', error);
+      console.error('   Response:', error.response?.data);
+      console.error('   Status:', error.response?.status);
+      throw error;
+    }
   };
 
   const logout = async () => {

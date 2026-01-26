@@ -41,7 +41,8 @@ export default function AdminLayout() {
   const handleLogout = async () => {
     if (confirm('Deseja realmente sair?')) {
       await logout();
-      window.location.href = '/admin/login';
+      // Admin CRM removido - não redirecionar
+      console.error('Logout realizado');
     }
   };
 

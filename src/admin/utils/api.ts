@@ -43,6 +43,9 @@ class ApiClient {
         const token = localStorage.getItem('accessToken');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          console.log('🔐 [API] Token adicionado ao header:', token.substring(0, 20) + '...');
+        } else {
+          console.warn('⚠️ [API] Nenhum token encontrado no localStorage');
         }
         return config;
       },
@@ -79,7 +82,8 @@ class ApiClient {
               localStorage.removeItem('accessToken');
               localStorage.removeItem('refreshToken');
               localStorage.removeItem('user');
-              window.location.href = '/admin/login';
+              // Admin CRM removido - não redirecionar
+              console.error('Sessão expirada');
               return Promise.reject(new Error('Sessão expirada. Por favor, faça login novamente.'));
             }
 
@@ -98,7 +102,8 @@ class ApiClient {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('user');
-            window.location.href = '/admin/login';
+            // Admin CRM removido - não redirecionar
+            console.error('Sessão expirada');
             return Promise.reject(new Error('Sessão expirada. Por favor, faça login novamente.'));
           }
         }
@@ -110,11 +115,21 @@ class ApiClient {
 
   // Auth
   async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await this.client.post('/api/crm/v1/auth/login', {
-      email,
-      password,
-    });
-    return response.data;
+    console.log('📡 [API] Fazendo requisição de login para:', this.client.defaults.baseURL + '/api/crm/v1/auth/login');
+    try {
+      const response = await this.client.post('/api/crm/v1/auth/login', {
+        email,
+        password,
+      });
+      console.log('✅ [API] Resposta do login recebida:', response.status);
+      console.log('   Data:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ [API] Erro na requisição de login:', error.message);
+      console.error('   Response data:', error.response?.data);
+      console.error('   Status:', error.response?.status);
+      throw error;
+    }
   }
 
   async logout(): Promise<void> {
@@ -310,6 +325,35 @@ class ApiClient {
   async getMyStats(): Promise<MyStats> {
     const response = await this.client.get('/api/crm/v1/dashboard/my-stats');
     return response.data.data;
+  }
+
+  // Clients
+  async getClients(): Promise<any[]> {
+    console.log('📡 [API] Buscando clientes...');
+    console.log('   Base URL:', this.client.defaults.baseURL);
+    const token = localStorage.getItem('accessToken');
+    console.log('   Token no localStorage:', token ? `Sim (${token.length} chars)` : 'Não');
+    const response = await this.client.get('/api/crm/v1/clients');
+    return response.data.data || [];
+  }
+
+  async getClient(id: number): Promise<any> {
+    const response = await this.client.get(`/api/crm/v1/clients/${id}`);
+    return response.data.data;
+  }
+
+  async createClient(data: Partial<any>): Promise<any> {
+    const response = await this.client.post('/api/crm/v1/clients', data);
+    return response.data.data;
+  }
+
+  async updateClient(id: number, data: Partial<any>): Promise<any> {
+    const response = await this.client.put(`/api/crm/v1/clients/${id}`, data);
+    return response.data.data;
+  }
+
+  async deleteClient(id: number): Promise<void> {
+    await this.client.delete(`/api/crm/v1/clients/${id}`);
   }
 }
 

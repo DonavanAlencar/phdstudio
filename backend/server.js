@@ -40,6 +40,9 @@ import profileRoutes from './routes/profile.js';
 import workflowsRoutes from './routes/workflows.js';
 import botRoutes from './routes/bot.js';
 import instagramRoutes from './routes/instagram.js';
+import clientsRoutes from './routes/clients.js';
+import clientMobilechatRoutes from './routes/clientMobilechat.js';
+import usersRoutes from './routes/users.js';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -444,6 +447,12 @@ app.use('/api/crm/v1/workflows', workflowsRoutes);
 app.use('/crm/v1/workflows', workflowsRoutes);
 app.use('/api/crm/v1/bot', botRoutes);
 app.use('/crm/v1/bot', botRoutes);
+app.use('/api/crm/v1/clients', clientsRoutes);
+app.use('/crm/v1/clients', clientsRoutes);
+app.use('/api/crm/v1/client-mobilechat', clientMobilechatRoutes);
+app.use('/crm/v1/client-mobilechat', clientMobilechatRoutes);
+app.use('/api/crm/v1/users', usersRoutes);
+app.use('/crm/v1/users', usersRoutes);
 
 // Swagger UI - DEPOIS das rotas CRM para evitar conflitos
 // IMPORTANTE: Deve estar antes do 404 handler

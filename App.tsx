@@ -11,9 +11,13 @@ import ChatDiagnostic from './src/components/ChatDiagnostic';
 import ProductsAdmin from './src/components/ProductsAdmin';
 import InstagramCarousel from './src/components/InstagramCarousel';
 import MobileChatPage from './src/components/MobileChat/MobileChatPage';
+import ClientArea from './src/components/ClientArea/ClientArea';
 import YouTubeCarousel from './src/components/YouTubeCarousel';
+import UsersManagement from './src/components/Logs/UsersManagement';
+import MobilechatConfigsManagement from './src/components/Logs/MobilechatConfigsManagement';
+import ClientsManagement from './src/components/Logs/ClientsManagement';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
-import AdminRoutes from './src/admin/routes';
+// Admin CRM removido - foi transportado para outro lugar
 import {
   LineChart,
   Line,
@@ -318,7 +322,8 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
 interface AuthContextType {
   isAuthenticated: boolean;
   username: string | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  userRole: string | null;
+  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -339,60 +344,119 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [username, setUsername] = useState<string | null>(() => {
     return localStorage.getItem('username');
   });
+  const [userRole, setUserRole] = useState<string | null>(() => {
+    return localStorage.getItem('userRole');
+  });
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     const location = window.location.pathname;
 
-    // Validação admin
-    if (username === 'phdstudioadmin' && password === 'phd@studio!@admin') {
-      setIsAuthenticated(true);
-      setUsername('phdstudioadmin');
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('username', 'phdstudioadmin');
-      localStorage.setItem('userRole', 'admin');
-
-      // Registrar login bem-sucedido com IP e dados
-      logLogin(username, true, location).catch(() => {
-        // Silenciar erros de logging
+    try {
+      // Usar URL completa para garantir que vai para a API correta
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const normalizedApiUrl = apiUrl.replace(/\/api\/?$/, '');
+      const response = await fetch(`${normalizedApiUrl}/api/crm/v1/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: username,
+          password: password,
+        }),
       });
 
+      if (response.ok) {
+        const data = await response.json();
+        const user = data.data.user;
+
+        // Salvar tokens no localStorage
+        localStorage.setItem('accessToken', data.data.accessToken);
+        localStorage.setItem('refreshToken', data.data.refreshToken);
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('username', user.email);
+        localStorage.setItem('userRole', user.role);
+        localStorage.setItem('userId', user.id.toString());
+
+        // Log para debug
+        console.log('✅ [LOGIN] Token salvo no localStorage:', {
+          hasAccessToken: !!data.data.accessToken,
+          tokenLength: data.data.accessToken?.length,
+          hasRefreshToken: !!data.data.refreshToken
+        });
+
+        setIsAuthenticated(true);
+        setUsername(user.email);
+        setUserRole(user.role);
+
+        logLogin(username, true, location).catch(() => {
+          // Silenciar erros de logging
+        });
+
+        return { success: true };
+      } else {
+        // Log do erro de login
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ [LOGIN] Erro no login:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        return { 
+          success: false, 
+          error: errorData.message || errorData.error || 'Erro ao fazer login' 
+        };
+      }
+    } catch (error: any) {
+      console.error('Erro no login:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Erro ao conectar com o servidor' 
+      };
+    }
+
+    // Fallback para login local (manter compatibilidade)
+    if (username === 'phdstudioadmin' && password === 'phdstudio2024!') {
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('username', username);
+      localStorage.setItem('userRole', 'admin');
+      setIsAuthenticated(true);
+      setUsername(username);
+      setUserRole('admin');
+      logLogin(username, true, location).catch(() => {});
       return true;
     }
 
-    // Validação usuário vexin (mantido para compatibilidade)
     if (username === 'vexin' && password === '@v3xiN!') {
-      setIsAuthenticated(true);
-      setUsername('vexin');
       localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('username', 'vexin');
+      localStorage.setItem('username', username);
       localStorage.setItem('userRole', 'client');
-
-      // Registrar login bem-sucedido com IP e dados
-      logLogin(username, true, location).catch(() => {
-        // Silenciar erros de logging
-      });
-
+      setIsAuthenticated(true);
+      setUsername(username);
+      setUserRole('client');
+      logLogin(username, true, location).catch(() => {});
       return true;
     }
 
     // Registrar tentativa de login falhada
-    logLogin(username, false, location).catch(() => {
-      // Silenciar erros de logging
-    });
-
+    logLogin(username, false, location).catch(() => {});
     return false;
   };
 
   const logout = () => {
     setIsAuthenticated(false);
     setUsername(null);
+    setUserRole(null);
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('username');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userId');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, username, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, username, userRole, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -459,10 +523,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 // Protected Admin Route Component
 const ProtectedAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, username } = useAuth();
+  const { isAuthenticated, userRole } = useAuth();
   const location = useLocation();
 
-  if (!isAuthenticated || username !== 'phdstudioadmin') {
+  if (!isAuthenticated || userRole !== 'admin') {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
@@ -540,7 +604,7 @@ const SectionTitle = ({ title, subtitle, centered = false }: { title: string, su
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { isAuthenticated, username, logout } = useAuth();
+  const { isAuthenticated, username, userRole, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -562,7 +626,7 @@ const Navbar = () => {
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-6'}`}>
       <div className="container mx-auto px-4 flex justify-between items-center relative">
         {/* Botão Área do Cliente / Sair - Lado Esquerdo */}
-        {isAuthenticated && username === 'vexin' ? (
+        {isAuthenticated ? (
           <button
             onClick={logout}
             className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
@@ -593,7 +657,7 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
-          {isAuthenticated && username === 'vexin' ? (
+          {isAuthenticated && userRole === 'client' && username === 'vexin' ? (
             <>
               <Link to="/funil_vexin" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Funil
@@ -602,7 +666,7 @@ const Navbar = () => {
                 Projeção
               </Link>
             </>
-          ) : isAuthenticated && username === 'phdstudioadmin' ? (
+          ) : isAuthenticated && userRole === 'admin' ? (
             <>
               <Link to="/produtos" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Produtos
@@ -648,7 +712,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         <div className={`fixed inset-0 bg-black z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-          {isAuthenticated && username === 'vexin' ? (
+          {isAuthenticated && userRole === 'client' && username === 'vexin' ? (
             <>
               <Link
                 to="/funil_vexin"
@@ -675,7 +739,7 @@ const Navbar = () => {
                 Sair
               </button>
             </>
-          ) : isAuthenticated && username === 'phdstudioadmin' ? (
+          ) : isAuthenticated && userRole === 'admin' ? (
             <>
               <Link
                 to="/produtos"
@@ -704,14 +768,27 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link
-                to="/login"
-                onClick={() => setIsOpen(false)}
-                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
-              >
-                <Lock size={20} />
-                Área do Cliente
-              </Link>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    logout();
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
+                >
+                  <X size={20} />
+                  Sair
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
+                >
+                  <Lock size={20} />
+                  Área do Cliente
+                </Link>
+              )}
 
               {navLinks.map((link) =>
                 link.external ? (
@@ -1731,21 +1808,22 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
 
-    const success = await login(username, password);
+    const result = await login(username, password);
 
-    if (success) {
-      // Se usuário for admin, redirecionar para logs
-      if (username === 'phdstudioadmin') {
+    if (result.success) {
+      const userRole = localStorage.getItem('userRole');
+      
+      if (userRole === 'admin') {
         navigate('/logs', { replace: true });
-      }
-      // Se usuário for vexin, redirecionar para funil_vexin
-      else if (username === 'vexin') {
+      } else if (userRole === 'client') {
+        navigate('/mobilechat', { replace: true });
+      } else if (username === 'vexin') {
         navigate('/funil_vexin', { replace: true });
       } else {
         navigate(from || '/', { replace: true });
       }
     } else {
-      setError('Usuário ou senha incorretos');
+      setError(result.error || 'Usuário ou senha incorretos');
     }
   };
 
@@ -2896,7 +2974,7 @@ const detectSuspiciousLogins = (loginLogs: LoginLog[]): LoginLog[] => {
 
 // --- Logs Page (Melhorada) ---
 const LogsPage = () => {
-  const [activeTab, setActiveTab] = useState<'access' | 'login' | 'dashboard'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'access' | 'login' | 'dashboard' | 'users' | 'mobilechat-configs' | 'clients'>('dashboard');
   const [accessLogs, setAccessLogs] = useState<any[]>([]);
   const [loginLogs, setLoginLogs] = useState<LoginLog[]>([]);
   const [filteredAccessLogs, setFilteredAccessLogs] = useState<any[]>([]);
@@ -3105,33 +3183,60 @@ const LogsPage = () => {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-6 border-b border-white/10">
+        <div className="flex space-x-2 mb-6 border-b border-white/10">
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'dashboard'
-              ? 'text-brand-red border-b-2 border-brand-red'
+              ? 'border-b-2 border-brand-red text-brand-red'
               : 'text-gray-400 hover:text-white'
-              }`}
+            }`}
           >
             Dashboard
           </button>
           <button
             onClick={() => setActiveTab('access')}
             className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'access'
-              ? 'text-brand-red border-b-2 border-brand-red'
+              ? 'border-b-2 border-brand-red text-brand-red'
               : 'text-gray-400 hover:text-white'
-              }`}
+            }`}
           >
             Logs de Acesso ({accessLogs.length})
           </button>
           <button
             onClick={() => setActiveTab('login')}
             className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'login'
-              ? 'text-brand-red border-b-2 border-brand-red'
+              ? 'border-b-2 border-brand-red text-brand-red'
               : 'text-gray-400 hover:text-white'
-              }`}
+            }`}
           >
             Logs de Login ({loginLogs.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('clients')}
+            className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'clients'
+              ? 'border-b-2 border-brand-red text-brand-red'
+              : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Clientes
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'users'
+              ? 'border-b-2 border-brand-red text-brand-red'
+              : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Usuários
+          </button>
+          <button
+            onClick={() => setActiveTab('mobilechat-configs')}
+            className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'mobilechat-configs'
+              ? 'border-b-2 border-brand-red text-brand-red'
+              : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Config. Mobilechat
           </button>
         </div>
 
@@ -3247,6 +3352,10 @@ const LogsPage = () => {
             </div>
           </div>
         )}
+
+        {activeTab === 'users' && <UsersManagement />}
+        {activeTab === 'mobilechat-configs' && <MobilechatConfigsManagement />}
+        {activeTab === 'clients' && <ClientsManagement />}
 
         {/* Access Logs */}
         {activeTab === 'access' && (
@@ -3371,7 +3480,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/mobilechat"
-                element={<MobileChatPage />}
+                element={<ClientArea />}
               />
               {/* Fallback para typo comum - redirecionar para rota correta */}
               <Route
@@ -3437,8 +3546,7 @@ function App() {
                   </ProtectedAdminRoute>
                 }
               />
-              {/* Rotas do Admin CRM */}
-              <Route path="/admin/*" element={<AdminRoutes />} />
+              {/* Rotas do Admin CRM removidas - foi transportado para outro lugar */}
             </Routes>
           </div>
         </BrowserRouter>

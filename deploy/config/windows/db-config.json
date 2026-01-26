@@ -9,5 +9,5 @@
   "adminPassword": "",
   "schema": "public",
   "ssl": false,
-  "migrationDir": "api/db/migrations"
+  "migrationDir": "backend/db/migrations"
 }
