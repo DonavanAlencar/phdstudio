@@ -89,26 +89,53 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     return null;
   }
 
-  // Verificar visibilidade do chat via localStorage (controlado pelo admin)
-  const [isChatVisible, setIsChatVisible] = useState(() => {
-    const stored = localStorage.getItem('phdstudio_chat_visible');
-    return stored !== null ? stored === 'true' : true; // Default: visível
-  });
+  // Verificar visibilidade do chat via API (controlado pelo admin globalmente)
+  const [isChatVisible, setIsChatVisible] = useState(true); // Default: visível
 
-  // Escutar mudanças no localStorage (para atualizar quando admin mudar)
+  // Buscar configuração da API e verificar periodicamente
   useEffect(() => {
-    const handleStorageChange = () => {
-      const stored = localStorage.getItem('phdstudio_chat_visible');
-      setIsChatVisible(stored !== null ? stored === 'true' : true);
+    const fetchChatSettings = async () => {
+      try {
+        const response = await fetch('/api/crm/v1/chat-settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setIsChatVisible(data.data.enabled !== false);
+          }
+        }
+      } catch (error: any) {
+        // Ignorar erros de extensões do navegador
+        if (error?.message?.includes('runtime.lastError') || 
+            error?.message?.includes('Receiving end does not exist')) {
+          return; // Erro de extensão - ignorar
+        }
+        
+        // Em caso de erro, manter o valor atual ou usar fallback do localStorage
+        const stored = localStorage.getItem('phdstudio_chat_visible');
+        if (stored !== null) {
+          setIsChatVisible(stored === 'true');
+        }
+      }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    // Também verificar periodicamente (para mesma aba)
-    const interval = setInterval(handleStorageChange, 500);
+    // Buscar imediatamente
+    fetchChatSettings();
+
+    // Verificar periodicamente a cada 3 segundos
+    const interval = setInterval(fetchChatSettings, 3000);
+
+    // Escutar evento customizado quando admin alterar configuração
+    const handleChatSettingsUpdate = (event: CustomEvent) => {
+      if (event.detail?.enabled !== undefined) {
+        setIsChatVisible(event.detail.enabled);
+      }
+    };
+
+    window.addEventListener('chatSettingsUpdated', handleChatSettingsUpdate as EventListener);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
+      window.removeEventListener('chatSettingsUpdated', handleChatSettingsUpdate as EventListener);
     };
   }, []);
 

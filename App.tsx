@@ -300,15 +300,100 @@ const useChatVisibility = () => {
 };
 
 const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isChatVisible, setIsChatVisible] = useState(() => {
-    const stored = localStorage.getItem('phdstudio_chat_visible');
-    return stored !== null ? stored === 'true' : true; // Default: visível
-  });
+  const [isChatVisible, setIsChatVisible] = useState(true); // Default: visível
+  const [isLoading, setIsLoading] = useState(true);
 
-  const toggleChat = () => {
+  // Buscar configuração da API ao montar
+  useEffect(() => {
+    const fetchChatSettings = async () => {
+      try {
+        const response = await fetch('/api/crm/v1/chat-settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setIsChatVisible(data.data.enabled !== false);
+          }
+        }
+      } catch (error: any) {
+        // Ignorar erros de extensões do navegador
+        if (error?.message?.includes('runtime.lastError') || 
+            error?.message?.includes('Receiving end does not exist')) {
+          // Erro de extensão - ignorar silenciosamente
+          setIsLoading(false);
+          return;
+        }
+        
+        // Em caso de erro, manter o valor padrão (true)
+        console.warn('Erro ao buscar configuração do chat:', error?.message || error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchChatSettings();
+
+    // Verificar periodicamente a configuração (a cada 5 segundos)
+    const interval = setInterval(fetchChatSettings, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const toggleChat = async () => {
     const newValue = !isChatVisible;
+    const previousValue = isChatVisible;
+    
+    // Atualizar estado local imediatamente (otimistic update)
     setIsChatVisible(newValue);
+    
+    // Salvar no localStorage como fallback
     localStorage.setItem('phdstudio_chat_visible', String(newValue));
+
+    // Salvar na API (apenas se estiver autenticado como admin)
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        const response = await fetch('/api/crm/v1/chat-settings', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ enabled: newValue })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          // Se falhar, reverter para o valor anterior
+          console.warn('Erro ao salvar configuração do chat na API:', errorData.message || 'Erro desconhecido');
+          setIsChatVisible(previousValue);
+          localStorage.setItem('phdstudio_chat_visible', String(previousValue));
+        } else {
+          // Sucesso - atualizar todos os componentes que verificam a API
+          const data = await response.json();
+          if (data.success) {
+            // Disparar evento customizado para notificar outros componentes
+            window.dispatchEvent(new CustomEvent('chatSettingsUpdated', { 
+              detail: { enabled: newValue } 
+            }));
+          }
+        }
+      } else {
+        // Sem token - apenas usar localStorage
+        console.warn('Usuário não autenticado - usando apenas localStorage');
+      }
+    } catch (error: any) {
+      // Ignorar erros de extensões do navegador (runtime.lastError)
+      if (error?.message?.includes('runtime.lastError') || 
+          error?.message?.includes('Receiving end does not exist')) {
+        // Erro de extensão do navegador - ignorar
+        return;
+      }
+      
+      console.warn('Erro ao salvar configuração do chat:', error?.message || error);
+      // Reverter para o valor anterior em caso de erro
+      setIsChatVisible(previousValue);
+      localStorage.setItem('phdstudio_chat_visible', String(previousValue));
+    }
   };
 
   return (
@@ -3131,7 +3216,17 @@ const LogsPage = () => {
             </div>
             {/* Botão de Toggle do Chat */}
             <button
-              onClick={toggleChat}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleChat().catch((err) => {
+                  // Erro já tratado dentro de toggleChat
+                  if (!err?.message?.includes('runtime.lastError') && 
+                      !err?.message?.includes('Receiving end does not exist')) {
+                    console.warn('Erro ao alternar chat:', err);
+                  }
+                });
+              }}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${isChatVisible
                 ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
                 : 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'

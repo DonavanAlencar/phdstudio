@@ -70,6 +70,7 @@ MIGRATIONS=(
     "004_pipelines_deals_automation_integrations_files_profile.sql"
     "005_client_mobilechat_management.sql"
     "006_fix_sessions_token_length.sql"
+    "007_global_chat_settings.sql"
 )
 
 for migration in "${MIGRATIONS[@]}"; do
