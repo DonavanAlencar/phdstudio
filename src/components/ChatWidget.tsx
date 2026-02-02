@@ -94,13 +94,33 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
   // Buscar configuração da API e verificar periodicamente
   useEffect(() => {
+    let consecutiveErrors = 0;
+    let intervalId: NodeJS.Timeout;
+    
     const fetchChatSettings = async () => {
       try {
-        const response = await fetch('/api/crm/v1/chat-settings');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout de 5s
+        
+        const response = await fetch('/api/crm/v1/chat-settings', {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
             setIsChatVisible(data.data.enabled !== false);
+          }
+          consecutiveErrors = 0; // Reset contador de erros
+        } else if (response.status === 504 || response.status === 503) {
+          // Gateway timeout ou serviço indisponível
+          consecutiveErrors++;
+          if (consecutiveErrors >= 3) {
+            // Após 3 erros consecutivos, aumentar intervalo para 30s
+            clearInterval(intervalId);
+            intervalId = setInterval(fetchChatSettings, 30000);
           }
         }
       } catch (error: any) {
@@ -110,7 +130,18 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
           return; // Erro de extensão - ignorar
         }
         
+        // Ignorar erros de abort (timeout)
+        if (error?.name === 'AbortError') {
+          consecutiveErrors++;
+          if (consecutiveErrors >= 3) {
+            clearInterval(intervalId);
+            intervalId = setInterval(fetchChatSettings, 30000);
+          }
+          return;
+        }
+        
         // Em caso de erro, manter o valor atual ou usar fallback do localStorage
+        consecutiveErrors++;
         const stored = localStorage.getItem('phdstudio_chat_visible');
         if (stored !== null) {
           setIsChatVisible(stored === 'true');
@@ -118,25 +149,12 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
       }
     };
 
-    // Buscar imediatamente
     fetchChatSettings();
 
-    // Verificar periodicamente a cada 3 segundos
-    const interval = setInterval(fetchChatSettings, 3000);
+    // Verificar periodicamente a configuração (a cada 5 segundos inicialmente)
+    intervalId = setInterval(fetchChatSettings, 5000);
 
-    // Escutar evento customizado quando admin alterar configuração
-    const handleChatSettingsUpdate = (event: CustomEvent) => {
-      if (event.detail?.enabled !== undefined) {
-        setIsChatVisible(event.detail.enabled);
-      }
-    };
-
-    window.addEventListener('chatSettingsUpdated', handleChatSettingsUpdate as EventListener);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('chatSettingsUpdated', handleChatSettingsUpdate as EventListener);
-    };
+    return () => clearInterval(intervalId);
   }, []);
 
   // Se o chat estiver desabilitado, não renderizar nada
@@ -205,8 +223,11 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          input_text: userMessage.text,
-          session_id: sessionId
+          message: userMessage.text,   // Formato esperado pelo n8n
+          input_text: userMessage.text, // Compatibilidade
+          sessionId: sessionId,        // n8n espera sessionId (camelCase)
+          session_id: sessionId,       // Compatibilidade
+          user: sessionId              // Alguns workflows podem esperar 'user'
         }),
       });
 

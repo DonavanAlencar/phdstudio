@@ -305,13 +305,34 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Buscar configuração da API ao montar
   useEffect(() => {
+    let consecutiveErrors = 0;
+    let intervalId: NodeJS.Timeout;
+    
     const fetchChatSettings = async () => {
       try {
-        const response = await fetch('/api/crm/v1/chat-settings');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout de 5s
+        
+        const response = await fetch('/api/crm/v1/chat-settings', {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
             setIsChatVisible(data.data.enabled !== false);
+          }
+          consecutiveErrors = 0; // Reset contador de erros
+        } else if (response.status === 504 || response.status === 503) {
+          // Gateway timeout ou serviço indisponível - aumentar intervalo
+          consecutiveErrors++;
+          if (consecutiveErrors >= 3) {
+            // Após 3 erros consecutivos, aumentar intervalo para 30s
+            clearInterval(intervalId);
+            intervalId = setInterval(fetchChatSettings, 30000);
+            console.warn('[Chat] Backend indisponível, reduzindo frequência de verificação');
           }
         }
       } catch (error: any) {
@@ -323,8 +344,23 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
           return;
         }
         
+        // Ignorar erros de abort (timeout)
+        if (error?.name === 'AbortError') {
+          consecutiveErrors++;
+          if (consecutiveErrors >= 3) {
+            // Após 3 timeouts, aumentar intervalo
+            clearInterval(intervalId);
+            intervalId = setInterval(fetchChatSettings, 30000);
+            console.warn('[Chat] Timeout ao buscar configuração, reduzindo frequência');
+          }
+          return;
+        }
+        
         // Em caso de erro, manter o valor padrão (true)
-        console.warn('Erro ao buscar configuração do chat:', error?.message || error);
+        if (consecutiveErrors < 3) {
+          console.warn('[Chat] Erro ao buscar configuração:', error?.message || error);
+        }
+        consecutiveErrors++;
       } finally {
         setIsLoading(false);
       }
@@ -332,10 +368,10 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     fetchChatSettings();
 
-    // Verificar periodicamente a configuração (a cada 5 segundos)
-    const interval = setInterval(fetchChatSettings, 5000);
+    // Verificar periodicamente a configuração (a cada 5 segundos inicialmente)
+    intervalId = setInterval(fetchChatSettings, 5000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(intervalId);
   }, []);
 
   const toggleChat = async () => {

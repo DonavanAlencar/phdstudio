@@ -59,34 +59,122 @@ const getDefaultWebhookConfig = (): WebhookConfig => {
 const fetchClientMobilechatConfig = async (): Promise<{ webhookUrl: string; authToken?: string } | null> => {
   try {
     const token = localStorage.getItem('accessToken');
-    if (!token) return null;
-
-    const response = await fetch('/api/crm/v1/client-mobilechat/my-config', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    if (!token) {
+      if (import.meta.env.DEV) {
+        console.warn('[MobileChat] Token de acesso não encontrado');
       }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      return {
-        webhookUrl: data.data.n8n_webhook_url,
-        authToken: data.data.n8n_auth_token
-      };
+      return null;
     }
-  } catch (error) {
-    // console.error('Erro ao buscar configuração:', error);
+
+    // Adicionar timeout reduzido (5s) - backend responde rapidamente quando token é inválido
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos
+    
+    try {
+      const response = await fetch('/api/crm/v1/client-mobilechat/my-config', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        // Log sempre ativo para diagnóstico
+        console.log('[MobileChat] Configuração do cliente encontrada:', {
+          webhookUrl: data.data.n8n_webhook_url,
+          hasAuthToken: !!data.data.n8n_auth_token,
+          isActive: data.data.is_active
+        });
+        return {
+          webhookUrl: data.data.n8n_webhook_url,
+          authToken: data.data.n8n_auth_token
+        };
+      } else {
+        // Log detalhado do erro (sempre ativo)
+        const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
+        console.error('[MobileChat] Erro ao buscar configuração:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+          url: '/api/crm/v1/client-mobilechat/my-config'
+        });
+        
+        // Se for 401, token inválido/expirado - não tentar novamente
+        if (response.status === 401) {
+          console.warn('[MobileChat] Token inválido ou expirado - usando configuração padrão');
+          // Marcar cache como token inválido para evitar tentativas futuras
+          cachedClientConfig = 'invalid_token';
+          return null; // Retornar null para usar configuração padrão
+        }
+        
+        // Se for 404, o cliente não tem configuração (não é erro crítico)
+        if (response.status === 404) {
+          console.warn('[MobileChat] Cliente não possui configuração de mobilechat');
+        } else if (response.status === 504 || response.status === 503) {
+          console.error('[MobileChat] Gateway timeout - API pode estar sobrecarregada ou indisponível');
+        }
+      }
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      
+      // Log sempre ativo para diagnóstico
+      console.error('[MobileChat] Erro ao buscar configuração:', {
+        error: error?.message || error,
+        name: error?.name,
+        code: error?.code,
+        isTimeout: error?.name === 'AbortError',
+        url: '/api/crm/v1/client-mobilechat/my-config'
+      });
+      
+      // Se for timeout, avisar
+      if (error?.name === 'AbortError') {
+        console.error('[MobileChat] Timeout ao buscar configuração - API não respondeu em 5 segundos');
+      }
+    }
+    
+    return null;
+  } catch (error: any) {
+    // Erro no try externo (ex: problema ao acessar localStorage)
+    console.error('[MobileChat] Erro ao buscar configuração (erro externo):', error);
+    return null;
   }
-  return null;
 };
+
+// Cache simples para evitar múltiplas chamadas quando token é inválido
+let cachedClientConfig: { webhookUrl: string; authToken?: string } | null | 'invalid_token' = null;
 
 // Obter configurações considerando role do usuário
 const getWebhookConfig = async (): Promise<WebhookConfig> => {
   const userRole = localStorage.getItem('userRole');
   
   if (userRole === 'client') {
+    // Se já sabemos que o token é inválido, não tentar novamente
+    if (cachedClientConfig === 'invalid_token') {
+      return getDefaultWebhookConfig();
+    }
+    
+    // Se já temos cache válido, usar
+    if (cachedClientConfig !== null) {
+      return {
+        ...cachedClientConfig,
+        usingEnvVars: false
+      };
+    }
+    
     const clientConfig = await fetchClientMobilechatConfig();
+    
+    // Cachear resultado
+    if (clientConfig === null) {
+      // Marcar como token inválido para não tentar novamente
+      cachedClientConfig = 'invalid_token';
+    } else {
+      cachedClientConfig = clientConfig;
+    }
+    
     if (clientConfig) {
       return {
         ...clientConfig,
@@ -130,15 +218,37 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
 
     const loadConfig = async () => {
       const userRole = localStorage.getItem('userRole');
+      const token = localStorage.getItem('accessToken');
+      
+      // Log para diagnóstico
+      console.log('[MobileChat] Carregando configuração:', {
+        userRole,
+        hasToken: !!token,
+        timestamp: new Date().toISOString()
+      });
+      
       const config = await getWebhookConfig();
       
       if (isMounted) {
         setWebhookConfig(config);
         
         // Verificar se usuário cliente tem configuração válida
+        // Reutilizar o resultado já obtido em getWebhookConfig() para evitar chamada duplicada
         if (userRole === 'client') {
-          const clientConfig = await fetchClientMobilechatConfig();
-          setHasClientConfig(clientConfig !== null && !!clientConfig.webhookUrl);
+          // Usar cache já preenchido por getWebhookConfig()
+          const clientConfig = cachedClientConfig && cachedClientConfig !== 'invalid_token' 
+            ? cachedClientConfig 
+            : null;
+          
+          const hasConfig = clientConfig !== null && !!clientConfig?.webhookUrl;
+          console.log('[MobileChat] Configuração do cliente:', {
+            found: clientConfig !== null,
+            hasWebhookUrl: !!clientConfig?.webhookUrl,
+            webhookUrl: clientConfig?.webhookUrl,
+            hasAuthToken: !!clientConfig?.authToken,
+            tokenInvalid: cachedClientConfig === 'invalid_token'
+          });
+          setHasClientConfig(hasConfig);
         } else {
           setHasClientConfig(true); // Admin/outros roles podem usar config padrão
         }
@@ -257,12 +367,22 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
       if (!webhookConfig.webhookUrl || !safeWebhookUrl) {
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
-          text: '⚠️ URL do webhook não configurada. Entre em contato com o administrador.',
+          text: '⚠️ URL do webhook não configurada. Entre em contato com o administrador para configurar o webhook na tela de Logs.',
           sender: 'bot',
           timestamp: new Date()
         };
         setMessages(prev => [...prev, errorMessage]);
         return;
+      }
+
+      // Log da configuração carregada (apenas em desenvolvimento)
+      if (import.meta.env.DEV) {
+        console.log('[MobileChat] Configuração carregada:', {
+          webhookUrl: safeWebhookUrl,
+          hasAuthToken: !!webhookConfig.authToken,
+          usingEnvVars: webhookConfig.usingEnvVars,
+          hasClientConfig: hasClientConfig
+        });
       }
     }
 
@@ -304,48 +424,168 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
         'Content-Type': 'application/json',
       };
 
+      // n8n geralmente aceita Authorization ou Authentication
+      // Tentar Authorization primeiro (padrão HTTP), depois Authentication como fallback
       if (webhookConfig.authToken) {
-        headers['Authentication'] = webhookConfig.authToken;
+        // Se o token já começa com "Bearer ", usar como está
+        if (webhookConfig.authToken.startsWith('Bearer ')) {
+          headers['Authorization'] = webhookConfig.authToken;
+        } else {
+          // Caso contrário, tentar Authorization primeiro
+          headers['Authorization'] = `Bearer ${webhookConfig.authToken}`;
+          // Também enviar Authentication como fallback (alguns webhooks podem esperar isso)
+          headers['Authentication'] = webhookConfig.authToken;
+        }
       }
+
+      // n8n espera: message, user (ou sessionId)
+      // Enviar ambos os formatos para garantir compatibilidade
+      const payload = {
+        message: sanitizedInput,      // Formato esperado pelo n8n
+        input_text: sanitizedInput,   // Compatibilidade
+        sessionId: sessionId,         // n8n espera sessionId (camelCase)
+        session_id: sessionId,         // Compatibilidade
+        user: sessionId               // Alguns workflows podem esperar 'user'
+      };
+
+      // Log para diagnóstico (sempre ativo para debug)
+      console.log('[MobileChat] Enviando requisição:', {
+        url: safeWebhookUrl,
+        hasAuth: !!webhookConfig.authToken,
+        authTokenLength: webhookConfig.authToken?.length || 0,
+        payload,
+        headers: Object.keys(headers)
+      });
 
       const response = await fetchWithTimeout(
         safeWebhookUrl,
         {
           method: 'POST',
           headers,
-          body: JSON.stringify({
-            input_text: sanitizedInput,
-            session_id: sessionId
-          }),
+          body: JSON.stringify(payload),
         },
         15000, // 15 segundos de timeout (aumentado)
         2 // 2 retries (total de 3 tentativas)
       );
 
       if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        // Tentar obter mais detalhes do erro
+        let errorDetails = '';
+        try {
+          const errorData = await response.text();
+          errorDetails = errorData ? ` - ${errorData.substring(0, 200)}` : '';
+        } catch {
+          // Ignorar se não conseguir ler o erro
+        }
+        throw new Error(`Erro ${response.status}: ${response.statusText}${errorDetails}`);
       }
 
-      const responseData = await response.json();
+      let responseData;
+      let text = '';
+      
+      try {
+        text = await response.text();
+        console.log('[MobileChat] Texto bruto da resposta:', {
+          length: text.length,
+          isEmpty: !text.trim(),
+          preview: text.substring(0, 100)
+        });
+      } catch (textError) {
+        console.error('[MobileChat] Erro ao ler texto da resposta:', textError);
+        throw new Error('Não foi possível ler a resposta do servidor');
+      }
+      
+      // Tentar parsear como JSON
+      if (text.trim()) {
+        try {
+          responseData = JSON.parse(text);
+          console.log('[MobileChat] JSON parseado com sucesso:', responseData);
+        } catch (parseError) {
+          // Se não for JSON válido, usar o texto como resposta
+          console.log('[MobileChat] Não é JSON válido, usando texto direto:', text);
+          responseData = text;
+        }
+      } else {
+        // Resposta vazia - pode ser problema de CORS ou servidor não retornou nada
+        console.warn('[MobileChat] Resposta vazia recebida. Possíveis causas: CORS, servidor não retornou dados, ou resposta foi bloqueada.');
+        console.log('[MobileChat] Detalhes da resposta:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries()),
+          ok: response.ok,
+          type: response.type
+        });
+        
+        // Se for status 200 mas resposta vazia, pode ser CORS
+        if (response.status === 200 && response.ok) {
+          throw new Error('Resposta vazia do servidor (possível problema de CORS - o servidor precisa configurar headers CORS para permitir leitura da resposta)');
+        }
+        
+        throw new Error('Resposta vazia do servidor');
+      }
       
       // Se a resposta for um array, extrair o primeiro elemento
       const data = Array.isArray(responseData) ? responseData[0] : responseData;
       
-      // Extrair a resposta do bot
+      // Extrair a resposta do bot - n8n pode retornar em vários formatos
       let botResponseText = 'Desculpe, não consegui processar sua mensagem.';
       
-      if (data && data.output) {
-        botResponseText = data.output;
-      } else if (data && (data.response || data.message || data.text)) {
-        botResponseText = data.response || data.message || data.text;
-      } else if (typeof data === 'string') {
+      // Tratar diferentes tipos de resposta
+      if (typeof data === 'string') {
         botResponseText = data;
-      } else if (data && data.output_text) {
-        botResponseText = data.output_text;
+      } else if (typeof data === 'number') {
+        // Se for apenas um número, converter para string
+        botResponseText = String(data);
+      } else if (typeof data === 'boolean') {
+        // Se for booleano, converter para string
+        botResponseText = data ? 'Sim' : 'Não';
+      } else if (data && typeof data === 'object') {
+        // Tentar vários campos comuns do n8n
+        botResponseText = data.output || 
+                        data.response || 
+                        data.message || 
+                        data.text || 
+                        data.output_text ||
+                        data.data?.output ||
+                        data.data?.response ||
+                        data.data?.message ||
+                        // Se o objeto tiver apenas uma propriedade, usar o valor
+                        (Object.keys(data).length === 1 ? Object.values(data)[0] : null) ||
+                        // Se não encontrar, tentar stringify do objeto
+                        (JSON.stringify(data).length < 200 ? JSON.stringify(data) : botResponseText);
+      } else if (data !== null && data !== undefined) {
+        // Qualquer outro tipo, converter para string
+        botResponseText = String(data);
       }
+      
+      // Se ainda não encontrou resposta válida, usar o texto original
+      if (!botResponseText || botResponseText === 'Desculpe, não consegui processar sua mensagem.') {
+        // Tentar usar o responseData original como fallback
+        if (typeof responseData === 'string' || typeof responseData === 'number') {
+          botResponseText = String(responseData);
+        }
+      }
+      
+      // Log da resposta (sempre ativo para debug)
+      console.log('[MobileChat] Resposta recebida:', {
+        status: response.status,
+        statusText: response.statusText,
+        data: responseData,
+        dataType: typeof responseData,
+        extracted: botResponseText,
+        isArray: Array.isArray(responseData),
+        rawText: text.substring(0, 200) // Primeiros 200 caracteres do texto bruto
+      });
 
       // Sanitizar resposta do bot antes de exibir
       const sanitizedResponse = sanitizeText(botResponseText);
+      
+      // Log final antes de exibir
+      console.log('[MobileChat] Mensagem do bot preparada:', {
+        original: botResponseText,
+        sanitized: sanitizedResponse,
+        length: sanitizedResponse.length
+      });
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -364,14 +604,16 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
       const errorCode = error?.code?.toLowerCase() || '';
       
       // Log detalhado do erro para diagnóstico (apenas em desenvolvimento)
-      // if (process.env.NODE_ENV === 'development') {
-      //   console.error('[MobileChat] Erro detalhado:', {
-      //     message: error?.message,
-      //     name: error?.name,
-      //     code: error?.code,
-      //     stack: error?.stack?.substring(0, 200)
-      //   });
-      // }
+      if (import.meta.env.DEV) {
+        console.error('[MobileChat] Erro detalhado:', {
+          message: error?.message,
+          name: error?.name,
+          code: error?.code,
+          url: safeWebhookUrl,
+          hasAuth: !!webhookConfig.authToken,
+          stack: error?.stack?.substring(0, 200)
+        });
+      }
       
       // Detectar Mixed Content
       if (errorMessageStr.includes('mixed content') || 
@@ -384,9 +626,10 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
       else if (errorMessageStr.includes('cors') || 
                errorMessageStr.includes('cross-origin') ||
                errorMessageStr.includes('access-control') ||
+               errorMessageStr.includes('preflight') ||
                (errorNameStr === 'typeerror' && errorMessageStr.includes('fetch'))) {
         errorType = 'cors';
-        errorText = '⚠️ Erro de conexão: O servidor não permitiu a requisição. Isso pode ser um problema de configuração do servidor (CORS).';
+        errorText = '⚠️ Erro de conexão (CORS): O servidor n8n não está permitindo requisições do navegador. Verifique se o webhook do n8n está configurado para aceitar requisições do domínio phdstudio.com.br. O webhook precisa ter CORS habilitado.';
       } 
       // Detectar falha de rede ou timeout
       else if (errorMessageStr.includes('failed to fetch') || 
@@ -416,10 +659,30 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
         
         if (statusCode.startsWith('5')) {
           errorText = `⚠️ Erro do servidor (${statusCode}): O servidor está temporariamente indisponível. Por favor, tente novamente em alguns instantes.`;
+        } else if (statusCode === '401' || statusCode === '403') {
+          errorText = `⚠️ Erro de autenticação (${statusCode}): Verifique se sua configuração de webhook está correta na tela de Logs.`;
+        } else if (statusCode === '404') {
+          errorText = `⚠️ Webhook não encontrado (${statusCode}): Verifique se a URL do webhook está correta na configuração.`;
         } else {
           errorText = `⚠️ Erro do servidor (${statusCode}): ${error.message}. Por favor, tente novamente.`;
         }
       }
+      
+      // Log completo do erro para diagnóstico (sempre ativo)
+      console.error('[MobileChat] Erro completo:', {
+        errorType,
+        error: error?.message,
+        name: error?.name,
+        code: error?.code,
+        url: safeWebhookUrl,
+        hasAuth: !!webhookConfig.authToken,
+        webhookConfig: {
+          webhookUrl: webhookConfig.webhookUrl,
+          hasAuthToken: !!webhookConfig.authToken,
+          usingEnvVars: webhookConfig.usingEnvVars
+        },
+        stack: error?.stack?.substring(0, 500)
+      });
       
       const errorBotMessage: Message = {
         id: (Date.now() + 1).toString(),
