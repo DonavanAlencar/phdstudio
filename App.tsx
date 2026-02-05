@@ -3,7 +3,7 @@ import { BrowserRouter, Link, Routes, Route, Navigate, useNavigate, useLocation 
 import {
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
   TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown, Download,
-  MessageCircle, Power, PowerOff, Package, Star
+  MessageCircle, Power, PowerOff, Package, Star, Stethoscope
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './src/components/ChatWidget';
@@ -307,18 +307,18 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     let consecutiveErrors = 0;
     let intervalId: NodeJS.Timeout;
-    
+
     const fetchChatSettings = async () => {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout de 5s
-        
+
         const response = await fetch('/api/crm/v1/chat-settings', {
           signal: controller.signal
         });
-        
+
         clearTimeout(timeoutId);
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
@@ -337,13 +337,13 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
       } catch (error: any) {
         // Ignorar erros de extensões do navegador
-        if (error?.message?.includes('runtime.lastError') || 
-            error?.message?.includes('Receiving end does not exist')) {
+        if (error?.message?.includes('runtime.lastError') ||
+          error?.message?.includes('Receiving end does not exist')) {
           // Erro de extensão - ignorar silenciosamente
           setIsLoading(false);
           return;
         }
-        
+
         // Ignorar erros de abort (timeout)
         if (error?.name === 'AbortError') {
           consecutiveErrors++;
@@ -355,7 +355,7 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
           }
           return;
         }
-        
+
         // Em caso de erro, manter o valor padrão (true)
         if (consecutiveErrors < 3) {
           console.warn('[Chat] Erro ao buscar configuração:', error?.message || error);
@@ -377,10 +377,10 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const toggleChat = async () => {
     const newValue = !isChatVisible;
     const previousValue = isChatVisible;
-    
+
     // Atualizar estado local imediatamente (otimistic update)
     setIsChatVisible(newValue);
-    
+
     // Salvar no localStorage como fallback
     localStorage.setItem('phdstudio_chat_visible', String(newValue));
 
@@ -408,8 +408,8 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const data = await response.json();
           if (data.success) {
             // Disparar evento customizado para notificar outros componentes
-            window.dispatchEvent(new CustomEvent('chatSettingsUpdated', { 
-              detail: { enabled: newValue } 
+            window.dispatchEvent(new CustomEvent('chatSettingsUpdated', {
+              detail: { enabled: newValue }
             }));
           }
         }
@@ -419,12 +419,12 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     } catch (error: any) {
       // Ignorar erros de extensões do navegador (runtime.lastError)
-      if (error?.message?.includes('runtime.lastError') || 
-          error?.message?.includes('Receiving end does not exist')) {
+      if (error?.message?.includes('runtime.lastError') ||
+        error?.message?.includes('Receiving end does not exist')) {
         // Erro de extensão do navegador - ignorar
         return;
       }
-      
+
       console.warn('Erro ao salvar configuração do chat:', error?.message || error);
       // Reverter para o valor anterior em caso de erro
       setIsChatVisible(previousValue);
@@ -523,16 +523,16 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           statusText: response.statusText,
           error: errorData
         });
-        return { 
-          success: false, 
-          error: errorData.message || errorData.error || 'Erro ao fazer login' 
+        return {
+          success: false,
+          error: errorData.message || errorData.error || 'Erro ao fazer login'
         };
       }
     } catch (error: any) {
       console.error('Erro no login:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Erro ao conectar com o servidor' 
+      return {
+        success: false,
+        error: error.message || 'Erro ao conectar com o servidor'
       };
     }
 
@@ -544,7 +544,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       setIsAuthenticated(true);
       setUsername(username);
       setUserRole('admin');
-      logLogin(username, true, location).catch(() => {});
+      logLogin(username, true, location).catch(() => { });
       return true;
     }
 
@@ -555,12 +555,12 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       setIsAuthenticated(true);
       setUsername(username);
       setUserRole('client');
-      logLogin(username, true, location).catch(() => {});
+      logLogin(username, true, location).catch(() => { });
       return true;
     }
 
     // Registrar tentativa de login falhada
-    logLogin(username, false, location).catch(() => {});
+    logLogin(username, false, location).catch(() => { });
     return false;
   };
 
@@ -1211,6 +1211,14 @@ const Solutions = () => {
         "Bots inteligentes",
         "Dashboards"
       ]
+    },
+    {
+      title: "Soluções para Clínicas e Consultórios Médicos",
+      description: "Campanhas, automações e presença digital para profissionais da saúde.",
+      icon: <Stethoscope className="text-blue-500" size={28} />,
+      buttonText: "Conheça a PHD Studio MED",
+      buttonLink: "https://phdstudio.com.br/med",
+      isMed: true
     }
   ];
 
@@ -1222,23 +1230,39 @@ const Solutions = () => {
           subtitle="Um ecossistema completo para resolver gargalos e acelerar seu faturamento."
           centered
         />
-        <div className="grid md:grid-cols-3 gap-8 mt-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
           {solutionsBlocks.map((block, index) => (
-            <div key={index} className="bg-brand-gray border border-white/5 p-8 rounded-xl hover:border-brand-red/30 hover:-translate-y-2 transition-all duration-300 group">
-              <div className="bg-white/5 w-16 h-16 rounded-lg flex items-center justify-center mb-6 group-hover:bg-brand-red/10 transition-colors">
-                {block.icon}
+            <div
+              key={index}
+              className={`${block.isMed ? 'bg-white text-gray-900' : 'bg-brand-gray text-white'} border border-white/5 p-8 rounded-xl hover:-translate-y-2 transition-all duration-300 group flex flex-col justify-between h-full shadow-lg ${block.isMed ? 'hover:shadow-blue-500/20' : 'hover:border-brand-red/30'}`}
+            >
+              <div>
+                <div className={`${block.isMed ? 'bg-blue-50' : 'bg-white/5'} w-16 h-16 rounded-lg flex items-center justify-center mb-6 group-hover:bg-brand-red/10 transition-colors`}>
+                  {block.icon}
+                </div>
+                <h4 className={`text-xl font-bold font-heading mb-6 ${block.isMed ? 'text-gray-900' : 'text-white'}`}>{block.title}</h4>
+
+                {block.description ? (
+                  <p className={`text-sm leading-relaxed ${block.isMed ? 'text-gray-600' : 'text-gray-300'}`}>
+                    {block.description}
+                  </p>
+                ) : (
+                  <ul className="space-y-3">
+                    {block.items && block.items.map((item, i) => (
+                      <li key={i} className="flex items-center gap-3 text-gray-300 text-sm">
+                        <Check size={16} className="text-brand-red flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <h4 className="text-xl font-bold font-heading mb-6">{block.title}</h4>
-              <ul className="space-y-3">
-                {block.items.map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-300 text-sm">
-                    <Check size={16} className="text-brand-red flex-shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <a href="#contato" className="inline-block mt-6 text-brand-red text-sm font-bold uppercase tracking-wider hover:underline">
-                Saber mais
+
+              <a
+                href={block.buttonLink || "#contato"}
+                className={`inline-block mt-8 text-sm font-bold uppercase tracking-wider hover:underline transition-colors ${block.isMed ? 'text-blue-500 hover:text-blue-600' : 'text-brand-red'}`}
+              >
+                {block.buttonText || "Saber mais"}
               </a>
             </div>
           ))}
@@ -1933,7 +1957,7 @@ const LoginPage = () => {
 
     if (result.success) {
       const userRole = localStorage.getItem('userRole');
-      
+
       if (userRole === 'admin') {
         navigate('/logs', { replace: true });
       } else if (userRole === 'client') {
@@ -3257,8 +3281,8 @@ const LogsPage = () => {
                 e.stopPropagation();
                 toggleChat().catch((err) => {
                   // Erro já tratado dentro de toggleChat
-                  if (!err?.message?.includes('runtime.lastError') && 
-                      !err?.message?.includes('Receiving end does not exist')) {
+                  if (!err?.message?.includes('runtime.lastError') &&
+                    !err?.message?.includes('Receiving end does not exist')) {
                     console.warn('Erro ao alternar chat:', err);
                   }
                 });
@@ -3320,7 +3344,7 @@ const LogsPage = () => {
             className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'dashboard'
               ? 'border-b-2 border-brand-red text-brand-red'
               : 'text-gray-400 hover:text-white'
-            }`}
+              }`}
           >
             Dashboard
           </button>
@@ -3329,7 +3353,7 @@ const LogsPage = () => {
             className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'access'
               ? 'border-b-2 border-brand-red text-brand-red'
               : 'text-gray-400 hover:text-white'
-            }`}
+              }`}
           >
             Logs de Acesso ({accessLogs.length})
           </button>
@@ -3338,7 +3362,7 @@ const LogsPage = () => {
             className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'login'
               ? 'border-b-2 border-brand-red text-brand-red'
               : 'text-gray-400 hover:text-white'
-            }`}
+              }`}
           >
             Logs de Login ({loginLogs.length})
           </button>
@@ -3347,7 +3371,7 @@ const LogsPage = () => {
             className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'clients'
               ? 'border-b-2 border-brand-red text-brand-red'
               : 'text-gray-400 hover:text-white'
-            }`}
+              }`}
           >
             Clientes
           </button>
@@ -3356,7 +3380,7 @@ const LogsPage = () => {
             className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'users'
               ? 'border-b-2 border-brand-red text-brand-red'
               : 'text-gray-400 hover:text-white'
-            }`}
+              }`}
           >
             Usuários
           </button>
@@ -3365,7 +3389,7 @@ const LogsPage = () => {
             className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'mobilechat-configs'
               ? 'border-b-2 border-brand-red text-brand-red'
               : 'text-gray-400 hover:text-white'
-            }`}
+              }`}
           >
             Config. Mobilechat
           </button>
