@@ -1260,6 +1260,8 @@ const Solutions = () => {
 
               <a
                 href={block.buttonLink || "#contato"}
+                target={block.isMed ? "_blank" : undefined}
+                rel={block.isMed ? "noopener noreferrer" : undefined}
                 className={`inline-block mt-8 text-sm font-bold uppercase tracking-wider hover:underline transition-colors ${block.isMed ? 'text-blue-500 hover:text-blue-600' : 'text-brand-red'}`}
               >
                 {block.buttonText || "Saber mais"}
