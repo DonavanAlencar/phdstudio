@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-const PLAYLIST_ID = import.meta.env.VITE_YOUTUBE_PLAYLIST_ID;
+const PLAYLIST_ID = 'UU_s3s_4pA_p-yQY_k_E8B_w';
 const CHANNEL_ID = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
 
 export interface YouTubeVideo {

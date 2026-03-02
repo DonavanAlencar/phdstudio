@@ -35,7 +35,7 @@ router.get('/posts', async (req, res) => {
     const apiVersion = process.env.INSTAGRAM_API_VERSION || 'v22.0';
     const limit = parseInt(req.query.limit) || 9;
     
-    const url = `https://graph.facebook.com/${apiVersion}/${IG_USER_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count&access_token=${accessToken}&limit=${limit}`;
+    const url = `https://graph.facebook.com/${apiVersion}/${IG_USER_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count&access_token=${accessToken}&limit=${limit}&v=${Date.now()}`;
 
     console.log(`📸 [Instagram] Buscando posts do Instagram de: ${IG_USER_ID}`);
     

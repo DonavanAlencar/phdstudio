@@ -89,6 +89,7 @@ const InstagramCarousel: React.FC = () => {
     
     // Função para buscar posts com retry
     const fetchWithRetry = async (url: string, retries = 2): Promise<Response> => {
+      const cacheBustingUrl = `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`;
       for (let attempt = 0; attempt < retries; attempt++) {
         try {
           const controller = new AbortController();
@@ -96,7 +97,7 @@ const InstagramCarousel: React.FC = () => {
             controller.abort(new DOMException(`Request timeout after 25 seconds (attempt ${attempt + 1}/${retries})`, 'AbortError'));
           }, 25000);
           
-          const response = await fetch(url, {
+          const response = await fetch(cacheBustingUrl, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
