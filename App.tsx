@@ -13,6 +13,7 @@ import InstagramCarousel from './src/components/InstagramCarousel';
 import MobileChatPage from './src/components/MobileChat/MobileChatPage';
 import ClientArea from './src/components/ClientArea/ClientArea';
 import YouTubeCarousel from './src/components/YouTubeCarousel';
+import BlogPostsCarousel from './src/components/BlogPostsCarousel';
 import UsersManagement from './src/components/Logs/UsersManagement';
 import MobilechatConfigsManagement from './src/components/Logs/MobilechatConfigsManagement';
 import ClientsManagement from './src/components/Logs/ClientsManagement';
@@ -2988,6 +2989,7 @@ const HomePage = () => (
     <Solutions />
     <Methodology />
     <Cases />
+    <BlogPostsCarousel />
     <YouTubeCarousel />
     <Testimonials />
     <InstagramCarousel />
