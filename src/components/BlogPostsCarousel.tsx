@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, ExternalLink, BookOpenText, Sparkles } from 'lucide-react';
 
 interface BlogPost {
@@ -10,51 +10,101 @@ interface BlogPost {
   url: string;
 }
 
-const BLOG_POSTS: BlogPost[] = [
-  {
-    id: 'ai-automation-agency',
-    title: 'AI Automation Agency: O Futuro do Marketing',
-    description:
-      'Como a união entre inteligência artificial e automação está transformando o atendimento e as vendas.',
-    category: 'IA & Automação',
-    image:
-      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&auto=format&fit=crop',
-    url: 'https://phdstudio.blog.br', // ajuste para o slug real quando existir
-  },
+const FALLBACK_POSTS: BlogPost[] = [
   {
     id: 'seo-para-ia-geo',
-    title: 'SEO para IA (GEO): Além dos Cliques',
+    title: 'Seu site está perdendo tráfego? A culpa é do Zero-Click Search (E como o SEO para IA (GEO) muda tudo)',
     description:
-      'Entenda o conceito de Zero-Click Search e como posicionar sua marca na era das buscas generativas.',
+      'Você já parou para olhar os dados do seu tráfego orgânico recentemente? Se as impressões seguem altas e os cliques caem, o Zero-Click Search pode ser o vilão — e o SEO para IA (GEO) a resposta.',
     category: 'SEO & Growth',
     image:
       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
-    url: 'https://phdstudio.blog.br',
-  },
-  {
-    id: 'identidade-fluida',
-    title: 'Identidade Fluida no Marketing Digital',
-    description:
-      'Como criar narrativas dinâmicas que se adaptam ao contexto e comportamento do novo consumidor.',
-    category: 'Branding & Estratégia',
-    image:
-      'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=800&auto=format&fit=crop',
-    url: 'https://phdstudio.blog.br',
+    url: 'https://www.phdstudio.blog.br/blog',
   },
   {
     id: 'ia-e-ciencia',
-    title: 'IA e Novas Descobertas Científicas',
+    title: 'IA e Novas Descobertas Científicas: O Motor da Inovação',
     description:
-      'O papel da inteligência artificial como o novo motor da inovação e infraestrutura da ciência moderna.',
+      'Como a inteligência artificial se consolidou como parte essencial da infraestrutura da ciência moderna, acelerando pesquisas e abrindo caminhos antes inimagináveis.',
     category: 'Ciência & Inovação',
     image:
       'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop',
-    url: 'https://phdstudio.blog.br',
+    url: 'https://www.phdstudio.blog.br/blog',
+  },
+  {
+    id: 'ia-e-novas-geracoes',
+    title: 'IA e Novas Gerações: Aceleradora ou Atrofiante?',
+    description:
+      'A IA pode ser uma aliada poderosa ou uma muleta perigosa para as novas gerações — tudo depende de como é ensinada e integrada ao cotidiano.',
+    category: 'Sociedade & Futuro',
+    image:
+      'https://images.unsplash.com/photo-1516838088174-1d98506b8e28?q=80&w=800&auto=format&fit=crop',
+    url: 'https://www.phdstudio.blog.br/blog',
+  },
+  {
+    id: 'marketing-etico-2026',
+    title: 'Marketing Ético em 2026: Marcas que Integram Dados, Criatividade e Responsabilidade',
+    description:
+      'Em um cenário onde a disputa é por confiança, marcas que equilibram performance com transparência, privacidade e inclusão saem na frente.',
+    category: 'Estratégia & Ética',
+    image:
+      'https://images.unsplash.com/photo-1526498460520-4c246339dccb?q=80&w=800&auto=format&fit=crop',
+    url: 'https://www.phdstudio.blog.br/blog',
   },
 ];
 
 const BlogPostsCarousel: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [posts, setPosts] = useState<BlogPost[]>(FALLBACK_POSTS);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchBlogPosts = async () => {
+      try {
+        setLoading(true);
+
+        const response = await fetch('/api/blog/posts');
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (
+          result &&
+          result.success &&
+          Array.isArray(result.data) &&
+          result.data.length > 0
+        ) {
+          const mapped: BlogPost[] = result.data.map((item: any, index: number) => ({
+            id: item.id || item.slug || String(index),
+            title: item.title,
+            description: item.excerpt,
+            category: item.category || 'PHD Insights',
+            image: item.image,
+            url: item.url,
+          }));
+
+          if (isMounted) {
+            setPosts(mapped);
+          }
+        }
+      } catch {
+        // Silencioso: mantém FALLBACK_POSTS
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchBlogPosts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return;
@@ -93,7 +143,7 @@ const BlogPostsCarousel: React.FC = () => {
           </div>
 
           <a
-            href="https://phdstudio.blog.br"
+            href="https://www.phdstudio.blog.br/blog"
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-2 text-white font-bold bg-brand-gray border border-white/10 px-6 py-3 rounded-lg hover:bg-brand-red hover:border-brand-red transition-all shadow-lg hover:shadow-brand-red/20 text-sm uppercase tracking-wide"
@@ -106,7 +156,7 @@ const BlogPostsCarousel: React.FC = () => {
 
         <div className="relative group/nav">
           {/* Navigation Arrows (Desktop) */}
-          {BLOG_POSTS.length > 0 && (
+          {posts.length > 0 && (
             <>
               <button
                 onClick={() => scroll('left')}
@@ -132,7 +182,7 @@ const BlogPostsCarousel: React.FC = () => {
             role="list"
             aria-label="Artigos recentes do blog PHD Insights"
           >
-            {BLOG_POSTS.map((post) => (
+            {posts.map((post) => (
               <article
                 key={post.id}
                 className="flex-shrink-0 w-[280px] sm:w-[320px] lg:w-[360px] snap-center rounded-2xl overflow-hidden border border-white/10 bg-brand-gray shadow-lg hover:shadow-brand-red/20 transition-shadow duration-300"

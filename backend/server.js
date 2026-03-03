@@ -40,6 +40,7 @@ import profileRoutes from './routes/profile.js';
 import workflowsRoutes from './routes/workflows.js';
 import botRoutes from './routes/bot.js';
 import instagramRoutes from './routes/instagram.js';
+import blogRoutes from './routes/blog.js';
 import clientsRoutes from './routes/clients.js';
 import clientMobilechatRoutes from './routes/clientMobilechat.js';
 import usersRoutes from './routes/users.js';
@@ -404,9 +405,10 @@ app.get('/crm/v1/health', async (req, res) => {
     });
 });
 
-// Rotas públicas (Instagram Feed)
+// Rotas públicas (Instagram Feed + Blog)
 app.use('/api/instagram', instagramRoutes);
 app.use('/instagram', instagramRoutes); // Rota alternativa sem /api para Traefik
+app.use('/api/blog', blogRoutes);
 
 // Rotas do CRM
 // NOTA: O Traefik remove o prefixo /api, então as rotas aqui não devem incluir /api
