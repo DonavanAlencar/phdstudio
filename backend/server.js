@@ -409,6 +409,7 @@ app.get('/crm/v1/health', async (req, res) => {
 app.use('/api/instagram', instagramRoutes);
 app.use('/instagram', instagramRoutes); // Rota alternativa sem /api para Traefik
 app.use('/api/blog', blogRoutes);
+app.use('/blog', blogRoutes); // Rota alternativa sem /api para Traefik
 
 // Rotas do CRM
 // NOTA: O Traefik remove o prefixo /api, então as rotas aqui não devem incluir /api
