@@ -304,8 +304,13 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isChatVisible, setIsChatVisible] = useState(true); // Default: visível
   const [isLoading, setIsLoading] = useState(true);
 
-  // Buscar configuração da API ao montar
+  // Buscar configuração da API ao montar (só se a API de chat-settings estiver habilitada)
   useEffect(() => {
+    if (import.meta.env.VITE_CHAT_SETTINGS_ENABLED !== 'true') {
+      setIsLoading(false);
+      return;
+    }
+
     let consecutiveErrors = 0;
     let intervalId: NodeJS.Timeout;
 
@@ -326,6 +331,11 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setIsChatVisible(data.data.enabled !== false);
           }
           consecutiveErrors = 0; // Reset contador de erros
+        } else if (response.status === 404) {
+          // Endpoint não disponível (ex.: API não exposta) — manter chat visível e parar polling
+          clearInterval(intervalId);
+          setIsChatVisible(true);
+          return;
         } else if (response.status === 504 || response.status === 503) {
           // Gateway timeout ou serviço indisponível - aumentar intervalo
           consecutiveErrors++;
