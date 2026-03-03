@@ -351,7 +351,9 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
             // Após 3 timeouts, aumentar intervalo
             clearInterval(intervalId);
             intervalId = setInterval(fetchChatSettings, 30000);
-            console.warn('[Chat] Timeout ao buscar configuração, reduzindo frequência');
+            if (import.meta.env.DEV) {
+              console.warn('[Chat] Timeout ao buscar configuração, reduzindo frequência');
+            }
           }
           return;
         }
@@ -1011,7 +1013,7 @@ const Hero = () => {
                 className="w-full h-full rounded-xl"
                 src="https://www.youtube.com/embed/jdPkh5MG6dg?autoplay=1&mute=1&loop=1&playlist=jdPkh5MG6dg&rel=0&controls=1"
                 title="Vídeo introdutório PHD Studio"
-                allow="autoplay; fullscreen"
+                allow="autoplay"
                 allowFullScreen
                 loading="lazy"
               />

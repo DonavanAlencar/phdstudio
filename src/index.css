@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Estilos globais - Tailwind é carregado via CDN no index.html */
 
 /* Estilos específicos para admin - isolados da página principal */
