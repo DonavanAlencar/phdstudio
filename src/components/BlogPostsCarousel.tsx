@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight, ExternalLink, BookOpenText, Sparkles } from 'lucide-react';
 
 interface BlogPost {
@@ -55,56 +55,6 @@ const FALLBACK_POSTS: BlogPost[] = [
 
 const BlogPostsCarousel: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [posts, setPosts] = useState<BlogPost[]>(FALLBACK_POSTS);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchBlogPosts = async () => {
-      try {
-        setLoading(true);
-
-        const response = await fetch('/api/blog/posts');
-        if (!response.ok) {
-          throw new Error(`Erro ${response.status}`);
-        }
-
-        const result = await response.json();
-        if (
-          result &&
-          result.success &&
-          Array.isArray(result.data) &&
-          result.data.length > 0
-        ) {
-          const mapped: BlogPost[] = result.data.map((item: any, index: number) => ({
-            id: item.id || item.slug || String(index),
-            title: item.title,
-            description: item.excerpt,
-            category: item.category || 'PHD Insights',
-            image: item.image,
-            url: item.url,
-          }));
-
-          if (isMounted) {
-            setPosts(mapped);
-          }
-        }
-      } catch {
-        // Silencioso: mantém FALLBACK_POSTS
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchBlogPosts();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return;
@@ -156,7 +106,7 @@ const BlogPostsCarousel: React.FC = () => {
 
         <div className="relative group/nav">
           {/* Navigation Arrows (Desktop) */}
-          {posts.length > 0 && (
+          {FALLBACK_POSTS.length > 0 && (
             <>
               <button
                 onClick={() => scroll('left')}
@@ -182,7 +132,7 @@ const BlogPostsCarousel: React.FC = () => {
             role="list"
             aria-label="Artigos recentes do blog PHD Insights"
           >
-            {posts.map((post) => (
+            {FALLBACK_POSTS.map((post) => (
               <article
                 key={post.id}
                 className="flex-shrink-0 w-[280px] sm:w-[320px] lg:w-[360px] snap-center rounded-2xl overflow-hidden border border-white/10 bg-brand-gray shadow-lg hover:shadow-brand-red/20 transition-shadow duration-300"
