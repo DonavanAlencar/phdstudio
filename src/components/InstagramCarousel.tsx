@@ -24,58 +24,8 @@ interface InstagramPost {
   permalink: string;
   like_count?: number;
   comments_count?: number;
+  timestamp?: string;
 }
-
-const FALLBACK_POSTS = [
-  {
-    id: '1',
-    media_url: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=600&auto=format&fit=crop",
-    like_count: 124,
-    comments_count: 18,
-    caption: "Estratégia e dados: a combinação perfeita para escalar resultados. 🚀 #MarketingDigital #Growth",
-    permalink: "https://www.instagram.com/phdstudiooficial"
-  },
-  {
-    id: '2',
-    media_url: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=600&auto=format&fit=crop",
-    like_count: 89,
-    comments_count: 12,
-    caption: "Bastidores do nosso time de performance em ação. Aqui o ROI é lei! 💼 #TeamEffort #Performance",
-    permalink: "https://www.instagram.com/phdstudiooficial"
-  },
-  {
-    id: '3',
-    media_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop",
-    like_count: 256,
-    comments_count: 34,
-    caption: "Dashboards que contam histórias de sucesso. Transformando números em insights. 📊 #DataDriven",
-    permalink: "https://www.instagram.com/phdstudiooficial"
-  },
-  {
-    id: '4',
-    media_url: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=600&auto=format&fit=crop",
-    like_count: 156,
-    comments_count: 21,
-    caption: "A tecnologia impulsionando o marketing. Inovação constante no nosso DNA. 💡 #Tech & #Marketing",
-    permalink: "https://www.instagram.com/phdstudiooficial"
-  },
-  {
-    id: '5',
-    media_url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=600&auto=format&fit=crop",
-    like_count: 198,
-    comments_count: 25,
-    caption: "Conexões reais criam resultados reais. Networking e aprendizado sempre. 🤝 #Business",
-    permalink: "https://www.instagram.com/phdstudiooficial"
-  },
-  {
-    id: '6',
-    media_url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop",
-    like_count: 312,
-    comments_count: 42,
-    caption: "Otimização contínua. Porque o bom é inimigo do ótimo. 🔥 #NextLevel",
-    permalink: "https://www.instagram.com/phdstudiooficial"
-  }
-];
 
 const InstagramCarousel: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -153,7 +103,7 @@ const InstagramCarousel: React.FC = () => {
           }
         }
 
-        const apiUrl = `${INSTAGRAM_API_URL}/posts?limit=9`;
+        const apiUrl = `${INSTAGRAM_API_URL}/posts?limit=8`;
         // console.log('📸 [Instagram] Buscando posts de:', apiUrl);
         
         const response = await fetchWithRetry(apiUrl);
@@ -162,10 +112,9 @@ const InstagramCarousel: React.FC = () => {
           const errorData = await response.json().catch(() => ({}));
           // console.error('❌ [Instagram] Erro na resposta:', response.status, errorData);
           
-          // Se for erro 503/504/404, usar fallback silenciosamente
+          // Em erros conhecidos, exibir estado vazio elegante
           if (response.status === 503 || response.status === 504 || response.status === 404) {
-            // console.warn('⚠️ [Instagram] Usando fallback devido a erro', response.status);
-            setPosts(FALLBACK_POSTS as any);
+            setPosts([]);
             setError(true);
             setLoading(false);
             return;
@@ -187,8 +136,7 @@ const InstagramCarousel: React.FC = () => {
           setError(false);
           // console.log('✅ [Instagram] Posts carregados com sucesso:', result.data.length);
         } else {
-          // console.warn('⚠️ [Instagram] Nenhum post encontrado, usando fallback');
-          setPosts(FALLBACK_POSTS as any);
+          setPosts([]);
           setError(true);
         }
         
@@ -196,8 +144,7 @@ const InstagramCarousel: React.FC = () => {
       } catch (err: any) {
         // console.error('❌ [Instagram] Erro ao buscar posts:', err.message || err);
         setError(true);
-        // Fallback to mock data on error
-        setPosts(FALLBACK_POSTS as any);
+        setPosts([]);
         setLoading(false);
       }
     };
@@ -284,13 +231,26 @@ const InstagramCarousel: React.FC = () => {
                   rel="noopener noreferrer"
                   className="relative flex-shrink-0 snap-center group w-[280px] aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-brand-gray"
                 >
-                  {/* Image - Handle Video type */}
-                  <img
-                    src={post.media_type === 'VIDEO' ? post.thumbnail_url : post.media_url}
-                    alt={post.caption || 'Instagram Post'}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    loading="lazy"
-                  />
+                  {/* Media */}
+                  {post.media_type === 'VIDEO' ? (
+                    <video
+                      src={post.media_url}
+                      poster={post.thumbnail_url}
+                      className="w-full h-full object-cover"
+                      preload="metadata"
+                      playsInline
+                      muted
+                      loop
+                      controls={false}
+                    />
+                  ) : (
+                    <img
+                      src={post.media_url}
+                      alt={post.caption || 'Instagram Post'}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  )}
 
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center gap-4 p-6">
@@ -330,12 +290,18 @@ const InstagramCarousel: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Swipe Hint */}
-        <div className="md:hidden flex justify-center mt-2 gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-white/40"></div>
-          <div className="w-1.5 h-1.5 rounded-full bg-white/40"></div>
-          <div className="w-1.5 h-1.5 rounded-full bg-white/40"></div>
-        </div>
+        {!loading && posts.length === 0 && (
+          <div className="mt-4 flex justify-center">
+            <a
+              href="https://www.instagram.com/phdstudiooficial"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gray-400 hover:text-white underline underline-offset-4"
+            >
+              Ver perfil @phdstudiooficial
+            </a>
+          </div>
+        )}
       </div>
     </section>
   );

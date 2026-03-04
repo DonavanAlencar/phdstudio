@@ -15,6 +15,13 @@ const router = express.Router();
 // Instagram User ID (phdstudiooficial)
 const IG_USER_ID = process.env.INSTAGRAM_USER_ID || "17841403453191047";
 
+// Cache simples em memória
+let cache = {
+  ts: 0,
+  data: null
+};
+const CACHE_TTL_MS = parseInt(process.env.INSTAGRAM_CACHE_TTL || '300000', 10); // 5 minutos
+
 /**
  * GET /api/instagram/posts
  * Busca posts do Instagram
@@ -33,9 +40,14 @@ router.get('/posts', async (req, res) => {
     }
 
     const apiVersion = process.env.INSTAGRAM_API_VERSION || 'v22.0';
-    const limit = parseInt(req.query.limit) || 9;
+    const limit = Math.min(parseInt(req.query.limit) || 8, 12);
+    const now = Date.now();
+    if (cache.data && now - cache.ts < CACHE_TTL_MS) {
+      const sliced = cache.data.slice(0, limit);
+      return res.json({ success: true, data: sliced, count: sliced.length });
+    }
     
-    const url = `https://graph.facebook.com/${apiVersion}/${IG_USER_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count&access_token=${accessToken}&limit=${limit}&v=${Date.now()}`;
+    const url = `https://graph.facebook.com/${apiVersion}/${IG_USER_ID}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count,timestamp&access_token=${accessToken}&limit=${limit}&v=${Date.now()}`;
 
     console.log(`📸 [Instagram] Buscando posts do Instagram de: ${IG_USER_ID}`);
     
@@ -159,16 +171,25 @@ router.get('/posts', async (req, res) => {
     }
 
     // Formatar dados para o frontend
-    const posts = data.data.map(post => ({
-      id: post.id,
-      media_type: post.media_type || 'IMAGE',
-      media_url: post.media_url || '',
-      thumbnail_url: post.thumbnail_url || post.media_url || '',
-      caption: post.caption || '',
-      permalink: post.permalink || `https://www.instagram.com/phdstudiooficial`,
-      like_count: post.like_count || 0,
-      comments_count: post.comments_count || 0
-    }));
+    const posts = data.data
+      .map(post => ({
+        id: post.id,
+        media_type: post.media_type || 'IMAGE',
+        media_url: post.media_url || '',
+        thumbnail_url: post.thumbnail_url || post.media_url || '',
+        caption: post.caption || '',
+        permalink: post.permalink || `https://www.instagram.com/phdstudiooficial`,
+        like_count: post.like_count || 0,
+        comments_count: post.comments_count || 0,
+        timestamp: post.timestamp || null
+      }))
+      .sort((a, b) => {
+        const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+        const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+        return tb - ta;
+      });
+
+    cache = { ts: now, data: posts };
 
     res.json({
       success: true,

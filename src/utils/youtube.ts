@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+const getYouTubeApiBase = () => {
+  if (import.meta.env.VITE_YOUTUBE_API_URL) return import.meta.env.VITE_YOUTUBE_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
+  return `${baseUrl}/youtube`;
+};
+
+const BACKEND_YT = getYouTubeApiBase();
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 const PLAYLIST_ID = 'UU_s3s_4pA_p-yQY_k_E8B_w';
 const CHANNEL_ID = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
@@ -30,14 +38,28 @@ const parseISO8601Duration = (duration: string) => {
 };
 
 export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> => {
-    if (!YOUTUBE_API_KEY) {
-        return [];
-    }
-
     try {
+        try {
+            const controller = new AbortController();
+            const t = setTimeout(() => controller.abort(), 15000);
+            const force = import.meta.env.DEV ? '&force=1' : '';
+            const r = await fetch(`${BACKEND_YT}/videos?limit=${limit}&v=${Date.now()}${force}`, { signal: controller.signal });
+            clearTimeout(t);
+            if (r.ok) {
+                const j = await r.json();
+                if (j?.success && Array.isArray(j.data)) {
+                    const v: YouTubeVideo[] = j.data.slice(0, limit);
+                    return v;
+                }
+            }
+        } catch (e) {}
+
+        if (!YOUTUBE_API_KEY) {
+            return [];
+        }
+
         let targetPlaylistId = PLAYLIST_ID || 'PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa';
 
-        // Se tivermos um Channel ID mas não uma Playlist ID, buscamos a playlist de 'uploads' do canal
         const channelId = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
         if (!PLAYLIST_ID && channelId) {
             try {
@@ -51,11 +73,10 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
                 const uploadsId = channelResponse.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
                 if (uploadsId) targetPlaylistId = uploadsId;
             } catch (e) {
-                // Silently fail and use default playlist
+                
             }
         }
 
-        // 1. Buscar itens da playlist (Snippet)
         const playlistResponse = await axios.get('https://www.googleapis.com/youtube/v3/playlistItems', {
             params: {
                 part: 'snippet,contentDetails',
@@ -70,7 +91,6 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
 
         const videoIds = items.map((item: any) => item.contentDetails.videoId).join(',');
 
-        // 2. Buscar detalhes dos vídeos (ContentDetails para duração)
         const videosResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
             params: {
                 part: 'contentDetails',
@@ -81,7 +101,6 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
 
         const videoDetails = videosResponse.data.items;
 
-        // 3. Mapear dados combinados
         return items.map((item: any) => {
             const details = videoDetails.find((d: any) => d.id === item.contentDetails.videoId);
             return {

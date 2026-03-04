@@ -13,6 +13,7 @@ import InstagramCarousel from './src/components/InstagramCarousel';
 import MobileChatPage from './src/components/MobileChat/MobileChatPage';
 import ClientArea from './src/components/ClientArea/ClientArea';
 import YouTubeCarousel from './src/components/YouTubeCarousel';
+import BlogCarousel from './src/components/BlogCarousel';
 import UsersManagement from './src/components/Logs/UsersManagement';
 import MobilechatConfigsManagement from './src/components/Logs/MobilechatConfigsManagement';
 import ClientsManagement from './src/components/Logs/ClientsManagement';
@@ -957,7 +958,7 @@ const Hero = () => {
           alt="Background"
           className="w-full h-full object-cover opacity-20"
           loading="eager"
-          fetchpriority="high"
+          fetchPriority="high"
           width="1200"
           height="800"
         />
@@ -2986,6 +2987,7 @@ const HomePage = () => (
     <Solutions />
     <Methodology />
     <Cases />
+    <BlogCarousel />
     <YouTubeCarousel />
     <Testimonials />
     <InstagramCarousel />
