@@ -9,8 +9,11 @@ const getYouTubeApiBase = () => {
 
 const BACKEND_YT = getYouTubeApiBase();
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-const PLAYLIST_ID = 'UU_s3s_4pA_p-yQY_k_E8B_w';
+const ENV_PLAYLIST_ID = import.meta.env.VITE_YOUTUBE_PLAYLIST_ID;
 const CHANNEL_ID = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
+
+// Playlist padrão: Portfólio Audiovisual PHD Studio
+const DEFAULT_PLAYLIST_ID = 'PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa';
 
 export interface YouTubeVideo {
     id: string;
@@ -38,80 +41,70 @@ const parseISO8601Duration = (duration: string) => {
 };
 
 export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> => {
+  try {
+    // 1) Tentar backend (RSS) primeiro em dev/produção
     try {
-        try {
-            const controller = new AbortController();
-            const t = setTimeout(() => controller.abort(), 15000);
-            const force = import.meta.env.DEV ? '&force=1' : '';
-            const r = await fetch(`${BACKEND_YT}/videos?limit=${limit}&v=${Date.now()}${force}`, { signal: controller.signal });
-            clearTimeout(t);
-            if (r.ok) {
-                const j = await r.json();
-                if (j?.success && Array.isArray(j.data)) {
-                    const v: YouTubeVideo[] = j.data.slice(0, limit);
-                    return v;
-                }
-            }
-        } catch (e) {}
-
-        if (!YOUTUBE_API_KEY) {
-            return [];
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 15000);
+      const force = import.meta.env.DEV ? '&force=1' : '';
+      const r = await fetch(`${BACKEND_YT}/videos?limit=${limit}&v=${Date.now()}${force}`, { signal: controller.signal });
+      clearTimeout(t);
+      if (r.ok) {
+        const j = await r.json();
+        if (j?.success && Array.isArray(j.data)) {
+          const v: YouTubeVideo[] = j.data.slice(0, limit);
+          return v;
         }
+      }
+    } catch {}
 
-        let targetPlaylistId = PLAYLIST_ID || 'PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa';
-
-        const channelId = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
-        if (!PLAYLIST_ID && channelId) {
-            try {
-                const channelResponse = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
-                    params: {
-                        part: 'contentDetails',
-                        id: channelId,
-                        key: YOUTUBE_API_KEY,
-                    },
-                });
-                const uploadsId = channelResponse.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
-                if (uploadsId) targetPlaylistId = uploadsId;
-            } catch (e) {
-                
-            }
-        }
-
-        const playlistResponse = await axios.get('https://www.googleapis.com/youtube/v3/playlistItems', {
-            params: {
-                part: 'snippet,contentDetails',
-                maxResults: limit,
-                playlistId: targetPlaylistId,
-                key: YOUTUBE_API_KEY,
-            },
-        });
-
-        const items = playlistResponse.data.items;
-        if (!items || items.length === 0) return [];
-
-        const videoIds = items.map((item: any) => item.contentDetails.videoId).join(',');
-
-        const videosResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
-            params: {
-                part: 'contentDetails',
-                id: videoIds,
-                key: YOUTUBE_API_KEY,
-            },
-        });
-
-        const videoDetails = videosResponse.data.items;
-
-        return items.map((item: any) => {
-            const details = videoDetails.find((d: any) => d.id === item.contentDetails.videoId);
-            return {
-                id: item.contentDetails.videoId,
-                title: item.snippet.title,
-                thumbnail: item.snippet.thumbnails.maxres?.url || item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
-                duration: details ? parseISO8601Duration(details.contentDetails.duration) : '0:00',
-                publishedAt: item.snippet.publishedAt,
-            };
-        });
-    } catch (error) {
-        return [];
+    // 2) Fallback oficial: YouTube Data API
+    if (!YOUTUBE_API_KEY) {
+      return [];
     }
+
+    let targetPlaylistId = ENV_PLAYLIST_ID || DEFAULT_PLAYLIST_ID;
+    if (!ENV_PLAYLIST_ID && CHANNEL_ID) {
+      try {
+        const channelResponse = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
+          params: { part: 'contentDetails', id: CHANNEL_ID, key: YOUTUBE_API_KEY },
+        });
+        const uploadsId = channelResponse.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+        if (uploadsId) targetPlaylistId = uploadsId;
+      } catch {}
+    }
+
+    const playlistResponse = await axios.get('https://www.googleapis.com/youtube/v3/playlistItems', {
+      params: {
+        part: 'snippet,contentDetails',
+        maxResults: limit,
+        playlistId: targetPlaylistId,
+        key: YOUTUBE_API_KEY,
+      },
+    });
+    const items = playlistResponse.data.items;
+    if (!items || items.length === 0) return [];
+
+    const videoIds = items.map((item: any) => item.contentDetails.videoId).join(',');
+    const videosResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
+      params: { part: 'contentDetails', id: videoIds, key: YOUTUBE_API_KEY },
+    });
+    const videoDetails = videosResponse.data.items || [];
+
+    return items.map((item: any) => {
+      const details = videoDetails.find((d: any) => d.id === item.contentDetails.videoId);
+      return {
+        id: item.contentDetails.videoId,
+        title: item.snippet.title,
+        thumbnail:
+          item.snippet.thumbnails.maxres?.url ||
+          item.snippet.thumbnails.high?.url ||
+          item.snippet.thumbnails.default?.url,
+        duration: details ? parseISO8601Duration(details.contentDetails.duration) : '0:00',
+        publishedAt: item.snippet.publishedAt,
+      };
+    });
+  } catch {
+    return [];
+  }
 };

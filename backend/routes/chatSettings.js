@@ -44,10 +44,15 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao obter configuração do chat:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Erro ao obter configuração do chat',
-      message: error.message
+
+    // Fallback seguro: em caso de erro no banco, manter chat habilitado
+    // e evitar erro 500 para o frontend.
+    return res.json({
+      success: true,
+      data: {
+        enabled: true,
+        fallback: true
+      }
     });
   }
 });

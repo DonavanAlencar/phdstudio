@@ -65,59 +65,8 @@
     </script>
     <script async defer src="https://www.googletagmanager.com/gtag/js?id=G-VFKC64NZHH"></script>
     
-    <!-- Tailwind CSS - Carregamento assíncrono seguro -->
-    <script src="https://cdn.tailwindcss.com" defer></script>
     <!-- Google Fonts - Otimizado -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet" />
-    <script>
-      // Configuração do Tailwind após carregamento
-      function configureTailwind() {
-        if (typeof tailwind !== 'undefined') {
-          tailwind.config = {
-            theme: {
-              extend: {
-                fontFamily: {
-                  sans: ['Inter', 'sans-serif'],
-                  heading: ['Montserrat', 'sans-serif'],
-                },
-                colors: {
-                  brand: {
-                    red: '#E50914',
-                    dark: '#050505',
-                    gray: '#121212',
-                    light: '#F3F4F6'
-                  }
-                },
-                animation: {
-                  'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
-                  'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                  'marquee': 'marquee 25s linear infinite',
-                },
-                keyframes: {
-                  fadeInUp: {
-                    '0%': { opacity: '0', transform: 'translateY(20px)' },
-                    '100%': { opacity: '1', transform: 'translateY(0)' },
-                  },
-                  marquee: {
-                    '0%': { transform: 'translateX(0)' },
-                    '100%': { transform: 'translateX(-100%)' },
-                  }
-                }
-              }
-            }
-          };
-        } else {
-          // Tentar novamente após um pequeno delay
-          setTimeout(configureTailwind, 50);
-        }
-      }
-      // Iniciar configuração quando DOM estiver pronto
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', configureTailwind);
-      } else {
-        configureTailwind();
-      }
-    </script>
     <style>
       /* Fundo preto apenas na página principal, não no admin */
       html:not(.admin-page),

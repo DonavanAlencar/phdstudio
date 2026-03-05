@@ -304,8 +304,13 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isChatVisible, setIsChatVisible] = useState(true); // Default: visível
   const [isLoading, setIsLoading] = useState(true);
 
-  // Buscar configuração da API ao montar
+  // Buscar configuração da API ao montar (só se a API de chat-settings estiver habilitada)
   useEffect(() => {
+    if (import.meta.env.VITE_CHAT_SETTINGS_ENABLED !== 'true') {
+      setIsLoading(false);
+      return;
+    }
+
     let consecutiveErrors = 0;
     let intervalId: NodeJS.Timeout;
 
@@ -326,6 +331,11 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setIsChatVisible(data.data.enabled !== false);
           }
           consecutiveErrors = 0; // Reset contador de erros
+        } else if (response.status === 404) {
+          // Endpoint não disponível (ex.: API não exposta) — manter chat visível e parar polling
+          clearInterval(intervalId);
+          setIsChatVisible(true);
+          return;
         } else if (response.status === 504 || response.status === 503) {
           // Gateway timeout ou serviço indisponível - aumentar intervalo
           consecutiveErrors++;
@@ -352,7 +362,9 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
             // Após 3 timeouts, aumentar intervalo
             clearInterval(intervalId);
             intervalId = setInterval(fetchChatSettings, 30000);
-            console.warn('[Chat] Timeout ao buscar configuração, reduzindo frequência');
+            if (import.meta.env.DEV) {
+              console.warn('[Chat] Timeout ao buscar configuração, reduzindo frequência');
+            }
           }
           return;
         }
@@ -1012,7 +1024,7 @@ const Hero = () => {
                 className="w-full h-full rounded-xl"
                 src="https://www.youtube.com/embed/jdPkh5MG6dg?autoplay=1&mute=1&loop=1&playlist=jdPkh5MG6dg&rel=0&controls=1"
                 title="Vídeo introdutório PHD Studio"
-                allow="autoplay; fullscreen"
+                allow="autoplay"
                 allowFullScreen
                 loading="lazy"
               />
