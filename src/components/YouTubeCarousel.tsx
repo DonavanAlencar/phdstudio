@@ -8,11 +8,14 @@ const YouTubeCarousel: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
 
+    const [fetchError, setFetchError] = useState(false);
+
     useEffect(() => {
         const loadVideos = async () => {
             setLoading(true);
-            const data = await fetchPlaylistVideos(9);
-            setVideos(data);
+            const result = await fetchPlaylistVideos(9);
+            setVideos(result.videos);
+            setFetchError(result.error);
             setLoading(false);
         };
 
@@ -137,7 +140,7 @@ const YouTubeCarousel: React.FC = () => {
                         ) : (
                             <div className="w-full py-12 flex flex-col items-center justify-center text-gray-500 bg-white/5 rounded-2xl border border-dashed border-white/10">
                                 <Youtube size={48} className="mb-4 opacity-20" />
-                                <p>Nenhum vídeo encontrado na playlist ou API não configurada.</p>
+                                <p>{fetchError ? 'Feed temporariamente indisponível. Tente mais tarde.' : 'Nenhum vídeo encontrado na playlist.'}</p>
                             </div>
                         )}
                     </div>
@@ -181,8 +184,7 @@ const YouTubeCarousel: React.FC = () => {
                             src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1`}
                             title={selectedVideo.title}
                             frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                             className="w-full h-full"
                         ></iframe>
                     </div>

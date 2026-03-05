@@ -18,14 +18,16 @@ const getBlogApiBase = () => {
 
 const BLOG_API = getBlogApiBase();
 
-export const fetchLatestPosts = async (limit = 6): Promise<BlogPost[]> => {
+export type FetchPostsResult = { posts: BlogPost[]; error: boolean };
+
+export const fetchLatestPosts = async (limit = 6): Promise<FetchPostsResult> => {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
     const force = import.meta.env.DEV ? '&force=1' : '';
     const resp = await fetch(`${BLOG_API}/posts?limit=${limit}&v=${Date.now()}${force}`, { signal: controller.signal });
     clearTimeout(timeout);
-    if (!resp.ok) return [];
+    if (!resp.ok) return { posts: [], error: true };
     const json = await resp.json();
     if (json?.success && Array.isArray(json.data)) {
       const posts: BlogPost[] = json.data
@@ -39,10 +41,10 @@ export const fetchLatestPosts = async (limit = 6): Promise<BlogPost[]> => {
         }))
         .sort((a, b) => new Date(b.publish_date).getTime() - new Date(a.publish_date).getTime())
         .slice(0, limit);
-      return posts;
+      return { posts, error: false };
     }
-    return [];
+    return { posts: [], error: false };
   } catch {
-    return [];
+    return { posts: [], error: true };
   }
 };

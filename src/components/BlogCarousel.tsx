@@ -9,13 +9,17 @@ const BlogCarousel: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
+  const [fetchError, setFetchError] = useState(false);
+
   useEffect(() => {
     let mounted = true;
     const run = async () => {
       setLoading(true);
-      const data = await fetchLatestPosts(6);
+      setFetchError(false);
+      const result = await fetchLatestPosts(6);
       if (mounted) {
-        setPosts(data);
+        setPosts(result.posts);
+        setFetchError(result.error);
         setLoading(false);
       }
     };
@@ -110,7 +114,7 @@ const BlogCarousel: React.FC = () => {
             ) : (
               <div className="w-full py-12 flex flex-col items-center justify-center text-gray-500 bg-white/5 rounded-2xl border border-dashed border-white/10">
                 <FileText size={48} className="mb-4 opacity-20" />
-                <p>Nenhuma matéria encontrada no momento.</p>
+                <p>{fetchError ? 'Feed temporariamente indisponível. Tente mais tarde.' : 'Nenhuma matéria encontrada no momento.'}</p>
               </div>
             )}
           </div>

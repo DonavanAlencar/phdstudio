@@ -37,7 +37,9 @@ const parseISO8601Duration = (duration: string) => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
-export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> => {
+export type FetchVideosResult = { videos: YouTubeVideo[]; error: boolean };
+
+export const fetchPlaylistVideos = async (limit = 10): Promise<FetchVideosResult> => {
     try {
         try {
             const controller = new AbortController();
@@ -49,13 +51,13 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
                 const j = await r.json();
                 if (j?.success && Array.isArray(j.data)) {
                     const v: YouTubeVideo[] = j.data.slice(0, limit);
-                    return v;
+                    return { videos: v, error: false };
                 }
             }
         } catch (e) {}
 
         if (!YOUTUBE_API_KEY) {
-            return [];
+            return { videos: [], error: true };
         }
 
         let targetPlaylistId = PLAYLIST_ID || 'PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa';
@@ -73,7 +75,7 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
                 const uploadsId = channelResponse.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
                 if (uploadsId) targetPlaylistId = uploadsId;
             } catch (e) {
-                
+                //
             }
         }
 
@@ -87,7 +89,7 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
         });
 
         const items = playlistResponse.data.items;
-        if (!items || items.length === 0) return [];
+        if (!items || items.length === 0) return { videos: [], error: false };
 
         const videoIds = items.map((item: any) => item.contentDetails.videoId).join(',');
 
@@ -101,7 +103,7 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
 
         const videoDetails = videosResponse.data.items;
 
-        return items.map((item: any) => {
+        const videos = items.map((item: any) => {
             const details = videoDetails.find((d: any) => d.id === item.contentDetails.videoId);
             return {
                 id: item.contentDetails.videoId,
@@ -111,7 +113,8 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<YouTubeVideo[]> =
                 publishedAt: item.snippet.publishedAt,
             };
         });
+        return { videos, error: false };
     } catch (error) {
-        return [];
+        return { videos: [], error: true };
     }
 };

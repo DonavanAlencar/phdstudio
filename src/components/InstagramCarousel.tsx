@@ -291,7 +291,10 @@ const InstagramCarousel: React.FC = () => {
         </div>
 
         {!loading && posts.length === 0 && (
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-col items-center justify-center gap-3 text-center">
+            {error && (
+              <p className="text-gray-500 text-sm">Feed temporariamente indisponível. Tente mais tarde.</p>
+            )}
             <a
               href="https://www.instagram.com/phdstudiooficial"
               target="_blank"
