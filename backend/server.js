@@ -59,8 +59,14 @@ app.set('trust proxy', true);
 
 // Validar variáveis de ambiente críticas
 if (!process.env.PHD_API_KEY) {
-    console.error('❌ ERRO: PHD_API_KEY não definida no .env');
-    process.exit(1);
+    const isProd = process.env.NODE_ENV === 'production';
+    if (isProd) {
+        console.error('❌ ERRO: PHD_API_KEY não definida no .env');
+        process.exit(1);
+    } else {
+        console.warn('⚠️ Aviso: PHD_API_KEY não definida. Usando chave apenas para desenvolvimento local.');
+        process.env.PHD_API_KEY = 'dev-local-placeholder-key';
+    }
 }
 
 // Middleware simples de log de requisições (debug)

@@ -7,7 +7,7 @@ const getInstagramApiUrl = () => {
   if (import.meta.env.VITE_INSTAGRAM_API_URL) {
     return import.meta.env.VITE_INSTAGRAM_API_URL;
   }
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://phdstudio.com.br/api';
   // Remove /api duplicado se já estiver na URL
   const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
   return `${baseUrl}/instagram`;

@@ -11,7 +11,7 @@ const getBlogApiBase = () => {
   if (import.meta.env.VITE_BLOG_API_URL) {
     return import.meta.env.VITE_BLOG_API_URL;
   }
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://phdstudio.com.br/api';
   const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
   return `${baseUrl}/blog`;
 };
