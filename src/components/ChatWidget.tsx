@@ -92,15 +92,11 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   // Verificar visibilidade do chat via API (controlado pelo admin globalmente)
   const [isChatVisible, setIsChatVisible] = useState(true); // Default: visível
 
-  // Buscar configuração da API e verificar periodicamente (só se a API de chat-settings estiver habilitada)
+  // Buscar configuração da API e verificar periodicamente
   useEffect(() => {
-    if (import.meta.env.VITE_CHAT_SETTINGS_ENABLED !== 'true') {
-      return;
-    }
-
     let consecutiveErrors = 0;
     let intervalId: NodeJS.Timeout;
-
+    
     const fetchChatSettings = async () => {
       try {
         const controller = new AbortController();
@@ -118,11 +114,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             setIsChatVisible(data.data.enabled !== false);
           }
           consecutiveErrors = 0; // Reset contador de erros
-        } else if (response.status === 404) {
-          // Endpoint não disponível — manter chat visível e parar polling
-          clearInterval(intervalId);
-          setIsChatVisible(true);
-          return;
         } else if (response.status === 504 || response.status === 503) {
           // Gateway timeout ou serviço indisponível
           consecutiveErrors++;

@@ -304,13 +304,8 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isChatVisible, setIsChatVisible] = useState(true); // Default: visível
   const [isLoading, setIsLoading] = useState(true);
 
-  // Buscar configuração da API ao montar (só se a API de chat-settings estiver habilitada)
+  // Buscar configuração da API ao montar
   useEffect(() => {
-    if (import.meta.env.VITE_CHAT_SETTINGS_ENABLED !== 'true') {
-      setIsLoading(false);
-      return;
-    }
-
     let consecutiveErrors = 0;
     let intervalId: NodeJS.Timeout;
 
@@ -331,11 +326,6 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
             setIsChatVisible(data.data.enabled !== false);
           }
           consecutiveErrors = 0; // Reset contador de erros
-        } else if (response.status === 404) {
-          // Endpoint não disponível (ex.: API não exposta) — manter chat visível e parar polling
-          clearInterval(intervalId);
-          setIsChatVisible(true);
-          return;
         } else if (response.status === 504 || response.status === 503) {
           // Gateway timeout ou serviço indisponível - aumentar intervalo
           consecutiveErrors++;
@@ -362,9 +352,7 @@ const ChatVisibilityProvider: React.FC<{ children: React.ReactNode }> = ({ child
             // Após 3 timeouts, aumentar intervalo
             clearInterval(intervalId);
             intervalId = setInterval(fetchChatSettings, 30000);
-            if (import.meta.env.DEV) {
-              console.warn('[Chat] Timeout ao buscar configuração, reduzindo frequência');
-            }
+            console.warn('[Chat] Timeout ao buscar configuração, reduzindo frequência');
           }
           return;
         }
@@ -1024,7 +1012,7 @@ const Hero = () => {
                 className="w-full h-full rounded-xl"
                 src="https://www.youtube.com/embed/jdPkh5MG6dg?autoplay=1&mute=1&loop=1&playlist=jdPkh5MG6dg&rel=0&controls=1"
                 title="Vídeo introdutório PHD Studio"
-                allow="autoplay"
+                allow="autoplay; fullscreen"
                 allowFullScreen
                 loading="lazy"
               />
@@ -1328,43 +1316,25 @@ const Cases = () => (
         </a>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8" id="blog-cases-grid" aria-live="polite">
-        <div className="group cursor-pointer">
-          <div className="overflow-hidden rounded-xl mb-6 relative">
-            <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">CARREGANDO</div>
-            <div className="w-full h-64 bg-white/10 animate-pulse rounded-xl"></div>
-            <div className="absolute inset-0 bg-black/50"></div>
+      <div className="grid md:grid-cols-3 gap-8">
+        {ASSETS.cases.map((c, i) => (
+          <div key={i} className="group cursor-pointer">
+            <div className="overflow-hidden rounded-xl mb-6 relative">
+              <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">
+                CASE SUCESSO
+              </div>
+              <img src={c.img} className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" alt={c.logo} loading="lazy" decoding="async" />
+              <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors"></div>
+            </div>
+            <div className="flex items-start justify-between mb-2">
+              <h3 className="text-2xl font-bold font-heading text-white">{c.logo}</h3>
+              <span className="text-brand-red font-black text-xl">{c.metric}</span>
+            </div>
+            <p className="text-gray-400 text-sm border-l-2 border-white/10 pl-4">
+              {c.desc}
+            </p>
           </div>
-          <div className="flex items-start justify-between mb-2">
-            <div className="h-6 w-48 bg-white/10 rounded animate-pulse"></div>
-            <div className="h-6 w-20 bg-white/10 rounded animate-pulse"></div>
-          </div>
-          <div className="h-10 bg-white/10 rounded animate-pulse"></div>
-        </div>
-        <div className="group cursor-pointer">
-          <div className="overflow-hidden rounded-xl mb-6 relative">
-            <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">CARREGANDO</div>
-            <div className="w-full h-64 bg-white/10 animate-pulse rounded-xl"></div>
-            <div className="absolute inset-0 bg-black/50"></div>
-          </div>
-          <div className="flex items-start justify-between mb-2">
-            <div className="h-6 w-48 bg-white/10 rounded animate-pulse"></div>
-            <div className="h-6 w-20 bg-white/10 rounded animate-pulse"></div>
-          </div>
-          <div className="h-10 bg-white/10 rounded animate-pulse"></div>
-        </div>
-        <div className="group cursor-pointer">
-          <div className="overflow-hidden rounded-xl mb-6 relative">
-            <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">CARREGANDO</div>
-            <div className="w-full h-64 bg-white/10 animate-pulse rounded-xl"></div>
-            <div className="absolute inset-0 bg-black/50"></div>
-          </div>
-          <div className="flex items-start justify-between mb-2">
-            <div className="h-6 w-48 bg-white/10 rounded animate-pulse"></div>
-            <div className="h-6 w-20 bg-white/10 rounded animate-pulse"></div>
-          </div>
-          <div className="h-10 bg-white/10 rounded animate-pulse"></div>
-        </div>
+        ))}
       </div>
     </div>
   </section>

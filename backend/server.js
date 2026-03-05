@@ -406,7 +406,7 @@ app.get('/crm/v1/health', async (req, res) => {
     });
 });
 
-// Rotas públicas (Instagram Feed + Blog)
+// Rotas públicas (Instagram Feed)
 app.use('/api/instagram', instagramRoutes);
 app.use('/instagram', instagramRoutes); // Rota alternativa sem /api para Traefik
 // Rotas públicas (Blog)

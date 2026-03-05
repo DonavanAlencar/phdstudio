@@ -163,10 +163,7 @@ const InstagramCarousel: React.FC = () => {
   };
 
   return (
-    <section
-      className="py-20 bg-brand-dark border-t border-white/5 relative overflow-hidden"
-      aria-labelledby="instagram-section-title"
-    >
+    <section className="py-20 bg-brand-dark border-t border-white/5 relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="max-w-2xl">
@@ -174,12 +171,7 @@ const InstagramCarousel: React.FC = () => {
               <div className="bg-brand-red/10 p-2 rounded-lg border border-brand-red/20">
                 <Instagram className="text-brand-red" size={24} />
               </div>
-              <h2
-                id="instagram-section-title"
-                className="text-3xl md:text-4xl font-black font-heading tracking-tight"
-              >
-                Siga a PHD
-              </h2>
+              <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight">Siga a PHD</h2>
             </div>
             <p className="text-gray-400 text-lg font-light">
               Bastidores, insights e resultados diários. Acompanhe nossa rotina no Instagram <a href="https://www.instagram.com/phdstudiooficial" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-red font-medium transition-colors">@phdstudiooficial</a>.
@@ -224,17 +216,11 @@ const InstagramCarousel: React.FC = () => {
             ref={scrollRef}
             className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide px-4 md:px-0 -mx-4 md:mx-0 min-h-[300px]"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            role="list"
-            aria-label="Posts recentes do Instagram da PHD Studio"
           >
             {loading ? (
               // Skeleton Loaders
               Array(5).fill(0).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 w-[280px] aspect-[4/5] rounded-xl bg-white/5 animate-pulse border border-white/10"
-                  aria-hidden="true"
-                />
+                <div key={i} className="flex-shrink-0 w-[280px] aspect-[4/5] rounded-xl bg-white/5 animate-pulse border border-white/10" />
               ))
             ) : (
               posts.map(post => (
@@ -244,7 +230,6 @@ const InstagramCarousel: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="relative flex-shrink-0 snap-center group w-[280px] aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-brand-gray"
-                  role="listitem"
                 >
                   {/* Media */}
                   {post.media_type === 'VIDEO' ? (
