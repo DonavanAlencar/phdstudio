@@ -44,6 +44,28 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao obter configuração do chat:', error);
+
+    // Falha de conexão com o banco: não quebrar o site, usar fallback habilitado
+    const dbErrorCode = error.code || error.cause?.code;
+    const msg = (error.message || '').toLowerCase();
+    const isConnectionError =
+      dbErrorCode === 'ENOTFOUND' ||
+      dbErrorCode === 'ECONNREFUSED' ||
+      dbErrorCode === 'EAI_AGAIN' ||
+      msg.includes('getaddrinfo') ||
+      msg.includes('timeout') ||
+      msg.includes('connect');
+
+    if (isConnectionError) {
+      return res.json({
+        success: true,
+        data: {
+          enabled: true
+        },
+        warning: 'Fallback: banco de dados indisponível, usando configuração padrão (enabled=true)'
+      });
+    }
+
     res.status(500).json({
       success: false,
       error: 'Erro ao obter configuração do chat',
