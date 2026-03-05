@@ -1328,25 +1328,43 @@ const Cases = () => (
         </a>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {ASSETS.cases.map((c, i) => (
-          <div key={i} className="group cursor-pointer">
-            <div className="overflow-hidden rounded-xl mb-6 relative">
-              <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">
-                CASE SUCESSO
-              </div>
-              <img src={c.img} className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700" alt={c.logo} loading="lazy" decoding="async" />
-              <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors"></div>
-            </div>
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-2xl font-bold font-heading text-white">{c.logo}</h3>
-              <span className="text-brand-red font-black text-xl">{c.metric}</span>
-            </div>
-            <p className="text-gray-400 text-sm border-l-2 border-white/10 pl-4">
-              {c.desc}
-            </p>
+      <div className="grid md:grid-cols-3 gap-8" id="blog-cases-grid" aria-live="polite">
+        <div className="group cursor-pointer">
+          <div className="overflow-hidden rounded-xl mb-6 relative">
+            <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">CARREGANDO</div>
+            <div className="w-full h-64 bg-white/10 animate-pulse rounded-xl"></div>
+            <div className="absolute inset-0 bg-black/50"></div>
           </div>
-        ))}
+          <div className="flex items-start justify-between mb-2">
+            <div className="h-6 w-48 bg-white/10 rounded animate-pulse"></div>
+            <div className="h-6 w-20 bg-white/10 rounded animate-pulse"></div>
+          </div>
+          <div className="h-10 bg-white/10 rounded animate-pulse"></div>
+        </div>
+        <div className="group cursor-pointer">
+          <div className="overflow-hidden rounded-xl mb-6 relative">
+            <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">CARREGANDO</div>
+            <div className="w-full h-64 bg-white/10 animate-pulse rounded-xl"></div>
+            <div className="absolute inset-0 bg-black/50"></div>
+          </div>
+          <div className="flex items-start justify-between mb-2">
+            <div className="h-6 w-48 bg-white/10 rounded animate-pulse"></div>
+            <div className="h-6 w-20 bg-white/10 rounded animate-pulse"></div>
+          </div>
+          <div className="h-10 bg-white/10 rounded animate-pulse"></div>
+        </div>
+        <div className="group cursor-pointer">
+          <div className="overflow-hidden rounded-xl mb-6 relative">
+            <div className="absolute top-4 right-4 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full z-20">CARREGANDO</div>
+            <div className="w-full h-64 bg-white/10 animate-pulse rounded-xl"></div>
+            <div className="absolute inset-0 bg-black/50"></div>
+          </div>
+          <div className="flex items-start justify-between mb-2">
+            <div className="h-6 w-48 bg-white/10 rounded animate-pulse"></div>
+            <div className="h-6 w-20 bg-white/10 rounded animate-pulse"></div>
+          </div>
+          <div className="h-10 bg-white/10 rounded animate-pulse"></div>
+        </div>
       </div>
     </div>
   </section>
