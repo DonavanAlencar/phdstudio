@@ -34,13 +34,14 @@ const mapRssItem = (item) => {
 };
 
 router.get('/videos', async (req, res) => {
+  let rssUrl;
   try {
     const limit = Math.min(parseInt(req.query.limit, 10) || DEFAULT_LIMIT, 12);
     const now = Date.now();
     if (req.query.force !== '1' && cache.data && now - cache.ts < CACHE_TTL_MS) {
       return res.json({ success: true, count: cache.data.length, data: cache.data.slice(0, limit) });
     }
-    const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
+    rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
     const resp = await axios.get(rssUrl, {
       timeout: 15000,
       headers: { Accept: 'application/rss+xml, application/xml' },
@@ -56,8 +57,44 @@ router.get('/videos', async (req, res) => {
       cache = { ts: now, data: videos };
       return res.json({ success: true, count: videos.length, data: videos });
     }
+
+    // Logar status não-200/não-XML recebido do YouTube para facilitar diagnóstico
+    console.error('❌ [YouTube] RSS retornou status inesperado', {
+      channelId: CHANNEL_ID,
+      rssUrl,
+      status: resp.status,
+      // Para evitar logs gigantes, limitar corpo se for string
+      bodySnippet: typeof resp.data === 'string' ? resp.data.substring(0, 500) : undefined
+    });
+
     return res.status(502).json({ success: false, error: 'Falha ao obter vídeos' });
   } catch (e) {
+    const message = e.message || '';
+    const code = e.code;
+
+    const isTimeout = code === 'ECONNABORTED' || code === 'ETIMEDOUT' || message.toLowerCase().includes('timeout');
+    const isDns =
+      code === 'ENOTFOUND' ||
+      message.toLowerCase().includes('getaddrinfo') ||
+      message.toLowerCase().includes('eai_again');
+
+    const hasHttpResponse = !!e.response;
+
+    console.error('❌ [YouTube] Erro ao obter RSS do canal', {
+      channelId: CHANNEL_ID,
+      rssUrl,
+      code,
+      errno: e.errno,
+      syscall: e.syscall,
+      isTimeout,
+      isDns,
+      hasHttpResponse,
+      responseStatus: e.response?.status,
+      responseData: e.response?.data,
+      message,
+      stack: e.stack?.substring(0, 500)
+    });
+
     return res.status(503).json({ success: false, error: 'Serviço YouTube indisponível', message: e.message });
   }
 });

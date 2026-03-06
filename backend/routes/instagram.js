@@ -201,7 +201,27 @@ router.get('/posts', async (req, res) => {
     if (res.headersSent) {
       return;
     }
-    
+
+    // Log detalhado do erro no handler externo
+    const isAxiosError = error.isAxiosError || !!error.response || !!error.request;
+    if (isAxiosError) {
+      console.error('❌ [Instagram] Erro no handler externo /posts:', {
+        message: error.message,
+        code: error.code,
+        responseStatus: error.response?.status,
+        responseData: error.response?.data,
+        requestUrl: error.config?.url,
+        requestMethod: error.config?.method,
+        stack: error.stack?.substring(0, 500)
+      });
+    } else {
+      console.error('❌ [Instagram] Erro inesperado no handler externo /posts:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack?.substring(0, 500)
+      });
+    }
+
     // Verificar se é erro de timeout ou conexão no catch externo também
     const errorCode = error.code || error.cause?.code || error.cause?.cause?.code;
     const errorMessage = error.message?.toLowerCase() || '';

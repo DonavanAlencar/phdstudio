@@ -9,8 +9,11 @@ const getYouTubeApiBase = () => {
 
 const BACKEND_YT = getYouTubeApiBase();
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-const PLAYLIST_ID = 'UU_s3s_4pA_p-yQY_k_E8B_w';
+const ENV_PLAYLIST_ID = import.meta.env.VITE_YOUTUBE_PLAYLIST_ID;
 const CHANNEL_ID = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
+
+// Playlist padrão: Portfólio Audiovisual PHD Studio
+const DEFAULT_PLAYLIST_ID = 'PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa';
 
 export interface YouTubeVideo {
     id: string;
@@ -60,10 +63,12 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<FetchVideosResult
             return { videos: [], error: true };
         }
 
-        let targetPlaylistId = PLAYLIST_ID || 'PLZ_eiyZByK0GPtwxJspv8n9tkkKYFmXYa';
+        // Playlist alvo: prioriza variável de ambiente, depois playlist padrão
+        let targetPlaylistId = ENV_PLAYLIST_ID || DEFAULT_PLAYLIST_ID;
 
-        const channelId = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
-        if (!PLAYLIST_ID && channelId) {
+        // Se não houver playlist definida, tentar descobrir uploads do canal
+        const channelId = CHANNEL_ID;
+        if (!ENV_PLAYLIST_ID && channelId) {
             try {
                 const channelResponse = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
                     params: {
@@ -74,8 +79,8 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<FetchVideosResult
                 });
                 const uploadsId = channelResponse.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
                 if (uploadsId) targetPlaylistId = uploadsId;
-            } catch (e) {
-                //
+            } catch {
+                // Se falhar, segue usando DEFAULT_PLAYLIST_ID ou o que já estiver em targetPlaylistId
             }
         }
 

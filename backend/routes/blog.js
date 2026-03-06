@@ -38,6 +38,9 @@ const mapWpPost = (p) => {
 
 router.get('/posts', async (req, res) => {
   try {
+    let wpUrl;
+    let rssUrl;
+
     const limit = Math.min(parseInt(req.query.limit, 10) || POSTS_LIMIT_DEFAULT, 12);
     const now = Date.now();
 
@@ -46,7 +49,7 @@ router.get('/posts', async (req, res) => {
     }
 
     // 1) Tentar via WP REST API com _embed para imagem destacada
-    const wpUrl = `${WP_BASE.replace(/\/$/, '')}/wp-json/wp/v2/posts?per_page=${limit}&_embed=1&orderby=date&order=desc`;
+    wpUrl = `${WP_BASE.replace(/\/$/, '')}/wp-json/wp/v2/posts?per_page=${limit}&_embed=1&orderby=date&order=desc`;
     const wpResp = await axios.get(wpUrl, {
       timeout: 15000,
       headers: { 'Accept': 'application/json' },
@@ -62,7 +65,7 @@ router.get('/posts', async (req, res) => {
     }
 
     // 2) Fallback: RSS feed
-    const rssUrl = `${WP_BASE.replace(/\/$/, '')}/feed/`;
+    rssUrl = `${WP_BASE.replace(/\/$/, '')}/feed/`;
     const rssResp = await axios.get(rssUrl, {
       timeout: 15000,
       headers: { 'Accept': 'application/rss+xml, application/xml' },
@@ -105,8 +108,29 @@ router.get('/posts', async (req, res) => {
       return res.json({ success: true, count: posts.length, data: posts });
     }
 
+    // Log detalhado antes de retornar 502 para facilitar diagnóstico em produção
+    console.error('❌ [Blog] Falha ao obter posts do WordPress', {
+      wpBase: WP_BASE,
+      wpUrl,
+      rssUrl,
+      wpStatus: typeof wpResp !== 'undefined' ? wpResp.status : undefined,
+      rssStatus: typeof rssResp !== 'undefined' ? rssResp.status : undefined
+    });
+
     return res.status(502).json({ success: false, error: 'Falha ao obter posts do blog' });
   } catch (err) {
+    // Logar exatamente qual URL foi tentada e o erro de rede específico
+    console.error('❌ [Blog] Erro ao acessar WordPress', {
+      wpBase: WP_BASE,
+      wpUrl,
+      rssUrl,
+      code: err.code,
+      errno: err.errno,
+      syscall: err.syscall,
+      message: err.message,
+      stack: err.stack?.substring(0, 500)
+    });
+
     return res.status(503).json({ success: false, error: 'Serviço de blog indisponível', message: err.message });
   }
 });
