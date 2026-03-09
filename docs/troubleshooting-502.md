@@ -57,6 +57,12 @@ cd /root/phdstudio   # ou o caminho do seu repositório
 - Confirme que `phd-api` está na rede `n8n_default` e que o Traefik está rodando.
 - Veja os logs: `docker logs phd-api --tail 100`.
 
+### 502 em `/api/blog/posts` (carrossel do blog)
+
+- **Causa 1:** Traefik não alcança o container `phd-api` → siga o diagnóstico acima.
+- **Causa 2:** O container `phd-api` está no ar, mas a fonte dos posts (API ou RSS) está inacessível. O site principal é React; o blog pode ser outra aplicação (React, CMS, etc.). Configure `BLOG_API_URL` no `phd-api` se o blog tiver API JSON própria; veja [Blog – fonte dos posts](api/blog-posts-setup.md).
+- Quando a API retorna 502, o frontend usa **fallback por RSS** no navegador; o carrossel pode continuar mostrando posts. Se não aparecer, verifique CORS ao acessar o RSS ou a URL em `src/utils/blog.ts`.
+
 ## Script de diagnóstico
 
 Foi adicionado o script `scripts/check-502.sh`, que roda os comandos acima e resume o status. No servidor:

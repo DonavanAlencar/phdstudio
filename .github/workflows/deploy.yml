@@ -12,6 +12,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # Porta SSH: use o secret SERVER_SSH_PORT se existir, senão 22
+      SSH_PORT: ${{ secrets.SERVER_SSH_PORT || '22' }}
     
     steps:
     - name: Checkout code
@@ -36,16 +39,16 @@ jobs:
           echo "⚠️ Ping não respondeu (pode ser normal se ICMP estiver bloqueado)"
         fi
         
-        # Testar porta 22 com timeout e retry
-        echo "🔌 Testando porta SSH (22)..."
+        # Testar porta SSH com timeout e retry
+        echo "🔌 Testando porta SSH (${{ env.SSH_PORT }})..."
         PORT_ACCESSIBLE=false
         for i in {1..3}; do
-          if timeout 5 bash -c "echo > /dev/tcp/${{ secrets.SERVER_HOST }}/22" 2>/dev/null; then
-            echo "✅ Porta 22 está acessível (tentativa $i/3)"
+          if timeout 5 bash -c "echo > /dev/tcp/${{ secrets.SERVER_HOST }}/${{ env.SSH_PORT }}" 2>/dev/null; then
+            echo "✅ Porta ${{ env.SSH_PORT }} está acessível (tentativa $i/3)"
             PORT_ACCESSIBLE=true
             break
           else
-            echo "⚠️ Tentativa $i/3: Porta 22 não acessível (pode ser firewall temporário)"
+            echo "⚠️ Tentativa $i/3: Porta ${{ env.SSH_PORT }} não acessível (pode ser firewall temporário)"
             if [ $i -lt 3 ]; then
               sleep 2
             fi
@@ -53,7 +56,7 @@ jobs:
         done
         
         if [ "$PORT_ACCESSIBLE" = "false" ]; then
-          echo "⚠️ Porta 22 não está acessível (testando continuará com SSH direto)"
+          echo "⚠️ Porta ${{ env.SSH_PORT }} não está acessível (testando continuará com SSH direto)"
           echo "Possíveis causas:"
           echo "  - Firewall bloqueando conexões do GitHub Actions (mas pode permitir SSH)"
           echo "  - Porta SSH pode estar em outra porta (2222, 22022, etc)"
@@ -65,18 +68,20 @@ jobs:
     - name: Test SSH connection
       timeout-minutes: 2
       run: |
-        echo "🔑 Testando conexão SSH..."
+        echo "🔑 Testando conexão SSH (porta ${{ env.SSH_PORT }})..."
         ssh -o StrictHostKeyChecking=no \
             -o ConnectTimeout=20 \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=3 \
             -o BatchMode=yes \
+            -p ${{ env.SSH_PORT }} \
             -v root@${{ secrets.SERVER_HOST }} 'echo "✅ Conexão SSH OK"' || {
           echo "❌ Falha ao conectar via SSH"
           echo "Verifique:"
           echo "  1. Se a chave SSH está configurada corretamente no GitHub Secrets"
-          echo "  2. Se o servidor está acessível (IP: ${{ secrets.SERVER_HOST }})"
+          echo "  2. Se o servidor está acessível (IP: ${{ secrets.SERVER_HOST }}, porta: ${{ env.SSH_PORT }})"
           echo "  3. Se o firewall permite conexões do GitHub Actions"
+          echo "  4. Guia: docs/troubleshooting-deploy-ssh.md"
           exit 1
         }
     
@@ -89,6 +94,7 @@ jobs:
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=3 \
             -o BatchMode=yes \
+            -p ${{ env.SSH_PORT }} \
             root@${{ secrets.SERVER_HOST }} '
           set -e
           cd /root/phdstudio || exit 1
@@ -129,6 +135,7 @@ jobs:
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=3 \
             -o BatchMode=yes \
+            -p ${{ env.SSH_PORT }} \
             root@${{ secrets.SERVER_HOST }} '
           set -e
           cd /root/phdstudio || exit 1
@@ -176,7 +183,7 @@ jobs:
           echo ""
           echo "Troubleshooting:"
           echo "1. Verifique se o servidor está online: ping ${{ secrets.SERVER_HOST }}"
-          echo "2. Verifique se a porta 22 está aberta: telnet ${{ secrets.SERVER_HOST }} 22"
+          echo "2. Verifique se a porta SSH está aberta: nc -zv ${{ secrets.SERVER_HOST }} ${{ env.SSH_PORT }}"
           echo "3. Verifique se a chave SSH está correta no GitHub Secrets"
           echo "4. Verifique logs do servidor: journalctl -u sshd -n 50"
         fi

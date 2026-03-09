@@ -51,6 +51,7 @@ export const fetchLatestPosts = async (limit = 6): Promise<FetchPostsResult> => 
 
 // --- RSS-based fetch (client-side) ---
 
+// Feed RSS do blog (usado no fallback quando /api/blog/posts falha)
 const BLOG_RSS_URL = 'https://www.phdstudio.blog.br/blog-feed.xml';
 
 export const fetchLatestPostsFromRss = async (limit = 8): Promise<FetchPostsResult> => {

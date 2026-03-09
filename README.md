@@ -1,8 +1,12 @@
-# PHD Studio - Sistema de Gerenciamento de Produtos
+# PHD Studio
 
-Sistema completo de gerenciamento de produtos/serviços do PHD Studio com:
+**Site principal (phdstudio.com.br) é 100% React** — frontend em React/Vite, API em Node.js, sem WordPress no site.
+
+Sistema inclui:
+- **Site institucional** (React) com carrosséis, formulários e integrações
 - **API REST** para integração com n8n e outros sistemas
-- **Banco de dados PostgreSQL** para CRM e produtos
+- **Banco de dados PostgreSQL** para CRM
+- **Carrossel do blog** pode consumir uma API JSON (blog em React, CMS, etc.) ou RSS; configurável por variáveis de ambiente
 
 ## 📋 Status Atual
 
@@ -12,15 +16,7 @@ Sistema completo de gerenciamento de produtos/serviços do PHD Studio com:
 
 ## 🚀 Início Rápido
 
-### 1. Acessar Painel WordPress
-
-```
-http://seu-servidor:8080/wp-admin
-```
-
-Menu: **PHD Studio** → **Todos os Produtos**
-
-### 2. Testar API REST
+### 1. Testar API REST
 
 ```bash
 # Health check
@@ -31,7 +27,7 @@ curl -X GET http://localhost:3001/api/phd/v1/products \
   -H "X-PHD-API-KEY: sua-api-key"
 ```
 
-### 3. Executar Testes Automatizados
+### 2. Executar Testes Automatizados
 
 ```bash
 PHD_API_KEY=sua-api-key ./scripts/test-api.sh

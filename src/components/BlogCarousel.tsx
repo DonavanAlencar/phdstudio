@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
-import { fetchLatestPosts, type BlogPost } from '../utils/blog';
+import { fetchLatestPosts, fetchLatestPostsFromRss, type BlogPost } from '../utils/blog';
 import BlogCard from './BlogCard';
 
 const BlogCarousel: React.FC = () => {
@@ -17,7 +17,12 @@ const BlogCarousel: React.FC = () => {
       setLoading(true);
       setFetchError(false);
 
-      const result = await fetchLatestPosts(8);
+      let result = await fetchLatestPosts(8);
+
+      // Se a API retornar 502/503 ou erro de rede, usar RSS direto do browser
+      if (mounted && result.error && result.posts.length === 0) {
+        result = await fetchLatestPostsFromRss(8);
+      }
 
       if (mounted) {
         setPosts(result.posts);
