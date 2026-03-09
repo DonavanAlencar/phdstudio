@@ -1,0 +1,112 @@
+{
+	"info": {
+		"_postman_id": "n8n-sse-webhook-test",
+		"name": "n8n SSE Webhook - Google Ads Tool MCP",
+		"description": "Coleção para testar o webhook SSE do n8n para Google Ads Tool MCP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "SSE Webhook Test",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "text/event-stream",
+						"type": "text"
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-cache",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://n8n.546digitalservices.com/{{webhook_path}}",
+					"protocol": "https",
+					"host": [
+						"n8n",
+						"546digitalservices",
+						"com"
+					],
+					"path": [
+						"{{webhook_path}}"
+					]
+				},
+				"description": "Testa o webhook SSE do n8n. Mantém a conexão aberta para receber eventos.\n\n**Importante:**\n- O workflow precisa estar ATIVO no n8n\n- SSE mantém a conexão aberta indefinidamente (comportamento normal)\n- Aumente o timeout no Postman para pelo menos 60 segundos"
+			},
+			"response": []
+		},
+		{
+			"name": "SSE Webhook Test (with CORS)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "text/event-stream",
+						"type": "text"
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-cache",
+						"type": "text"
+					},
+					{
+						"key": "Origin",
+						"value": "https://phdstudio.com.br",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://n8n.546digitalservices.com/{{webhook_path}}",
+					"protocol": "https",
+					"host": [
+						"n8n",
+						"546digitalservices",
+						"com"
+					],
+					"path": [
+						"{{webhook_path}}"
+					]
+				},
+				"description": "Versão com header Origin para testar CORS"
+			},
+			"response": []
+		},
+		{
+			"name": "Check Webhook Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://n8n.546digitalservices.com/{{webhook_path}}",
+					"protocol": "https",
+					"host": [
+						"n8n",
+						"546digitalservices",
+						"com"
+					],
+					"path": [
+						"{{webhook_path}}"
+					]
+				},
+				"description": "Verifica se o webhook está registrado (sem header SSE, retorna JSON com status)"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://n8n.546digitalservices.com",
+			"type": "string"
+		},
+		{
+			"key": "webhook_path",
+			"value": "/google-ads-tool-mcp/sse",
+			"type": "string"
+		}
+	]
+}
