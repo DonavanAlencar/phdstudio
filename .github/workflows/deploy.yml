@@ -1,3 +1,4 @@
+# Deploy PHD Studio: SSH no servidor e executa deploy-remote.sh (Docker)
 name: Deploy to Server
 
 on:
