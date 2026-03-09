@@ -152,16 +152,6 @@ const InstagramCarousel: React.FC = () => {
     fetchInstagramPosts();
   }, []);
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = 300; // Adjust based on card width + gap
-      scrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
   return (
     <section className="py-20 bg-brand-dark border-t border-white/5 relative overflow-hidden">
       <div className="container mx-auto px-4">
@@ -190,121 +180,7 @@ const InstagramCarousel: React.FC = () => {
           </a>
         </div>
 
-        <div className="relative group/nav">
-          {/* Navigation Arrows (Desktop) */}
-          {!loading && posts.length > 0 && (
-            <>
-              <button
-                onClick={() => scroll('left')}
-                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 bg-black/80 border border-white/10 p-3 rounded-full text-white shadow-xl hover:bg-brand-red hover:border-brand-red transition-all opacity-0 group-hover/nav:opacity-100 backdrop-blur-sm"
-                aria-label="Anterior"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <button
-                onClick={() => scroll('right')}
-                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 bg-black/80 border border-white/10 p-3 rounded-full text-white shadow-xl hover:bg-brand-red hover:border-brand-red transition-all opacity-0 group-hover/nav:opacity-100 backdrop-blur-sm"
-                aria-label="Próximo"
-              >
-                <ChevronRight size={24} />
-              </button>
-            </>
-          )}
-
-          {/* Scroll Container */}
-          <div
-            ref={scrollRef}
-            className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide px-4 md:px-0 -mx-4 md:mx-0 min-h-[300px]"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {loading ? (
-              // Skeleton Loaders
-              Array(5).fill(0).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-[280px] aspect-[4/5] rounded-xl bg-white/5 animate-pulse border border-white/10" />
-              ))
-            ) : (
-              posts.map(post => (
-                <a
-                  key={post.id}
-                  href={post.permalink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative flex-shrink-0 snap-center group w-[280px] aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-brand-gray"
-                >
-                  {/* Media */}
-                  {post.media_type === 'VIDEO' ? (
-                    <video
-                      src={post.media_url}
-                      poster={post.thumbnail_url}
-                      className="w-full h-full object-cover"
-                      preload="metadata"
-                      playsInline
-                      muted
-                      loop
-                      controls={false}
-                    />
-                  ) : (
-                    <img
-                      src={post.media_url}
-                      alt={post.caption || 'Instagram Post'}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      loading="lazy"
-                    />
-                  )}
-
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center gap-4 p-6">
-                    {(post.like_count !== undefined || post.comments_count !== undefined) && (
-                      <div className="flex items-center gap-8 text-white font-bold">
-                        {post.like_count !== undefined && (
-                          <div className="flex items-center gap-2">
-                            <Heart className="fill-white" size={24} />
-                            <span>{post.like_count}</span>
-                          </div>
-                        )}
-                        {post.comments_count !== undefined && (
-                          <div className="flex items-center gap-2">
-                            <MessageCircle className="fill-white" size={24} />
-                            <span>{post.comments_count}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {post.caption && (
-                      <p className="text-white text-xs text-center line-clamp-3 font-medium opacity-90">
-                        {post.caption}
-                      </p>
-                    )}
-                    <div className="mt-4 text-brand-red text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                      Ver no Instagram <ExternalLink size={12} />
-                    </div>
-                  </div>
-
-                  {/* Instagram Icon Corner */}
-                  <div className="absolute top-3 right-3 bg-black/50 backdrop-blur rounded-full p-1.5 border border-white/10 opacity-70 group-hover:opacity-0 transition-opacity">
-                    <Instagram size={16} className="text-white" />
-                  </div>
-                </a>
-              ))
-            )}
-          </div>
-        </div>
-
-        {!loading && posts.length === 0 && (
-          <div className="mt-4 flex flex-col items-center justify-center gap-3 text-center">
-            {error && (
-              <p className="text-gray-500 text-sm">Feed temporariamente indisponível. Tente mais tarde.</p>
-            )}
-            <a
-              href="https://www.instagram.com/phdstudiooficial"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-gray-400 hover:text-white underline underline-offset-4"
-            >
-              Ver perfil @phdstudiooficial
-            </a>
-          </div>
-        )}
+        {/* Carrossel do Instagram removido: mantemos apenas título e CTA */}
       </div>
     </section>
   );
