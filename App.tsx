@@ -1011,8 +1011,7 @@ const Hero = () => {
                 className="w-full h-full rounded-xl"
                 src="https://www.youtube.com/embed/jdPkh5MG6dg?autoplay=1&mute=1&loop=1&playlist=jdPkh5MG6dg&rel=0&controls=1"
                 title="Vídeo introdutório PHD Studio"
-                allow="autoplay; fullscreen"
-                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                 loading="lazy"
               />
             </div>
