@@ -13,6 +13,7 @@ import MobileChatPage from './src/components/MobileChat/MobileChatPage';
 import ClientArea from './src/components/ClientArea/ClientArea';
 import YouTubeCarousel from './src/components/YouTubeCarousel';
 import BlogCarousel from './src/components/BlogCarousel';
+import InstagramLeadCarousel from './src/components/InstagramLeadCarousel';
 import UsersManagement from './src/components/Logs/UsersManagement';
 import MobilechatConfigsManagement from './src/components/Logs/MobilechatConfigsManagement';
 import ClientsManagement from './src/components/Logs/ClientsManagement';
@@ -2985,8 +2986,9 @@ const HomePage = () => (
     <Solutions />
     <Methodology />
     <Cases />
-    <YouTubeCarousel />
     <BlogCarousel />
+    <InstagramLeadCarousel />
+    <YouTubeCarousel />
     <Testimonials />
     <FAQ />
     <ContactForm />
