@@ -166,7 +166,7 @@ const InstagramLeadCarousel: React.FC = () => {
                 id="instagram-leads-title"
                 className="text-3xl md:text-4xl font-black font-heading tracking-tight"
               >
-                Conteúdo em tempo real no Instagram
+                Siga a PHD Studio no Instagram
               </h2>
             </div>
             <p className="text-gray-400 text-lg font-light">

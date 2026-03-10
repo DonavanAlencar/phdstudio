@@ -14,6 +14,54 @@ Sistema inclui:
 ✅ **Banco de Dados:** PostgreSQL configurado  
 ✅ **Docker:** Configurado e funcionando
 
+## 🛡️ Resiliência dos Endpoints Públicos
+
+Os endpoints `/api/blog/posts` e `/api/instagram/posts` são protegidos contra lentidão ou falha de upstreams externos (`phdstudio.blog.br` e `graph.facebook.com`) por um mecanismo de **timeout + retry + cache stale**.
+
+### Comportamento por cenário
+
+| Cenário | `success` | `data` | `meta.source` | `meta.stale` | `meta.reason` |
+|---|---|---|---|---|---|
+| Upstream respondeu OK | `true` | posts reais | `"upstream"` | — | — |
+| Upstream falhou + cache válido (hot) | `true` | cache | `"cache"` | — | — |
+| Upstream falhou + cache expirado | `true` | cache antigo | `"cache"` | `true` | — |
+| Upstream falhou + sem cache | `false` | `[]` | — | — | código técnico |
+
+### Códigos técnicos em `meta.reason`
+
+| Código | Significado |
+|---|---|
+| `UPSTREAM_TIMEOUT` | Requisição excedeu o timeout configurado |
+| `DNS_ERROR` | Falha de resolução DNS |
+| `NETWORK_ERROR` | Erro de conexão TCP/IP |
+| `HTTP_NNN` | Upstream retornou status HTTP de erro |
+| `MISSING_TOKEN` | Token do Instagram não configurado |
+| `INVALID_RESPONSE` | Resposta fora do formato esperado |
+
+### Variáveis de ambiente relevantes
+
+```env
+# Timeout por tentativa (ms) — padrão 5000
+BLOG_FETCH_TIMEOUT_MS=5000
+INSTAGRAM_FETCH_TIMEOUT_MS=5000
+
+# Retries para erros transitórios — padrão 1
+BLOG_FETCH_RETRIES=1
+INSTAGRAM_FETCH_RETRIES=1
+
+# TTL do cache em memória (ms) — blog=10min, instagram=5min
+BLOG_CACHE_TTL=600000
+INSTAGRAM_CACHE_TTL=300000
+```
+
+### Executar testes do backend
+
+```bash
+cd backend && npm test
+```
+
+---
+
 ## 🚀 Início Rápido
 
 ### 1. Testar API REST
