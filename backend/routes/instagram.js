@@ -80,6 +80,24 @@ router.get('/posts', async (req, res) => {
       endpointName: 'instagram/posts',
     });
 
+    // HTTP 4xx da Graph API significa erro de autenticação ou parâmetros inválidos
+    if (status >= 400) {
+      const apiError = data?.error;
+      lastReason = (status === 400 || status === 401 || status === 403)
+        ? 'AUTH_ERROR'
+        : `HTTP_${status}`;
+      console.error('[instagram/posts] Graph API retornou erro HTTP', {
+        status,
+        errorType:    apiError?.type || '',
+        errorCode:    apiError?.code || '',
+        errorMessage: apiError?.message || '',
+      });
+      throw Object.assign(
+        new Error(apiError?.message || `Graph API retornou HTTP ${status}`),
+        { reason: lastReason }
+      );
+    }
+
     if (!data.data || !Array.isArray(data.data)) {
       lastReason = 'INVALID_RESPONSE';
       throw Object.assign(
