@@ -69,7 +69,7 @@ router.get('/posts', async (req, res) => {
   let lastReason = 'UNKNOWN_ERROR';
 
   try {
-    const { data } = await resilientGet(url, {
+    const { data, status } = await resilientGet(url, {
       timeout:        FETCH_TIMEOUT,
       retries:        FETCH_RETRIES,
       retryBackoffMs: FETCH_BACKOFF,
