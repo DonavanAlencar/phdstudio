@@ -47,6 +47,27 @@ const buildContentFromCaption = (caption?: string) => {
   };
 };
 
+const FALLBACK_POSTS: InstagramPost[] = [
+  {
+    id: 'fallback-1',
+    media_type: 'IMAGE',
+    media_url:
+      'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=800&auto=format&fit=crop',
+    caption:
+      'Conteúdo estratégico em marketing digital, automação e IA diretamente do Instagram da PHD Studio.',
+    permalink: 'https://www.instagram.com/phdstudiooficial',
+  },
+  {
+    id: 'fallback-2',
+    media_type: 'IMAGE',
+    media_url:
+      'https://images.unsplash.com/photo-1526491109672-74740652b963?q=80&w=800&auto=format&fit=crop',
+    caption:
+      'Cases reais, bastidores e insights diários sobre performance e crescimento de negócios.',
+    permalink: 'https://www.instagram.com/phdstudiooficial',
+  },
+];
+
 const InstagramLeadCarousel: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [posts, setPosts] = useState<InstagramPost[]>([]);
@@ -99,10 +120,12 @@ const InstagramLeadCarousel: React.FC = () => {
             'instagram_leads_carousel_cache',
             JSON.stringify({ data: result.data, timestamp: Date.now() }),
           );
+        } else if (mounted) {
+          setPosts(FALLBACK_POSTS);
         }
       } catch {
         if (mounted) {
-          setPosts([]);
+          setPosts(FALLBACK_POSTS);
         }
       } finally {
         if (mounted) {
@@ -126,10 +149,6 @@ const InstagramLeadCarousel: React.FC = () => {
       behavior: 'smooth',
     });
   };
-
-  if (!loading && posts.length === 0) {
-    return null;
-  }
 
   return (
     <section
