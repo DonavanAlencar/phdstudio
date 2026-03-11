@@ -99,7 +99,9 @@ const InstagramLeadCarousel: React.FC = () => {
           }
         }
 
-        const endpoint = `${INSTAGRAM_API_URL}/posts?limit=8`;
+        // Força o backend a consultar a API do Instagram,
+        // em vez de reutilizar apenas o cache em memória
+        const endpoint = `${INSTAGRAM_API_URL}/posts?limit=8&force=1`;
         const response = await fetch(endpoint);
 
         if (!response.ok) {

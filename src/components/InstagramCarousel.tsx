@@ -103,7 +103,8 @@ const InstagramCarousel: React.FC = () => {
           }
         }
 
-        const apiUrl = `${INSTAGRAM_API_URL}/posts?limit=8`;
+        // Força o backend a sempre tentar buscar os posts mais recentes
+        const apiUrl = `${INSTAGRAM_API_URL}/posts?limit=8&force=1`;
         // console.log('📸 [Instagram] Buscando posts de:', apiUrl);
         
         const response = await fetchWithRetry(apiUrl);
