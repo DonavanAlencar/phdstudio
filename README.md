@@ -10,7 +10,7 @@ Sistema inclui:
 
 ## 📋 Status Atual
 
-✅ **API REST:** Rodando na porta 3001  
+✅ **API REST:** Rodando na porta 3001  .
 ✅ **Banco de Dados:** PostgreSQL configurado  
 ✅ **Docker:** Configurado e funcionando
 
