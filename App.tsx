@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, createContext, useContext } from 'react';
 import { BrowserRouter, Link, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import {
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
@@ -463,7 +463,7 @@ const useAuth = () => {
 const THEME_KEY = 'phd-theme';
 type Theme = 'dark' | 'light';
 
-const ThemeContext = createContext<{ theme: Theme; setTheme: (t: Theme) => void } | undefined>(undefined);
+const ThemeContext = createContext<{ theme: Theme; setTheme: (t: Theme) => void; toggleTheme: () => void } | undefined>(undefined);
 
 const useTheme = () => {
   const ctx = useContext(ThemeContext);
@@ -474,18 +474,27 @@ const useTheme = () => {
 const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof document === 'undefined') return 'dark';
-    return (localStorage.getItem(THEME_KEY) as Theme) || 'dark';
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored === 'light' || stored === 'dark') return stored;
+    const dom = document.documentElement.getAttribute('data-theme');
+    if (dom === 'light' || dom === 'dark') return dom;
+    return 'dark';
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(THEME_KEY, theme);
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      // ignore storage errors
+    }
   }, [theme]);
 
   const setTheme = (t: Theme) => setThemeState(t);
+  const toggleTheme = () => setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -759,7 +768,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { isAuthenticated, username, userRole, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -814,6 +823,14 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-8">
           {isAuthenticated && userRole === 'client' && username === 'vexin' ? (
             <>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
+                aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+              >
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
               <Link to="/funil_vexin" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Funil
               </Link>
@@ -823,6 +840,14 @@ const Navbar = () => {
             </>
           ) : isAuthenticated && userRole === 'admin' ? (
             <>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
+                aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+              >
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
               <Link to="/produtos" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Produtos
               </Link>
@@ -834,7 +859,7 @@ const Navbar = () => {
             <>
               <button
                 type="button"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                onClick={toggleTheme}
                 className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
                 aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
               >
@@ -935,7 +960,7 @@ const Navbar = () => {
             <>
               <button
                 type="button"
-                onClick={() => { setTheme(theme === 'dark' ? 'light' : 'dark'); setIsOpen(false); }}
+                onClick={() => { toggleTheme(); setIsOpen(false); }}
                 className="p-3 rounded-xl border border-white/20 bg-white/10 text-white flex items-center gap-2 text-lg font-medium"
                 aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
               >
