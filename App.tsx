@@ -865,7 +865,7 @@ const Navbar = () => {
                   {link.name}
                 </a>
               )
-              ))}
+            )}
             </>
           )}
         </div>
