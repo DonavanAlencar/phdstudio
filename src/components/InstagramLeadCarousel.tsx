@@ -16,7 +16,7 @@ const getInstagramApiUrl = () => {
   if (import.meta.env.VITE_INSTAGRAM_API_URL) {
     return import.meta.env.VITE_INSTAGRAM_API_URL;
   }
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://phdstudio.com.br/api';
   const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
   return `${baseUrl}/instagram`;
 };
@@ -75,23 +75,60 @@ const InstagramLeadCarousel: React.FC = () => {
 
   useEffect(() => {
     let mounted = true;
+    const CACHE_KEY = 'instagram_leads_carousel_cache';
+    const CACHE_MAX_AGE = 5 * 60 * 1000; // 5 minutos
+
+    const clearCache = () => {
+      try {
+        localStorage.removeItem(CACHE_KEY);
+      } catch {
+        // ignore
+      }
+    };
+
+    const fetchWithRetry = async (url: string, retries = 2): Promise<Response> => {
+      const cacheBustingUrl = `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`;
+      for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(
+            () => controller.abort(new DOMException(`Timeout (tentativa ${attempt + 1}/${retries})`, 'AbortError')),
+            25000
+          );
+          const response = await fetch(cacheBustingUrl, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          if (response.ok) return response;
+          if (response.status === 404) throw new Error(`Endpoint não encontrado: ${url}`);
+          if (attempt < retries - 1) {
+            await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+            continue;
+          }
+          return response;
+        } catch (err) {
+          if (attempt === retries - 1) throw err;
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        }
+      }
+      throw new Error('Todas as tentativas falharam');
+    };
 
     const fetchPosts = async () => {
       try {
         setLoading(true);
 
-        const cacheKey = 'instagram_leads_carousel_cache';
-        const cached = localStorage.getItem(cacheKey);
-
+        const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
           try {
             const { data, timestamp } = JSON.parse(cached);
-            const maxAge = 5 * 60 * 1000; // 5 minutos
-            if (Date.now() - timestamp < maxAge && Array.isArray(data)) {
-              if (mounted) {
-                setPosts(data);
-                setLoading(false);
-              }
+            const isStale = Date.now() - timestamp >= CACHE_MAX_AGE;
+            const isValid = Array.isArray(data) && data.length > 0 && !data.some((p: InstagramPost) => p.id?.startsWith('fallback-'));
+            if (!isStale && isValid && mounted) {
+              setPosts(data);
+              setLoading(false);
               return;
             }
           } catch {
@@ -99,13 +136,13 @@ const InstagramLeadCarousel: React.FC = () => {
           }
         }
 
-        // Força o backend a consultar a API do Instagram,
-        // em vez de reutilizar apenas o cache em memória
         const endpoint = `${INSTAGRAM_API_URL}/posts?limit=8&force=1`;
-        const response = await fetch(endpoint);
+        const response = await fetchWithRetry(endpoint);
 
         if (!response.ok) {
-          throw new Error(`Erro ${response.status}`);
+          const body = await response.json().catch(() => ({}));
+          if (response.status === 503) clearCache();
+          throw new Error((body as { message?: string })?.message || `Erro ${response.status}`);
         }
 
         const result = await response.json();
@@ -115,24 +152,19 @@ const InstagramLeadCarousel: React.FC = () => {
           Array.isArray(result.data) &&
           result.data.length > 0
         ) {
-          if (mounted) {
-            setPosts(result.data);
-          }
+          if (mounted) setPosts(result.data);
           localStorage.setItem(
-            'instagram_leads_carousel_cache',
+            CACHE_KEY,
             JSON.stringify({ data: result.data, timestamp: Date.now() }),
           );
         } else if (mounted) {
           setPosts(FALLBACK_POSTS);
         }
       } catch {
-        if (mounted) {
-          setPosts(FALLBACK_POSTS);
-        }
+        clearCache();
+        if (mounted) setPosts(FALLBACK_POSTS);
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     };
 
