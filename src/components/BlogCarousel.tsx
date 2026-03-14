@@ -19,8 +19,8 @@ const BlogCarousel: React.FC = () => {
 
       let result = await fetchLatestPosts(8);
 
-      // Se a API retornar 502/503 ou erro de rede, usar RSS direto do browser
-      if (mounted && result.error && result.posts.length === 0) {
+      // Se a API falhar ou retornar vazio, tentar RSS direto para manter carrossel sincronizado
+      if (mounted && result.posts.length === 0) {
         result = await fetchLatestPostsFromRss(8);
       }
 

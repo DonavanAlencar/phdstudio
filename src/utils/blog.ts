@@ -21,11 +21,11 @@ const getBlogApiBase = (): string => {
 
 export type FetchPostsResult = { posts: BlogPost[]; error: boolean };
 
-const fetchWithRetry = async (url: string, retries = 2): Promise<Response> => {
+const fetchWithRetry = async (url: string, retries = 3): Promise<Response> => {
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timeoutId);
       if (res.ok) return res;
