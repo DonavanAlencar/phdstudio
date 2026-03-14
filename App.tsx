@@ -459,47 +459,6 @@ const useAuth = () => {
   return context;
 };
 
-// --- Theme (light/dark) ---
-const THEME_KEY = 'phd-theme';
-type Theme = 'dark' | 'light';
-
-const ThemeContext = createContext<{ theme: Theme; setTheme: (t: Theme) => void; toggleTheme: () => void } | undefined>(undefined);
-
-const useTheme = () => {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
-  return ctx;
-};
-
-const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof document === 'undefined') return 'dark';
-    const stored = localStorage.getItem(THEME_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
-    const dom = document.documentElement.getAttribute('data-theme');
-    if (dom === 'light' || dom === 'dark') return dom;
-    return 'dark';
-  });
-
-  useLayoutEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch {
-      // ignore storage errors
-    }
-  }, [theme]);
-
-  const setTheme = (t: Theme) => setThemeState(t);
-  const toggleTheme = () => setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
-
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-};
-
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('isAuthenticated') === 'true';
@@ -764,21 +723,34 @@ const SectionTitle = ({ title, subtitle, centered = false }: { title: string, su
   </div>
 );
 
+const THEME_STORAGE_KEY = 'phd-theme';
+type Theme = 'dark' | 'light';
+
+function getThemeFromDOM(): Theme {
+  if (typeof document === 'undefined') return 'dark';
+  const t = document.documentElement.getAttribute('data-theme') || localStorage.getItem(THEME_STORAGE_KEY);
+  return (t === 'light' || t === 'dark') ? t : 'dark';
+}
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [theme, setTheme] = useState<Theme>(getThemeFromDOM);
   const { isAuthenticated, username, userRole, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    setTheme(getThemeFromDOM());
+  }, []);
 
   const handleThemeToggle = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
+    const next: Theme = theme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     try {
-      localStorage.setItem(THEME_KEY, next);
+      localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {
       // ignore
     }
-    toggleTheme();
+    setTheme(next);
   };
 
   useEffect(() => {
@@ -3693,8 +3665,7 @@ const LogsPage = () => {
 function App() {
   return (
     <AuthProvider>
-      <ThemeProvider>
-        <ChatVisibilityProvider>
+      <ChatVisibilityProvider>
           <BrowserRouter>
           <VisitorTracker />
           <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
@@ -3797,7 +3768,6 @@ function App() {
           </div>
           </BrowserRouter>
         </ChatVisibilityProvider>
-      </ThemeProvider>
     </AuthProvider>
   );
 }
