@@ -770,6 +770,17 @@ const Navbar = () => {
   const { isAuthenticated, username, userRole, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
+  const handleThemeToggle = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // ignore
+    }
+    toggleTheme();
+  };
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
@@ -825,7 +836,7 @@ const Navbar = () => {
             <>
               <button
                 type="button"
-                onClick={toggleTheme}
+                onClick={handleThemeToggle}
                 className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
                 aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
               >
@@ -842,7 +853,7 @@ const Navbar = () => {
             <>
               <button
                 type="button"
-                onClick={toggleTheme}
+                onClick={handleThemeToggle}
                 className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
                 aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
               >
@@ -859,7 +870,7 @@ const Navbar = () => {
             <>
               <button
                 type="button"
-                onClick={toggleTheme}
+                onClick={handleThemeToggle}
                 className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
                 aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
               >
@@ -960,7 +971,7 @@ const Navbar = () => {
             <>
               <button
                 type="button"
-                onClick={() => { toggleTheme(); setIsOpen(false); }}
+                onClick={() => { handleThemeToggle(); setIsOpen(false); }}
                 className="p-3 rounded-xl border border-white/20 bg-white/10 text-white flex items-center gap-2 text-lg font-medium"
                 aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
               >

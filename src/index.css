@@ -31,11 +31,12 @@
   color: #f4f4f5;
 }
 
-/* Toggle continua visível no header */
+/* Toggle: modo light ativo = anel visível para feedback */
 [data-theme="light"] .theme-toggle {
-  border-color: rgba(255 255 255 / 0.2);
-  background-color: rgba(255 255 255 / 0.08);
+  border-color: rgba(255 255 255 / 0.35);
+  background-color: rgba(255 255 255 / 0.12);
   color: #f4f4f5;
+  box-shadow: 0 0 0 2px rgba(255 255 255 / 0.25);
 }
 
 [data-theme="light"] .theme-toggle:hover {
