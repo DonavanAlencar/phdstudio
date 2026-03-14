@@ -7,7 +7,10 @@ export interface BlogPost {
   publish_date: string;
 }
 
-const getBlogApiBase = () => {
+const getBlogApiBase = (): string => {
+  if (import.meta.env.DEV) {
+    return '/api/blog';
+  }
   if (import.meta.env.VITE_BLOG_API_URL) {
     return import.meta.env.VITE_BLOG_API_URL;
   }
@@ -16,29 +19,47 @@ const getBlogApiBase = () => {
   return `${baseUrl}/blog`;
 };
 
-const BLOG_API = getBlogApiBase();
-
 export type FetchPostsResult = { posts: BlogPost[]; error: boolean };
 
+const fetchWithRetry = async (url: string, retries = 2): Promise<Response> => {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (res.ok) return res;
+      if (attempt < retries - 1) {
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      } else {
+        return res;
+      }
+    } catch (e) {
+      if (attempt === retries - 1) throw e;
+      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+    }
+  }
+  throw new Error('fetch failed');
+};
+
 export const fetchLatestPosts = async (limit = 6): Promise<FetchPostsResult> => {
+  const BLOG_API = getBlogApiBase();
+  const url = `${BLOG_API}/posts?limit=${limit}&v=${Date.now()}&force=1`;
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
-    const force = import.meta.env.DEV ? '&force=1' : '';
-    const resp = await fetch(`${BLOG_API}/posts?limit=${limit}&v=${Date.now()}${force}`, { signal: controller.signal });
-    clearTimeout(timeout);
+    const resp = await fetchWithRetry(url);
     if (!resp.ok) return { posts: [], error: true };
     const json = await resp.json();
     if (json?.success && Array.isArray(json.data)) {
       const posts: BlogPost[] = json.data
-        .map((p: any) => ({
+        .map((p: Record<string, unknown>) => ({
           id: p.id,
           title: p.title,
           excerpt: p.excerpt,
-          featured_image: p.featured_image || null,
+          featured_image: p.featured_image ?? null,
           url: p.url,
           publish_date: p.publish_date,
         }))
+        .filter((p) => Boolean(p.title && p.url))
         .sort((a, b) => new Date(b.publish_date).getTime() - new Date(a.publish_date).getTime())
         .slice(0, limit);
       return { posts, error: false };

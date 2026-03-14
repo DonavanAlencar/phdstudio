@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "api": "cd backend && npm run dev",
+    "api": "npm run dev --prefix backend",
     "build": "vite build",
     "preview": "vite preview",
     "block-vercel": "bash scripts/block-vercel.sh"
