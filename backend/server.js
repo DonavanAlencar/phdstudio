@@ -91,7 +91,12 @@ app.use(helmet({
 // CORS configurado de forma segura
 const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-    : ['https://phdstudio.com.br', 'http://phdstudio.com.br'];
+    : [
+        'https://phdstudio.com.br',
+        'http://phdstudio.com.br',
+        'https://www.phdstudio.com.br',
+        'http://www.phdstudio.com.br',
+      ];
 
 const corsOptions = {
     origin: function (origin, callback) {

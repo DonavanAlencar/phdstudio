@@ -27,6 +27,21 @@ export function _resetCache() {
 }
 
 /**
+ * GET /api/instagram/status
+ * Diagnóstico: indica se o token está configurado (sem expor o token).
+ */
+router.get('/status', (req, res) => {
+  const hasToken = Boolean(process.env.INSTAGRAM_ACCESS_TOKEN);
+  res.json({
+    configured: hasToken,
+    userId:     process.env.INSTAGRAM_USER_ID || '17841403453191047',
+    message:    hasToken
+      ? 'Token configurado. Use GET /posts para testar a Graph API.'
+      : 'INSTAGRAM_ACCESS_TOKEN não definido no ambiente do servidor.',
+  });
+});
+
+/**
  * GET /api/instagram/posts
  * Público — sem autenticação necessária no frontend.
  */
