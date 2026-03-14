@@ -3,7 +3,7 @@ import { BrowserRouter, Link, Routes, Route, Navigate, useNavigate, useLocation 
 import {
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
   TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown, Download,
-  MessageCircle, Power, PowerOff, Package, Star, Stethoscope, Sun, Moon
+  MessageCircle, Power, PowerOff, Package, Star, Stethoscope
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './src/components/ChatWidget';
@@ -723,35 +723,10 @@ const SectionTitle = ({ title, subtitle, centered = false }: { title: string, su
   </div>
 );
 
-const THEME_STORAGE_KEY = 'phd-theme';
-type Theme = 'dark' | 'light';
-
-function getThemeFromDOM(): Theme {
-  if (typeof document === 'undefined') return 'dark';
-  const t = document.documentElement.getAttribute('data-theme') || localStorage.getItem(THEME_STORAGE_KEY);
-  return (t === 'light' || t === 'dark') ? t : 'dark';
-}
-
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [theme, setTheme] = useState<Theme>(getThemeFromDOM);
   const { isAuthenticated, username, userRole, logout } = useAuth();
-
-  useEffect(() => {
-    setTheme(getThemeFromDOM());
-  }, []);
-
-  const handleThemeToggle = () => {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, next);
-    } catch {
-      // ignore
-    }
-    setTheme(next);
-  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -806,14 +781,6 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-8">
           {isAuthenticated && userRole === 'client' && username === 'vexin' ? (
             <>
-              <button
-                type="button"
-                onClick={handleThemeToggle}
-                className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
-                aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
-              >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
               <Link to="/funil_vexin" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Funil
               </Link>
@@ -823,14 +790,6 @@ const Navbar = () => {
             </>
           ) : isAuthenticated && userRole === 'admin' ? (
             <>
-              <button
-                type="button"
-                onClick={handleThemeToggle}
-                className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
-                aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
-              >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
               <Link to="/produtos" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
                 Produtos
               </Link>
@@ -840,14 +799,6 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <button
-                type="button"
-                onClick={handleThemeToggle}
-                className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
-                aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
-              >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
               {navLinks.map((link) =>
               link.external ? (
                 <a
@@ -941,15 +892,6 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <button
-                type="button"
-                onClick={() => { handleThemeToggle(); setIsOpen(false); }}
-                className="p-3 rounded-xl border border-white/20 bg-white/10 text-white flex items-center gap-2 text-lg font-medium"
-                aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
-              >
-                {theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />}
-                {theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
-              </button>
               {isAuthenticated ? (
                 <button
                   onClick={() => {

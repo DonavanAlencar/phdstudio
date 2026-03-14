@@ -2,58 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* --- Theme: dark (default) --- */
 :root {
   --brand-dark: #050505;
   --brand-gray: #121212;
   --brand-light: #f3f4f6;
-}
-
-/* --- Theme: light = mantém fundos escuros, só melhora contraste do texto --- */
-[data-theme="light"] {
-  /* Mantém fundos escuros (não altera --brand-dark / --brand-gray) */
-}
-
-/* Leitura: texto principal um pouco mais claro no modo light */
-[data-theme="light"] .text-white {
-  color: #f4f4f5;
-}
-
-[data-theme="light"] .text-gray-400 {
-  color: #a1a1aa;
-}
-
-[data-theme="light"] .text-gray-300 {
-  color: #b4b4bc;
-}
-
-[data-theme="light"] html:not(.admin-page) body {
-  color: #f4f4f5;
-}
-
-/* Toggle: modo light ativo = anel visível para feedback */
-[data-theme="light"] .theme-toggle {
-  border-color: rgba(255 255 255 / 0.35);
-  background-color: rgba(255 255 255 / 0.12);
-  color: #f4f4f5;
-  box-shadow: 0 0 0 2px rgba(255 255 255 / 0.25);
-}
-
-[data-theme="light"] .theme-toggle:hover {
-  border-color: #E50914;
-  background-color: rgba(229 9 20 / 0.15);
-  color: #fca5a5;
-}
-
-/* Navbar scrolled: mantém escuro */
-[data-theme="light"] nav.bg-black\/90 {
-  background-color: rgba(5 5 5 / 0.95);
-  border-color: rgba(255 255 255 / 0.1);
-}
-
-/* Menu mobile: mantém overlay escuro */
-[data-theme="light"] .mobile-menu-overlay {
-  background-color: #050505;
 }
 
 /* Estilos específicos para admin - isolados da página principal */
