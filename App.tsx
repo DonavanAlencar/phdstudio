@@ -13,6 +13,7 @@ import MobileChatPage from './src/components/MobileChat/MobileChatPage';
 import ClientArea from './src/components/ClientArea/ClientArea';
 import YouTubeCarousel from './src/components/YouTubeCarousel';
 import BlogCarousel from './src/components/BlogCarousel';
+import ServicesSection from './src/components/ServicesSection';
 import UsersManagement from './src/components/Logs/UsersManagement';
 import MobilechatConfigsManagement from './src/components/Logs/MobilechatConfigsManagement';
 import ClientsManagement from './src/components/Logs/ClientsManagement';
@@ -736,7 +737,7 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Soluções', href: '#solucoes' },
     { name: 'Metodologia', href: '#metodologia' },
-    { name: 'Cases', href: '#cases' },
+    { name: 'Serviços', href: '#services' },
     { name: 'Depoimentos', href: '#depoimentos' },
     { name: 'PORTFÓLIO', href: '#portfolio-audiovisual' },
     { name: 'FAQ', href: '#faq' },
@@ -2984,7 +2985,7 @@ const HomePage = () => (
     <GrowthType />
     <Solutions />
     <Methodology />
-    <Cases />
+    <ServicesSection />
     <BlogCarousel />
     <YouTubeCarousel />
     <Testimonials />
