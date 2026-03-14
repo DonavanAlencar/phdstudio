@@ -2,6 +2,21 @@
 
 Quando o workflow **Deploy to Server** falha com **Connection timed out** na etapa de teste SSH, o runner do GitHub **não consegue alcançar o servidor** na porta 22. Isso é um problema de **rede/firewall**, não de chave SSH.
 
+---
+
+## Resumo rápido: Connection timed out
+
+Se o log mostra `ssh: connect to host *** port 22: Connection timed out`:
+
+1. **No servidor (SSH já aberto de outro lugar):** libere a porta 22 no firewall (ex.: `sudo ufw allow 22/tcp` e `sudo ufw reload`).
+2. **No painel do provedor (VPS/cloud):** abra a porta 22 nas regras de firewall / Security Group (entrada TCP 22, origem `0.0.0.0/0` ou [IPs do GitHub](https://api.github.com/meta)).
+3. **Se o servidor está atrás de um roteador:** configure **port forwarding** da porta 22 (externa) para o IP interno do servidor (porta 22).
+4. **Teste da sua máquina:** `nc -zv <IP_DO_SERVIDOR> 22` ou `ssh -o ConnectTimeout=10 root@<IP> echo ok`. Se falhar aí também, o bloqueio é na rede/firewall, não no GitHub.
+
+Depois de liberar, rode o workflow de novo (push ou *Run workflow*).
+
+---
+
 ## O que significa "Connection timed out"
 
 - O GitHub Actions tenta `ssh root@<SERVER_HOST>` a partir da nuvem (IPs variados).
@@ -21,16 +36,22 @@ Quando o workflow **Deploy to Server** falha com **Connection timed out** na eta
   # ou: ssh -v -o ConnectTimeout=10 root@<SERVER_HOST> echo ok
   ```
 
-### 2. Firewall no servidor
+### 2. Firewall no servidor (UFW)
 
 - O **SSH (porta 22)** precisa aceitar conexões de **qualquer origem** (ou pelo menos dos [IP ranges do GitHub](https://api.github.com/meta)), se quiser deploy pelo Actions.
   - **Ubuntu/Debian (ufw):**
     ```bash
     sudo ufw allow 22/tcp
     sudo ufw status
-    sudo ufw enable   # se ainda não estiver ativo
+    sudo ufw reload
+    # Se UFW estava desativado: sudo ufw enable
     ```
-  - **Firewall do provedor (AWS Security Group, GCP, etc.):** libere entrada TCP na porta 22 (origem 0.0.0.0/0 ou os IPs do GitHub).
+
+### 2b. Firewall do provedor (VPS / cloud)
+
+- **Muitos timeouts** vêm do firewall do **provedor** (DigitalOcean, AWS, GCP, Locaweb, etc.), não só do UFW.
+- No painel da VPS/cloud, abra uma regra de **entrada (inbound)** para **TCP porta 22**, origem **0.0.0.0/0** (ou use os [IPs do GitHub](https://api.github.com/meta) se quiser restringir).
+- Ex.: DigitalOcean → Networking → Firewalls; AWS → Security Groups → Inbound rules; etc.
 
 ### 3. SSH em outra porta
 
