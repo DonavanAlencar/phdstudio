@@ -14,9 +14,9 @@ export default {
       colors: {
         brand: {
           red: '#E50914',
-          dark: '#050505',
-          gray: '#121212',
-          light: '#F3F4F6',
+          dark: 'var(--brand-dark, #050505)',
+          gray: 'var(--brand-gray, #121212)',
+          light: 'var(--brand-light, #F3F4F6)',
         },
       },
       animation: {

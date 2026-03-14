@@ -2,6 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- Theme: dark (default) --- */
+:root {
+  --brand-dark: #050505;
+  --brand-gray: #121212;
+  --brand-light: #f3f4f6;
+}
+
+/* --- Theme: light (branco + escalas de cinza) --- */
+[data-theme="light"] {
+  --brand-dark: #f3f4f6;
+  --brand-gray: #e5e7eb;
+  --brand-light: #1f2937;
+}
+
+[data-theme="light"] html:not(.admin-page),
+[data-theme="light"] html:not(.admin-page) body,
+[data-theme="light"] html:not(.admin-page) #root {
+  background-color: #f3f4f6;
+}
+
+[data-theme="light"] html:not(.admin-page) body {
+  color: #111827;
+}
+
+/* Texto principal no tema claro (evitar branco puro) */
+[data-theme="light"] .text-white:not(.bg-brand-red):not(.bg-brand-red *):not(button *):not(.theme-toggle *) {
+  color: #111827;
+}
+
+[data-theme="light"] .text-gray-400 {
+  color: #6b7280;
+}
+
+[data-theme="light"] .text-gray-300 {
+  color: #4b5563;
+}
+
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/5 {
+  border-color: rgb(229 231 235);
+}
+
+[data-theme="light"] .bg-white\/5 {
+  background-color: rgb(243 244 246 / 0.8);
+}
+
+[data-theme="light"] .bg-white\/10 {
+  background-color: rgb(229 231 235 / 0.5);
+}
+
+[data-theme="light"] .bg-black\/50,
+[data-theme="light"] .bg-black\/90 {
+  background-color: rgb(0 0 0 / 0.08);
+}
+
+[data-theme="light"] .theme-toggle {
+  border-color: rgb(209 213 219);
+  background-color: rgb(243 244 246);
+  color: #374151;
+}
+
+[data-theme="light"] .theme-toggle:hover {
+  border-color: #E50914;
+  background-color: rgb(254 226 226);
+  color: #E50914;
+}
+
+/* Scrollbar tema claro */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #E50914;
+}
+
+/* Navbar em tema claro (quando scrolled) */
+[data-theme="light"] nav.bg-black\/90 {
+  background-color: rgb(255 255 255 / 0.95);
+  border-color: rgb(229 231 235);
+}
+
+/* Menu mobile overlay em tema claro */
+[data-theme="light"] .mobile-menu-overlay {
+  background-color: #f3f4f6;
+}
+
+[data-theme="light"] .mobile-menu-overlay .text-white {
+  color: #111827;
+}
+
+[data-theme="light"] .mobile-menu-overlay a.text-white:hover,
+[data-theme="light"] .mobile-menu-overlay .text-white:hover {
+  color: #E50914;
+}
+
 /* Estilos específicos para admin - isolados da página principal */
 body.admin-page {
   background-color: transparent !important;

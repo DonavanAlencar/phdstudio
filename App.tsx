@@ -3,7 +3,7 @@ import { BrowserRouter, Link, Routes, Route, Navigate, useNavigate, useLocation 
 import {
   Menu, X, Phone, Check, ChevronRight, ChevronDown, ChevronLeft,
   TrendingUp, Rocket, Cpu, BarChart3, Users, Zap, Target, ArrowRight, Quote, LogIn, Lock, TrendingDown, Download,
-  MessageCircle, Power, PowerOff, Package, Star, Stethoscope
+  MessageCircle, Power, PowerOff, Package, Star, Stethoscope, Sun, Moon
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import ChatWidget from './src/components/ChatWidget';
@@ -459,6 +459,38 @@ const useAuth = () => {
   return context;
 };
 
+// --- Theme (light/dark) ---
+const THEME_KEY = 'phd-theme';
+type Theme = 'dark' | 'light';
+
+const ThemeContext = createContext<{ theme: Theme; setTheme: (t: Theme) => void } | undefined>(undefined);
+
+const useTheme = () => {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
+  return ctx;
+};
+
+const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof document === 'undefined') return 'dark';
+    return (localStorage.getItem(THEME_KEY) as Theme) || 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
+
+  const setTheme = (t: Theme) => setThemeState(t);
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('isAuthenticated') === 'true';
@@ -727,6 +759,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { isAuthenticated, username, userRole, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -798,7 +831,16 @@ const Navbar = () => {
               </Link>
             </>
           ) : (
-            navLinks.map((link) =>
+            <>
+              <button
+                type="button"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-brand-red/30 text-gray-300 hover:text-brand-red transition-all duration-200 flex items-center justify-center theme-toggle"
+                aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+              >
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+              {navLinks.map((link) =>
               link.external ? (
                 <a
                   key={link.name}
@@ -823,7 +865,8 @@ const Navbar = () => {
                   {link.name}
                 </a>
               )
-            )
+              ))}
+            </>
           )}
         </div>
 
@@ -833,7 +876,7 @@ const Navbar = () => {
         </button>
 
         {/* Mobile Menu */}
-        <div className={`fixed inset-0 bg-black z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`mobile-menu-overlay fixed inset-0 bg-black z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           {isAuthenticated && userRole === 'client' && username === 'vexin' ? (
             <>
               <Link
@@ -890,6 +933,15 @@ const Navbar = () => {
             </>
           ) : (
             <>
+              <button
+                type="button"
+                onClick={() => { setTheme(theme === 'dark' ? 'light' : 'dark'); setIsOpen(false); }}
+                className="p-3 rounded-xl border border-white/20 bg-white/10 text-white flex items-center gap-2 text-lg font-medium"
+                aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+              >
+                {theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />}
+                {theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+              </button>
               {isAuthenticated ? (
                 <button
                   onClick={() => {
@@ -3605,8 +3657,9 @@ const LogsPage = () => {
 function App() {
   return (
     <AuthProvider>
-      <ChatVisibilityProvider>
-        <BrowserRouter>
+      <ThemeProvider>
+        <ChatVisibilityProvider>
+          <BrowserRouter>
           <VisitorTracker />
           <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
             <CookieBanner />
@@ -3706,8 +3759,9 @@ function App() {
               {/* Rotas do Admin CRM removidas - foi transportado para outro lugar */}
             </Routes>
           </div>
-        </BrowserRouter>
-      </ChatVisibilityProvider>
+          </BrowserRouter>
+        </ChatVisibilityProvider>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
