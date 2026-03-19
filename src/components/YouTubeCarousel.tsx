@@ -43,8 +43,13 @@ const YouTubeCarousel: React.FC = () => {
     };
 
     return (
-        <section id="portfolio-audiovisual" className="py-20 bg-brand-dark/40 relative overflow-hidden border-t border-white/5">
-            <div className="container mx-auto px-4">
+        <>
+        <section id="portfolio-audiovisual" className="relative py-20 bg-black/40 overflow-hidden border-t border-white/5">
+            <div
+                className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80"
+                aria-hidden="true"
+            />
+            <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                     <div className="max-w-2xl">
@@ -155,8 +160,9 @@ const YouTubeCarousel: React.FC = () => {
                     </div>
                 )}
             </div>
+        </section>
 
-            {/* Video Modal */}
+            {/* Video Modal (fora da section para z-index / overflow) */}
             {selectedVideo && (
                 <div
                     className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-8"
@@ -190,7 +196,7 @@ const YouTubeCarousel: React.FC = () => {
                     </div>
                 </div>
             )}
-        </section>
+        </>
     );
 };
 

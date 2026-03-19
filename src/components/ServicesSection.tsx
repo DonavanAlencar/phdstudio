@@ -175,10 +175,14 @@ const ServicesSection: React.FC = () => {
   return (
     <section
       id="services"
-      className="py-20 bg-brand-dark/40 relative overflow-hidden border-t border-white/5"
+      className="relative py-20 bg-black/40 overflow-hidden border-t border-white/5"
       aria-labelledby="services-heading"
     >
-      <div className="container mx-auto px-4">
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80"
+        aria-hidden="true"
+      />
+      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
         <header className="max-w-3xl mb-14">
           <h2
             id="services-heading"

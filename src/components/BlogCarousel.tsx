@@ -63,8 +63,12 @@ const BlogCarousel: React.FC = () => {
   }, [handleScroll]);
 
   return (
-    <section className="py-20 bg-brand-dark/40 border-t border-white/5 relative overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section className="relative py-20 bg-black/40 overflow-hidden border-t border-white/5">
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80"
+        aria-hidden="true"
+      />
+      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-3 mb-4">

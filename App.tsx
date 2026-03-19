@@ -954,21 +954,10 @@ const Navbar = () => {
 const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      {/* Background with overlay */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src={ASSETS.heroBg}
-          alt="Background"
-          className="w-full h-full object-cover opacity-20"
-          loading="eager"
-          fetchPriority="high"
-          width="1200"
-          height="800"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark/80 to-brand-dark"></div>
-      </div>
+      {/* Background overlay only – image removed to deixar apenas o vídeo */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" />
 
-      <div className="container mx-auto px-4 relative z-10 grid md:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 relative z-10 grid md:grid-cols-2 gap-12 items-center bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
         <div className="space-y-8 animate-fade-in-up">
           <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-brand-red text-sm font-bold tracking-wide">
             <span className="w-2 h-2 bg-brand-red rounded-full animate-pulse"></span>
@@ -1032,13 +1021,14 @@ const ClientMarquee = () => {
   const logos = Array(4).fill(ASSETS.clientLogos).flat();
 
   return (
-    <div className="bg-brand-gray/40 border-y border-white/5 py-8 overflow-hidden relative group">
+    <div className="relative bg-black/40 border-y border-white/5 py-8 overflow-hidden group">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
       {/* Gradientes de borda */}
-      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-brand-gray to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-brand-gray to-transparent" />
+      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-black/80 to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-black/80 to-transparent" />
 
       {/* Faixa contínua de logos */}
-      <div className="flex items-center animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
+      <div className="relative z-10 flex items-center animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
         {logos.map((logo, index) => {
           const isObj = typeof logo === 'object' && logo !== null;
           const src = isObj ? logo.url : logo;
@@ -1121,8 +1111,9 @@ const ClientMarquee = () => {
 
 const GrowthType = () => {
   return (
-    <section id="recorrente" className="py-20 bg-brand-dark/40">
-      <div className="container mx-auto px-4">
+    <section id="recorrente" className="relative py-20 bg-black/40 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
+      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
         <SectionTitle
           title="Escolha seu tipo de crescimento"
           subtitle="Dois caminhos, um objetivo: resultados que transformam seu negócio."
@@ -1226,8 +1217,9 @@ const Solutions = () => {
   ];
 
   return (
-    <section id="solucoes" className="py-20 bg-[#0A0A0A]">
-      <div className="container mx-auto px-4">
+    <section id="solucoes" className="relative py-20 bg-black/40 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
+      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
         <SectionTitle
           title="Soluções Orientadas a Resultado"
           subtitle="Um ecossistema completo para resolver gargalos e acelerar seu faturamento."
@@ -1278,8 +1270,10 @@ const Solutions = () => {
 };
 
 const Methodology = () => (
-  <section id="metodologia" className="py-20 bg-brand-dark/40 border-t border-white/5">
-    <div className="container mx-auto px-4">
+  <section id="metodologia" className="relative py-20 bg-black/40 border-t border-white/5 overflow-hidden">
+    {/* Gradiente semi-transparente sobre o vídeo, igual ao hero */}
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
+    <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
       <SectionTitle title="Método PHD" subtitle="Como transformamos estratégias em resultados reais e mensuráveis." />
 
       <div className="grid md:grid-cols-3 gap-8 mt-16 relative">
@@ -1306,8 +1300,9 @@ const Methodology = () => (
 );
 
 const Cases = () => (
-  <section id="cases" className="py-20 bg-brand-gray/40">
-    <div className="container mx-auto px-4">
+  <section id="cases" className="relative py-20 bg-black/40 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
+    <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
       <div className="flex justify-between items-end mb-12">
         <div className="max-w-2xl">
           <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-4">Resultados Reais</h2>
@@ -1356,8 +1351,9 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="depoimentos" className="py-20 bg-brand-dark/40 relative overflow-hidden border-t border-white/5">
-      <div className="container mx-auto px-4">
+    <section id="depoimentos" className="relative py-20 bg-black/40 overflow-hidden border-t border-white/5">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
+      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
         <SectionTitle
           title="O que nossos clientes dizem"
           subtitle="Resultados reais de quem confiou na PHD Studio para transformar seus negócios."
@@ -1404,8 +1400,9 @@ const FAQ = () => {
   ];
 
   return (
-    <section id="faq" className="py-20 bg-[#0A0A0A]">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <section id="faq" className="relative py-20 bg-black/40 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
+      <div className="container mx-auto px-4 max-w-4xl relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
         <SectionTitle title="Perguntas Frequentes" centered />
         <div className="space-y-4">
           {faqs.map((faq, i) => (
@@ -1579,8 +1576,9 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="contato" className="py-20 bg-brand-gray/40">
-      <div className="container mx-auto px-4 max-w-2xl">
+    <section id="contato" className="relative py-20 bg-black/40 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
+      <div className="container mx-auto px-4 max-w-2xl relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
         <SectionTitle
           title="Vamos transformar seu negócio?"
           subtitle="Preencha o formulário e receba um diagnóstico gratuito em 48h."
@@ -1745,7 +1743,7 @@ const ContactForm = () => {
 
 const Footer = () => (
   <footer className="bg-black/40 border-t border-white/10 pt-20 pb-10">
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
         <div className="text-left">
           <Link to="/" className="block w-fit mb-6">
