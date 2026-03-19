@@ -4,6 +4,22 @@ Quando o workflow **Deploy to Server** falha com **Connection timed out** na eta
 
 ---
 
+## Se você viu este erro no GitHub Actions
+
+```
+🔑 Testando conexão SSH (porta 22)...
+debug1: Connecting to *** [***] port 22.
+debug1: connect to address *** port 22: Connection timed out
+ssh: connect to host *** port 22: Connection timed out
+❌ Falha ao conectar via SSH
+```
+
+**Causa:** o runner do GitHub (na nuvem) não consegue abrir conexão TCP com o seu servidor na porta 22. A chave SSH ainda não foi testada — o problema é **acesso de rede** (firewall, porta fechada, servidor atrás de NAT sem port forwarding, ou SSH em outra porta).
+
+**Próximos passos:** siga o [Resumo rápido](#resumo-rápido-connection-timed-out) abaixo e o [Checklist](#checklist). Depois de liberar a porta 22 (ou configurar `SERVER_SSH_PORT` se usar outra porta), rode o workflow de novo (**Actions → Deploy to Server → Run workflow**).
+
+---
+
 ## Resumo rápido: Connection timed out
 
 Se o log mostra `ssh: connect to host *** port 22: Connection timed out`:
