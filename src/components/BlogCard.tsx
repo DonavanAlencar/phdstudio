@@ -23,7 +23,7 @@ const BlogCard: React.FC<Props> = ({ post }) => {
       className="relative flex-shrink-0 snap-center group w-[320px]"
       aria-label={`Abrir post: ${post.title}`}
     >
-      <div className="relative aspect-[16/10] rounded-xl overflow-hidden border border-white/10 bg-brand-gray shadow-lg mb-4">
+      <div className="relative aspect-[16/10] rounded-xl overflow-hidden border border-white/10 bg-brand-gray/40 shadow-lg mb-4">
         {post.featured_image ? (
           <img
             src={post.featured_image}

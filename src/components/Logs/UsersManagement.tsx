@@ -183,7 +183,7 @@ const UsersManagement: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-brand-gray rounded-lg border border-white/10 overflow-hidden">
+      <div className="bg-brand-gray/40 rounded-lg border border-white/10 overflow-hidden">
         <table className="w-full">
           <thead className="bg-white/5">
             <tr>
@@ -252,7 +252,7 @@ const UsersManagement: React.FC = () => {
       {/* Modal Criar Usuário */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-brand-gray border border-white/10 rounded-lg p-6 w-full max-w-md">
+          <div className="bg-brand-gray/40 border border-white/10 rounded-lg p-6 w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Criar Usuário</h3>
             <form onSubmit={handleCreateUser} className="space-y-4">
               <div>
@@ -262,7 +262,7 @@ const UsersManagement: React.FC = () => {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                 />
               </div>
               <div>
@@ -273,7 +273,7 @@ const UsersManagement: React.FC = () => {
                   minLength={6}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -283,7 +283,7 @@ const UsersManagement: React.FC = () => {
                     type="text"
                     value={formData.first_name}
                     onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                    className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                    className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                   />
                 </div>
                 <div>
@@ -292,7 +292,7 @@ const UsersManagement: React.FC = () => {
                     type="text"
                     value={formData.last_name}
                     onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                    className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                    className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                   />
                 </div>
               </div>
@@ -302,7 +302,7 @@ const UsersManagement: React.FC = () => {
                   required
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value as User['role'] })}
-                  className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                 >
                   <option value="user">User</option>
                   <option value="manager">Manager</option>
@@ -316,7 +316,7 @@ const UsersManagement: React.FC = () => {
                   <select
                     value={formData.client_id}
                     onChange={(e) => setFormData({ ...formData, client_id: e.target.value })}
-                    className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                    className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                   >
                     <option value="">Selecione um cliente</option>
                     {clients.map((client) => (
@@ -350,7 +350,7 @@ const UsersManagement: React.FC = () => {
       {/* Modal Resetar Senha */}
       {showResetPasswordModal && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-brand-gray border border-white/10 rounded-lg p-6 w-full max-w-md">
+          <div className="bg-brand-gray/40 border border-white/10 rounded-lg p-6 w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Resetar Senha</h3>
             <p className="text-sm text-gray-400 mb-4">Usuário: {selectedUser.email}</p>
             <form onSubmit={handleResetPassword} className="space-y-4">
@@ -362,7 +362,7 @@ const UsersManagement: React.FC = () => {
                   minLength={6}
                   value={resetPassword}
                   onChange={(e) => setResetPassword(e.target.value)}
-                  className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                 />
               </div>
               <div className="flex gap-2 justify-end">

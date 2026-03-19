@@ -352,7 +352,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
       {/* Widget de chat */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[90vw] max-w-md h-[600px] flex flex-col bg-brand-dark border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-lg">
+        <div className="fixed bottom-24 right-6 z-50 w-[90vw] max-w-md h-[600px] flex flex-col bg-brand-dark/40 border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-lg">
           {/* Header */}
           <div className="bg-gradient-to-r from-brand-red to-red-600 px-6 py-4 flex items-center justify-between border-b border-white/10">
             <div className="flex items-center gap-3">
@@ -429,7 +429,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
           </div>
 
           {/* Input area */}
-          <div className="p-4 bg-brand-dark border-t border-white/10">
+          <div className="p-4 bg-brand-dark/40 border-t border-white/10">
             <div className="flex gap-2">
               <input
                 ref={inputRef}
@@ -439,7 +439,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 onKeyPress={handleKeyPress}
                 placeholder="Digite sua mensagem..."
                 disabled={isLoading}
-                className="flex-1 bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <button
                 onClick={handleSendMessage}

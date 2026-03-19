@@ -803,7 +803,7 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
 
       {/* Input fixo na parte inferior */}
       <div 
-        className="p-4 bg-brand-dark border-t border-white/10 flex-shrink-0"
+        className="p-4 bg-brand-dark/40 border-t border-white/10 flex-shrink-0"
         style={{
           display: 'block',
           visibility: 'visible',
@@ -827,7 +827,7 @@ const MobileChatInterface: React.FC<MobileChatInterfaceProps> = ({ onClose }) =>
             onKeyPress={handleKeyPress}
             placeholder="Digite sua mensagem..."
             disabled={isLoading}
-            className="flex-1 bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+            className="flex-1 bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
             style={{
               display: 'block',
               visibility: 'visible',

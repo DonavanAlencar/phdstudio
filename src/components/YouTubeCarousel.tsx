@@ -43,7 +43,7 @@ const YouTubeCarousel: React.FC = () => {
     };
 
     return (
-        <section id="portfolio-audiovisual" className="py-20 bg-brand-dark relative overflow-hidden border-t border-white/5">
+        <section id="portfolio-audiovisual" className="py-20 bg-brand-dark/40 relative overflow-hidden border-t border-white/5">
             <div className="container mx-auto px-4">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
@@ -63,7 +63,7 @@ const YouTubeCarousel: React.FC = () => {
                         href="https://www.youtube.com/@phdstudiobr"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex items-center gap-2 text-white font-bold bg-brand-gray border border-white/10 px-6 py-3 rounded-lg hover:bg-red-600 hover:border-red-600 transition-all shadow-lg hover:shadow-red-600/20 text-sm uppercase tracking-wide"
+                        className="group flex items-center gap-2 text-white font-bold bg-brand-gray/40 border border-white/10 px-6 py-3 rounded-lg hover:bg-red-600 hover:border-red-600 transition-all shadow-lg hover:shadow-red-600/20 text-sm uppercase tracking-wide"
                     >
                         <span>Ver Canal Completo</span>
                         <ExternalLink size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -108,7 +108,7 @@ const YouTubeCarousel: React.FC = () => {
                                     onClick={() => openVideo(video)}
                                     className="relative flex-shrink-0 snap-center group w-[320px] cursor-pointer"
                                 >
-                                    <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-brand-gray shadow-lg mb-4">
+                                    <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-brand-gray/40 shadow-lg mb-4">
                                         {/* Thumbnail */}
                                         <img
                                             src={video.thumbnail}

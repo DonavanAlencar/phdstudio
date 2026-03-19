@@ -17,6 +17,7 @@ import ServicesSection from './src/components/ServicesSection';
 import UsersManagement from './src/components/Logs/UsersManagement';
 import MobilechatConfigsManagement from './src/components/Logs/MobilechatConfigsManagement';
 import ClientsManagement from './src/components/Logs/ClientsManagement';
+import ScrollVideoBackground from './src/components/ScrollVideoBackground';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 // Admin CRM removido - foi transportado para outro lugar
 import {
@@ -835,7 +836,7 @@ const Navbar = () => {
         </button>
 
         {/* Mobile Menu */}
-        <div className={`mobile-menu-overlay fixed inset-0 bg-black z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`mobile-menu-overlay fixed inset-0 bg-black/40 z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           {isAuthenticated && userRole === 'client' && username === 'vexin' ? (
             <>
               <Link
@@ -1008,7 +1009,7 @@ const Hero = () => {
         {/* Right side video */}
         <div className="relative block animate-fade-in-up mt-12 md:mt-0 mb-16 md:mb-0" style={{ animationDelay: '0.2s' }}>
           {/* rotate-0 no mobile (horizontal fixo), rotate-[-2deg] no desktop */}
-          <div className="relative z-10 bg-brand-gray border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-0 md:rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
+          <div className="relative z-10 bg-brand-gray/40 border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-0 md:rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
               <iframe
                 className="w-full h-full rounded-xl"
@@ -1031,7 +1032,7 @@ const ClientMarquee = () => {
   const logos = Array(4).fill(ASSETS.clientLogos).flat();
 
   return (
-    <div className="bg-brand-gray border-y border-white/5 py-8 overflow-hidden relative group">
+    <div className="bg-brand-gray/40 border-y border-white/5 py-8 overflow-hidden relative group">
       {/* Gradientes de borda */}
       <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-brand-gray to-transparent" />
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-brand-gray to-transparent" />
@@ -1120,7 +1121,7 @@ const ClientMarquee = () => {
 
 const GrowthType = () => {
   return (
-    <section id="recorrente" className="py-20 bg-brand-dark">
+    <section id="recorrente" className="py-20 bg-brand-dark/40">
       <div className="container mx-auto px-4">
         <SectionTitle
           title="Escolha seu tipo de crescimento"
@@ -1129,7 +1130,7 @@ const GrowthType = () => {
         />
         <div className="grid md:grid-cols-2 gap-8 mt-12">
           {/* Bloco 1 - Marketing Recorrente */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
+          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray/40 hover:border-brand-red/50 transition-all duration-300">
             <div className="absolute inset-0">
               <img src={ASSETS.recurringBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Marketing Recorrente" loading="lazy" decoding="async" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
@@ -1152,7 +1153,7 @@ const GrowthType = () => {
           </div>
 
           {/* Bloco 2 - Lançamentos Digitais */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray hover:border-brand-red/50 transition-all duration-300">
+          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-brand-gray/40 hover:border-brand-red/50 transition-all duration-300">
             <div className="absolute inset-0">
               <img src={ASSETS.launchBg} className="w-full h-full object-cover opacity-10 group-hover:scale-105 transition-transform duration-700" alt="Lançamentos Digitais" loading="lazy" decoding="async" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
@@ -1236,7 +1237,7 @@ const Solutions = () => {
           {solutionsBlocks.map((block, index) => (
             <div
               key={index}
-              className={`${block.isMed ? 'bg-white text-gray-900' : 'bg-brand-gray text-white'} border border-white/5 p-8 rounded-xl hover:-translate-y-2 transition-all duration-300 group flex flex-col justify-between h-full shadow-lg ${block.isMed ? 'hover:shadow-blue-500/20' : 'hover:border-brand-red/30'}`}
+              className={`${block.isMed ? 'bg-white text-gray-900' : 'bg-brand-gray/40 text-white'} border border-white/5 p-8 rounded-xl hover:-translate-y-2 transition-all duration-300 group flex flex-col justify-between h-full shadow-lg ${block.isMed ? 'hover:shadow-blue-500/20' : 'hover:border-brand-red/30'}`}
             >
               <div>
                 <div className={`${block.isMed ? 'bg-blue-50' : 'bg-white/5'} w-16 h-16 rounded-lg flex items-center justify-center mb-6 group-hover:bg-brand-red/10 transition-colors`}>
@@ -1277,7 +1278,7 @@ const Solutions = () => {
 };
 
 const Methodology = () => (
-  <section id="metodologia" className="py-20 bg-brand-dark border-t border-white/5">
+  <section id="metodologia" className="py-20 bg-brand-dark/40 border-t border-white/5">
     <div className="container mx-auto px-4">
       <SectionTitle title="Método PHD" subtitle="Como transformamos estratégias em resultados reais e mensuráveis." />
 
@@ -1289,7 +1290,7 @@ const Methodology = () => (
           { step: "02", title: "Implementação Rápida", desc: "Configuramos campanhas, criativos e automações em tempo recorde. Testamos rápido para validar o que funciona." },
           { step: "03", title: "Escala Inteligente", desc: "Com dados reais em mãos, escalamos o que funciona e eliminamos o desperdício. Resultados que se multiplicam." }
         ].map((item, i) => (
-          <div key={i} className="relative bg-brand-dark z-10 p-6 border-l-2 md:border-l-0 md:border-t-0 border-brand-red/30 pl-8 md:pl-0 md:pt-8 md:text-center">
+          <div key={i} className="relative bg-brand-dark/40 z-10 p-6 border-l-2 md:border-l-0 md:border-t-0 border-brand-red/30 pl-8 md:pl-0 md:pt-8 md:text-center">
             <div className="md:mx-auto bg-brand-red text-white w-12 h-12 rounded-full flex items-center justify-center font-black text-lg mb-6 shadow-lg shadow-brand-red/30">
               {item.step}
             </div>
@@ -1305,7 +1306,7 @@ const Methodology = () => (
 );
 
 const Cases = () => (
-  <section id="cases" className="py-20 bg-brand-gray">
+  <section id="cases" className="py-20 bg-brand-gray/40">
     <div className="container mx-auto px-4">
       <div className="flex justify-between items-end mb-12">
         <div className="max-w-2xl">
@@ -1355,7 +1356,7 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="depoimentos" className="py-20 bg-brand-dark relative overflow-hidden border-t border-white/5">
+    <section id="depoimentos" className="py-20 bg-brand-dark/40 relative overflow-hidden border-t border-white/5">
       <div className="container mx-auto px-4">
         <SectionTitle
           title="O que nossos clientes dizem"
@@ -1408,7 +1409,7 @@ const FAQ = () => {
         <SectionTitle title="Perguntas Frequentes" centered />
         <div className="space-y-4">
           {faqs.map((faq, i) => (
-            <div key={i} className="border border-white/10 rounded-lg bg-brand-gray overflow-hidden">
+            <div key={i} className="border border-white/10 rounded-lg bg-brand-gray/40 overflow-hidden">
               <details className="group">
                 <summary className="flex justify-between items-center p-6 cursor-pointer list-none">
                   <span className="font-bold text-lg">{faq.q}</span>
@@ -1578,14 +1579,14 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="contato" className="py-20 bg-brand-gray">
+    <section id="contato" className="py-20 bg-brand-gray/40">
       <div className="container mx-auto px-4 max-w-2xl">
         <SectionTitle
           title="Vamos transformar seu negócio?"
           subtitle="Preencha o formulário e receba um diagnóstico gratuito em 48h."
           centered
         />
-        <form onSubmit={handleSubmit} className="bg-brand-dark border border-white/10 rounded-2xl p-8 md:p-10 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-brand-dark/40 border border-white/10 rounded-2xl p-8 md:p-10 space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
               Nome completo
@@ -1597,7 +1598,7 @@ const ContactForm = () => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
               placeholder="Seu nome"
             />
           </div>
@@ -1613,7 +1614,7 @@ const ContactForm = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
               placeholder="seu@email.com"
             />
           </div>
@@ -1629,7 +1630,7 @@ const ContactForm = () => {
               value={formData.phone}
               onChange={handleChange}
               required
-              className="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
               placeholder="(11) 99999-9999"
             />
           </div>
@@ -1644,7 +1645,7 @@ const ContactForm = () => {
               value={formData.message}
               onChange={handleChange}
               rows={4}
-              className="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors resize-none"
+              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors resize-none"
               placeholder="Conte-nos sobre seu negócio..."
             />
           </div>
@@ -1655,7 +1656,7 @@ const ContactForm = () => {
                 id="lgpd-consent"
                 type="checkbox"
                 required
-                className="mt-1 h-4 w-4 rounded border-white/20 bg-brand-gray text-brand-red focus:ring-brand-red"
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-brand-gray/40 text-brand-red focus:ring-brand-red"
               />
               <label htmlFor="lgpd-consent">
                 Autorizo o uso dos meus dados para contato comercial e envio de comunicações da PHD Studio.
@@ -1743,7 +1744,7 @@ const ContactForm = () => {
 };
 
 const Footer = () => (
-  <footer className="bg-black border-t border-white/10 pt-20 pb-10">
+  <footer className="bg-black/40 border-t border-white/10 pt-20 pb-10">
     <div className="container mx-auto px-4">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
         <div className="text-left">
@@ -1763,7 +1764,7 @@ const Footer = () => (
           </p>
         </div>
 
-        <div className="bg-brand-gray p-8 rounded-2xl border border-white/10 text-left md:text-right w-full md:w-auto">
+        <div className="bg-brand-gray/40 p-8 rounded-2xl border border-white/10 text-left md:text-right w-full md:w-auto">
           <h4 className="text-xl font-bold mb-2">Pronto para escalar?</h4>
           <p className="text-gray-400 mb-6 text-sm">Receba um diagnóstico gratuito em 48h.</p>
           <a
@@ -1843,7 +1844,7 @@ const Footer = () => (
 // --- Privacy Policy Page ---
 const PrivacyPolicyPage = () => {
   return (
-    <section className="pt-24 pb-20 bg-brand-dark">
+    <section className="pt-24 pb-20 bg-brand-dark/40">
       <div className="container mx-auto px-4 max-w-4xl">
         <h1 className="text-3xl md:text-4xl font-black font-heading mb-6">
           Política de Privacidade – PHD Studio
@@ -1977,7 +1978,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+    <div className="font-sans bg-brand-dark/40 min-h-screen text-white selection:bg-brand-red selection:text-white">
       <Navbar />
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
         {/* Background with overlay */}
@@ -1996,7 +1997,7 @@ const LoginPage = () => {
 
         <div className="container mx-auto px-4 relative z-10 flex justify-center items-center">
           <div className="w-full max-w-md">
-            <div className="bg-brand-gray border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl">
+            <div className="bg-brand-gray/40 border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl">
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-red/10 rounded-full mb-4 border border-brand-red/20">
                   <LogIn className="text-brand-red" size={32} />
@@ -2018,7 +2019,7 @@ const LoginPage = () => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
-                    className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+                    className="w-full bg-brand-dark/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
                     placeholder="Digite seu usuário"
                   />
                 </div>
@@ -2033,7 +2034,7 @@ const LoginPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+                    className="w-full bg-brand-dark/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
                     placeholder="Digite sua senha"
                   />
                 </div>
@@ -2126,7 +2127,7 @@ const FunilVexinPage = () => {
 
   if (loading || !agregados || !data || !dadosAdicionais) {
     return (
-      <div className="font-sans bg-brand-dark min-h-screen text-white">
+      <div className="font-sans bg-brand-dark/40 min-h-screen text-white">
         <Navbar />
         <div className="pt-24 md:pt-28 p-8">
           <div className="animate-pulse">Carregando...</div>
@@ -2198,7 +2199,7 @@ const FunilVexinPage = () => {
   }));
 
   return (
-    <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+    <div className="font-sans bg-brand-dark/40 min-h-screen text-white selection:bg-brand-red selection:text-white">
       <Navbar />
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
@@ -2427,7 +2428,7 @@ const ProjecaoVexinPage = () => {
 
   if (loading || !agregados || !data || !dadosAdicionais) {
     return (
-      <div className="font-sans bg-brand-dark min-h-screen text-white">
+      <div className="font-sans bg-brand-dark/40 min-h-screen text-white">
         <Navbar />
         <div className="pt-24 md:pt-28 p-8">
           <div className="animate-pulse">Carregando...</div>
@@ -2481,7 +2482,7 @@ const ProjecaoVexinPage = () => {
   ];
 
   return (
-    <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+    <div className="font-sans bg-brand-dark/40 min-h-screen text-white selection:bg-brand-red selection:text-white">
       <Navbar />
       <div className="pt-24 md:pt-28 p-6 md:p-8 mt-4">
         <div className="max-w-7xl mx-auto space-y-8">
@@ -3030,7 +3031,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   ];
 
   return (
-    <div className="font-sans bg-brand-dark min-h-screen text-white flex">
+    <div className="font-sans bg-brand-dark/40 min-h-screen text-white flex">
       {/* Sidebar */}
       <aside className={`bg-[#121212] border-r border-white/10 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'
         }`}>
@@ -3478,7 +3479,7 @@ const LogsPage = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="IP, página, usuário..."
-                  className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red"
                 />
               </div>
               <div>
@@ -3486,7 +3487,7 @@ const LogsPage = () => {
                 <select
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value as any)}
-                  className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-red"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-red"
                 >
                   <option value="all">Todos</option>
                   <option value="today">Hoje</option>
@@ -3500,7 +3501,7 @@ const LogsPage = () => {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value as any)}
-                    className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-red"
+                    className="w-full bg-brand-dark/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-red"
                   >
                     <option value="all">Todos</option>
                     <option value="success">Sucesso</option>
@@ -3610,7 +3611,8 @@ function App() {
       <ChatVisibilityProvider>
           <BrowserRouter>
           <VisitorTracker />
-          <div className="font-sans bg-brand-dark min-h-screen text-white selection:bg-brand-red selection:text-white">
+          <ScrollVideoBackground />
+          <div className="relative z-10 font-sans min-h-screen text-white selection:bg-brand-red selection:text-white">
             <CookieBanner />
             <Routes>
               <Route

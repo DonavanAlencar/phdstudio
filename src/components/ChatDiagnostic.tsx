@@ -227,7 +227,7 @@ const ChatDiagnostic: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-dark text-white p-8">
+    <div className="min-h-screen bg-brand-dark/40 text-white p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">Diagnóstico do Chat</h1>
@@ -246,7 +246,7 @@ const ChatDiagnostic: React.FC = () => {
             {results.length > 0 && (
               <button
                 onClick={copyResults}
-                className="px-6 py-3 bg-brand-gray hover:bg-gray-700 border border-white/10 rounded-lg font-semibold transition-colors flex items-center gap-2"
+                className="px-6 py-3 bg-brand-gray/40 hover:bg-gray-700 border border-white/10 rounded-lg font-semibold transition-colors flex items-center gap-2"
               >
                 {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                 {copied ? 'Copiado!' : 'Copiar Relatório'}

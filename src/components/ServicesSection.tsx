@@ -175,7 +175,7 @@ const ServicesSection: React.FC = () => {
   return (
     <section
       id="services"
-      className="py-20 bg-brand-dark relative overflow-hidden border-t border-white/5"
+      className="py-20 bg-brand-dark/40 relative overflow-hidden border-t border-white/5"
       aria-labelledby="services-heading"
     >
       <div className="container mx-auto px-4">
@@ -197,7 +197,7 @@ const ServicesSection: React.FC = () => {
             return (
               <article
                 key={service.id}
-                className="group relative rounded-2xl border border-white/10 bg-brand-gray/80 backdrop-blur-sm p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-red/10 hover:border-white/20"
+                className="group relative rounded-2xl border border-white/10 bg-brand-gray/40 backdrop-blur-sm p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-red/10 hover:border-white/20"
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" aria-hidden />
                 <div className="relative">

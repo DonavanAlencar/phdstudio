@@ -197,7 +197,7 @@ const MobileChatLogin: React.FC<MobileChatLoginProps> = ({ onLoginSuccess }) => 
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   autoComplete="username"
-                  className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-3 pl-12 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded-lg px-4 py-3 pl-12 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
                   placeholder="Digite seu usuário"
                 />
                 <LogIn className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -217,7 +217,7 @@ const MobileChatLogin: React.FC<MobileChatLoginProps> = ({ onLoginSuccess }) => 
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="w-full bg-brand-dark border border-white/10 rounded-lg px-4 py-3 pl-12 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded-lg px-4 py-3 pl-12 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
                   placeholder="Digite sua senha"
                 />
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />

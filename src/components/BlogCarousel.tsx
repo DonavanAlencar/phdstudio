@@ -63,7 +63,7 @@ const BlogCarousel: React.FC = () => {
   }, [handleScroll]);
 
   return (
-    <section className="py-20 bg-brand-dark border-t border-white/5 relative overflow-hidden">
+    <section className="py-20 bg-brand-dark/40 border-t border-white/5 relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="max-w-2xl">
@@ -83,7 +83,7 @@ const BlogCarousel: React.FC = () => {
             href="https://www.phdstudio.blog.br/blog"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-2 text-white font-bold bg-brand-gray border border-white/10 px-6 py-3 rounded-lg hover:bg-brand-red hover:border-brand-red transition-all shadow-lg hover:shadow-brand-red/20 text-sm uppercase tracking-wide"
+            className="group flex items-center gap-2 text-white font-bold bg-brand-gray/40 border border-white/10 px-6 py-3 rounded-lg hover:bg-brand-red hover:border-brand-red transition-all shadow-lg hover:shadow-brand-red/20 text-sm uppercase tracking-wide"
           >
             Ver Blog
           </a>

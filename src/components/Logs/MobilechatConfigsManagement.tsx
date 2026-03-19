@@ -154,7 +154,7 @@ const MobilechatConfigsManagement: React.FC = () => {
 
       <div className="grid gap-4">
         {configs.map((config) => (
-          <div key={config.id} className="bg-brand-gray border border-white/10 rounded-lg p-4">
+          <div key={config.id} className="bg-brand-gray/40 border border-white/10 rounded-lg p-4">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-lg">{config.client_name}</h3>
@@ -195,7 +195,7 @@ const MobilechatConfigsManagement: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-brand-gray border border-white/10 rounded-lg p-6 w-full max-w-md">
+          <div className="bg-brand-gray/40 border border-white/10 rounded-lg p-6 w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Configuração de Mobilechat</h3>
             <form onSubmit={handleSave} className="space-y-4">
               <div>
@@ -204,7 +204,7 @@ const MobilechatConfigsManagement: React.FC = () => {
                   required
                   value={formData.client_id}
                   onChange={(e) => setFormData({ ...formData, client_id: e.target.value })}
-                  className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                   disabled={!!formData.client_id && configs.some(c => c.client_id.toString() === formData.client_id)}
                 >
                   <option value="">Selecione um cliente</option>
@@ -222,7 +222,7 @@ const MobilechatConfigsManagement: React.FC = () => {
                   required
                   value={formData.n8n_webhook_url}
                   onChange={(e) => setFormData({ ...formData, n8n_webhook_url: e.target.value })}
-                  className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                   placeholder="https://n8n.example.com/webhook/..."
                 />
               </div>
@@ -232,7 +232,7 @@ const MobilechatConfigsManagement: React.FC = () => {
                   type="text"
                   value={formData.n8n_auth_token}
                   onChange={(e) => setFormData({ ...formData, n8n_auth_token: e.target.value })}
-                  className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                   placeholder="Token de autenticação do webhook"
                 />
               </div>

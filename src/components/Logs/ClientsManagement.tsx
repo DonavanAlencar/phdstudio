@@ -167,7 +167,7 @@ const ClientsManagement: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-brand-gray rounded-lg border border-white/10 overflow-hidden">
+      <div className="bg-brand-gray/40 rounded-lg border border-white/10 overflow-hidden">
         <table className="w-full">
           <thead className="bg-white/5">
             <tr>
@@ -230,7 +230,7 @@ const ClientsManagement: React.FC = () => {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-brand-gray border border-white/10 rounded-lg p-6 w-full max-w-md">
+          <div className="bg-brand-gray/40 border border-white/10 rounded-lg p-6 w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">{editingClient ? 'Editar Cliente' : 'Novo Cliente'}</h3>
             <form onSubmit={handleSave} className="space-y-4">
               <div>
@@ -240,7 +240,7 @@ const ClientsManagement: React.FC = () => {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                 />
               </div>
               <div>
@@ -250,7 +250,7 @@ const ClientsManagement: React.FC = () => {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                  className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -260,7 +260,7 @@ const ClientsManagement: React.FC = () => {
                     type="text"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                    className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                   />
                 </div>
                 <div>
@@ -269,7 +269,7 @@ const ClientsManagement: React.FC = () => {
                     type="text"
                     value={formData.company_name}
                     onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-                    className="w-full bg-brand-dark border border-white/10 rounded px-3 py-2"
+                    className="w-full bg-brand-dark/40 border border-white/10 rounded px-3 py-2"
                   />
                 </div>
               </div>
