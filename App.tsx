@@ -692,7 +692,7 @@ const TestimonialCard: React.FC<{ data: typeof TESTIMONIALS[0] }> = ({ data }) =
         "{data.quote}"
       </p>
     </div>
-    <div className="flex items-center gap-4 border-t border-white/5 pt-6">
+    <div className="flex items-center gap-4  pt-6">
       <img
         src={data.avatar}
         alt={data.name}
@@ -957,7 +957,7 @@ const Hero = () => {
       {/* Background overlay only – image removed to deixar apenas o vídeo */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" />
 
-      <div className="container mx-auto px-4 relative z-10 grid md:grid-cols-2 gap-12 items-center bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
+      <div className="container mx-auto px-4 relative z-10 grid md:grid-cols-2 gap-12 items-center bg-black/40 rounded-2xl shadow-2xl">
         <div className="space-y-8 animate-fade-in-up">
           <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-brand-red text-sm font-bold tracking-wide">
             <span className="w-2 h-2 bg-brand-red rounded-full animate-pulse"></span>
@@ -1021,7 +1021,7 @@ const ClientMarquee = () => {
   const logos = Array(4).fill(ASSETS.clientLogos).flat();
 
   return (
-    <div className="relative bg-black/40 border-y border-white/5 py-8 overflow-hidden group">
+    <div className="relative bg-black/40 py-8 overflow-hidden group">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
       {/* Gradientes de borda */}
       <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-black/80 to-transparent" />
@@ -1113,7 +1113,7 @@ const GrowthType = () => {
   return (
     <section id="recorrente" className="relative py-20 bg-black/40 overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
-      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
+      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl shadow-2xl">
         <SectionTitle
           title="Escolha seu tipo de crescimento"
           subtitle="Dois caminhos, um objetivo: resultados que transformam seu negócio."
@@ -1219,7 +1219,7 @@ const Solutions = () => {
   return (
     <section id="solucoes" className="relative py-20 bg-black/40 overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
-      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
+      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl shadow-2xl">
         <SectionTitle
           title="Soluções Orientadas a Resultado"
           subtitle="Um ecossistema completo para resolver gargalos e acelerar seu faturamento."
@@ -1270,10 +1270,10 @@ const Solutions = () => {
 };
 
 const Methodology = () => (
-  <section id="metodologia" className="relative py-20 bg-black/40 border-t border-white/5 overflow-hidden">
+  <section id="metodologia" className="relative py-20 bg-black/40  overflow-hidden">
     {/* Gradiente semi-transparente sobre o vídeo, igual ao hero */}
     <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
-    <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
+    <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl shadow-2xl">
       <SectionTitle title="Método PHD" subtitle="Como transformamos estratégias em resultados reais e mensuráveis." />
 
       <div className="grid md:grid-cols-3 gap-8 mt-16 relative">
@@ -1302,7 +1302,7 @@ const Methodology = () => (
 const Cases = () => (
   <section id="cases" className="relative py-20 bg-black/40 overflow-hidden">
     <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
-    <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
+    <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl shadow-2xl">
       <div className="flex justify-between items-end mb-12">
         <div className="max-w-2xl">
           <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-4">Resultados Reais</h2>
@@ -1351,9 +1351,9 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="depoimentos" className="relative py-20 bg-black/40 overflow-hidden border-t border-white/5">
+    <section id="depoimentos" className="relative py-20 bg-black/40 overflow-hidden ">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
-      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
+      <div className="container mx-auto px-4 relative z-10 bg-black/40 rounded-2xl shadow-2xl">
         <SectionTitle
           title="O que nossos clientes dizem"
           subtitle="Resultados reais de quem confiou na PHD Studio para transformar seus negócios."
@@ -1402,7 +1402,7 @@ const FAQ = () => {
   return (
     <section id="faq" className="relative py-20 bg-black/40 overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
-      <div className="container mx-auto px-4 max-w-4xl relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
+      <div className="container mx-auto px-4 max-w-4xl relative z-10 bg-black/40 rounded-2xl shadow-2xl">
         <SectionTitle title="Perguntas Frequentes" centered />
         <div className="space-y-4">
           {faqs.map((faq, i) => (
@@ -1578,7 +1578,7 @@ const ContactForm = () => {
   return (
     <section id="contato" className="relative py-20 bg-black/40 overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
-      <div className="container mx-auto px-4 max-w-2xl relative z-10 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
+      <div className="container mx-auto px-4 max-w-2xl relative z-10 bg-black/40 rounded-2xl shadow-2xl">
         <SectionTitle
           title="Vamos transformar seu negócio?"
           subtitle="Preencha o formulário e receba um diagnóstico gratuito em 48h."
@@ -1743,7 +1743,7 @@ const ContactForm = () => {
 
 const Footer = () => (
   <footer className="bg-black/40 border-t border-white/10 pt-20 pb-10">
-    <div className="container mx-auto px-4 bg-black/40 rounded-2xl border border-white/10 shadow-2xl">
+    <div className="container mx-auto px-4 bg-black/40 rounded-2xl shadow-2xl">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
         <div className="text-left">
           <Link to="/" className="block w-fit mb-6">
@@ -1762,7 +1762,7 @@ const Footer = () => (
           </p>
         </div>
 
-        <div className="bg-brand-gray/40 p-8 rounded-2xl border border-white/10 text-left md:text-right w-full md:w-auto">
+        <div className="bg-brand-gray/40 p-8 rounded-2xl text-left md:text-right w-full md:w-auto">
           <h4 className="text-xl font-bold mb-2">Pronto para escalar?</h4>
           <p className="text-gray-400 mb-6 text-sm">Receba um diagnóstico gratuito em 48h.</p>
           <a
@@ -1774,7 +1774,7 @@ const Footer = () => (
         </div>
       </div>
 
-      <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4">
+      <div className=" pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4">
         <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
           <p>&copy; 2026 PHD Studio. Todos os direitos reservados.</p>
           <Link
