@@ -1017,9 +1017,9 @@ const Hero = () => {
 };
 
 const ClientMarquee = () => {
-  // Repetimos o array várias vezes para garantir que não haja “buracos” na animação,
-  // mesmo em telas muito largas.
-  const logos = Array(4).fill(ASSETS.clientLogos).flat();
+  // Duas sequências idênticas: a animação desloca exatamente -50% do trilho,
+  // alinhando o loop sem salto (padrão clássico de marquee infinito).
+  const track = [...ASSETS.clientLogos, ...ASSETS.clientLogos];
 
   return (
     <div className="relative bg-black/40 py-8 overflow-hidden group">
@@ -1029,8 +1029,8 @@ const ClientMarquee = () => {
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-black/80 to-transparent" />
 
       {/* Faixa contínua de logos */}
-      <div className="relative z-10 flex items-center gap-x-20 animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
-        {logos.map((logo, index) => {
+      <div className="relative z-10 flex w-max flex-none items-center gap-x-20 whitespace-nowrap will-change-transform animate-marquee motion-reduce:animate-none group-hover:[animation-play-state:paused]">
+        {track.map((logo, index) => {
           const isObj = typeof logo === 'object' && logo !== null;
           const src = isObj ? logo.url : logo;
           const alt = isObj && logo.alt ? logo.alt : `Logomarca de cliente ${index + 1}`;
