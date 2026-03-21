@@ -38,6 +38,7 @@ import {
   BarChart,
   Bar
 } from 'recharts';
+import lushOrquestraLogoUrl from './src/assets/lush-orquestra-logo.svg?url';
 
 // --- Assets Configuration ---
 const ASSETS = {
@@ -64,7 +65,7 @@ const ASSETS = {
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Sistema%20Gigantes.svg",
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Dr%20Carlos.svg",
     {
-      url: "/lush-orquestra-logo.svg",
+      url: lushOrquestraLogoUrl,
       alt: "Lush Orquestra"
     },
     {
