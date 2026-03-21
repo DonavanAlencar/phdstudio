@@ -1111,7 +1111,7 @@ const ClientMarquee = () => {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center rounded-md outline-none ring-brand-red/0 transition-shadow hover:ring-2 hover:ring-brand-red/40 focus-visible:ring-2 focus-visible:ring-brand-red"
+                className="flex items-center justify-center rounded-md outline-none ring-brand-red/0 transition-shadow focus-visible:ring-2 focus-visible:ring-brand-red"
                 aria-label={`Abrir site oficial: ${alt}`}
               >
                 {img}
