@@ -19,9 +19,14 @@ const BlogCarousel: React.FC = () => {
 
       let result = await fetchLatestPosts(8);
 
-      // Se a API falhar ou retornar vazio, tentar RSS direto para manter carrossel sincronizado
-      if (mounted && result.posts.length === 0) {
-        result = await fetchLatestPostsFromRss(8);
+      // Em erro, vazio ou cache stale, tenta RSS direto para manter o carrossel atualizado.
+      if (mounted && (result.posts.length === 0 || result.stale)) {
+        const rssResult = await fetchLatestPostsFromRss(8);
+        if (rssResult.posts.length > 0 || result.posts.length === 0) {
+          result = rssResult;
+        } else {
+          result = { ...result, error: true };
+        }
       }
 
       if (mounted) {

@@ -66,6 +66,15 @@ const mapWpPost = (p) => {
   };
 };
 
+const sortByPublishDateDesc = (posts) =>
+  posts.sort((a, b) => {
+    const aDate = new Date(a.publish_date).getTime();
+    const bDate = new Date(b.publish_date).getTime();
+    const safeA = Number.isNaN(aDate) ? 0 : aDate;
+    const safeB = Number.isNaN(bDate) ? 0 : bDate;
+    return safeB - safeA;
+  });
+
 function parseRss(xml, limit) {
   const items = Array.from(xml.matchAll(/<item>([\s\S]*?)<\/item>/g)).slice(0, limit);
   const posts = items
@@ -97,8 +106,7 @@ function parseRss(xml, limit) {
       };
     })
     .filter((p) => p.title && p.url);
-  posts.sort((a, b) => new Date(b.publish_date).getTime() - new Date(a.publish_date).getTime());
-  return posts;
+  return sortByPublishDateDesc(posts);
 }
 
 // ---------------------------------------------------------------------------
@@ -136,7 +144,9 @@ router.get('/posts', async (req, res) => {
         endpointName:   'blog/api',
       });
       const raw    = Array.isArray(data) ? data : data.data || data.posts || [];
-      const mapped = raw.map(mapGenericPost).filter((p) => p.title && p.url).slice(0, limit);
+      const mapped = sortByPublishDateDesc(
+        raw.map(mapGenericPost).filter((p) => p.title && p.url)
+      ).slice(0, limit);
       if (mapped.length > 0) posts = mapped;
     } catch (err) {
       lastReason = err.reason || classifyError(err);
@@ -155,7 +165,7 @@ router.get('/posts', async (req, res) => {
         endpointName:   'blog/wp',
       });
       if (Array.isArray(data)) {
-        posts = data.map(mapWpPost).filter((p) => p.title && p.url);
+        posts = sortByPublishDateDesc(data.map(mapWpPost).filter((p) => p.title && p.url));
       }
     } catch (err) {
       lastReason = err.reason || classifyError(err);

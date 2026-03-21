@@ -96,6 +96,40 @@ describe('GET /api/blog/posts', () => {
       expect(res.body.data.length).toBeLessThanOrEqual(1);
     });
 
+    it('ordena por publish_date desc antes de aplicar limit', async () => {
+      rf.resilientGet.mockResolvedValueOnce({
+        data: {
+          data: [
+            {
+              id: 'old',
+              title: 'Post antigo',
+              excerpt: 'Resumo antigo',
+              url: 'https://blog.example.com/old',
+              featured_image: null,
+              publish_date: '2025-01-01T00:00:00.000Z',
+            },
+            {
+              id: 'new',
+              title: 'Post novo',
+              excerpt: 'Resumo novo',
+              url: 'https://blog.example.com/new',
+              featured_image: null,
+              publish_date: '2025-02-01T00:00:00.000Z',
+            },
+          ],
+        },
+        status: 200,
+        durationMs: 80,
+      });
+
+      const res = await request(app).get('/api/blog/posts?limit=1');
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.data[0].id).toBe('new');
+    });
+
     it('cada post tem os campos obrigatórios do contrato', async () => {
       rf.resilientGet.mockResolvedValueOnce({
         data:       mockApiResponse,

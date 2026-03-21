@@ -19,7 +19,7 @@ const getBlogApiBase = (): string => {
   return `${baseUrl}/blog`;
 };
 
-export type FetchPostsResult = { posts: BlogPost[]; error: boolean };
+export type FetchPostsResult = { posts: BlogPost[]; error: boolean; stale?: boolean };
 
 const fetchWithRetry = async (url: string, retries = 3): Promise<Response> => {
   for (let attempt = 0; attempt < retries; attempt++) {
@@ -47,8 +47,9 @@ export const fetchLatestPosts = async (limit = 6): Promise<FetchPostsResult> => 
   const url = `${BLOG_API}/posts?limit=${limit}&v=${Date.now()}&force=1`;
   try {
     const resp = await fetchWithRetry(url);
-    if (!resp.ok) return { posts: [], error: true };
+    if (!resp.ok) return { posts: [], error: true, stale: false };
     const json = await resp.json();
+    const stale = Boolean(json?.meta?.stale);
     if (json?.success && Array.isArray(json.data)) {
       const posts: BlogPost[] = json.data
         .map((p: Record<string, unknown>) => ({
@@ -62,11 +63,11 @@ export const fetchLatestPosts = async (limit = 6): Promise<FetchPostsResult> => 
         .filter((p) => Boolean(p.title && p.url))
         .sort((a, b) => new Date(b.publish_date).getTime() - new Date(a.publish_date).getTime())
         .slice(0, limit);
-      return { posts, error: false };
+      return { posts, error: false, stale };
     }
-    return { posts: [], error: false };
+    return { posts: [], error: false, stale };
   } catch {
-    return { posts: [], error: true };
+    return { posts: [], error: true, stale: false };
   }
 };
 
@@ -82,14 +83,14 @@ export const fetchLatestPostsFromRss = async (limit = 8): Promise<FetchPostsResu
     const resp = await fetch(`${BLOG_RSS_URL}?v=${Date.now()}`, { signal: controller.signal });
     clearTimeout(timeout);
 
-    if (!resp.ok) return { posts: [], error: true };
+    if (!resp.ok) return { posts: [], error: true, stale: false };
 
     const xmlText = await resp.text();
     const parser = new DOMParser();
     const xml = parser.parseFromString(xmlText, 'application/xml');
 
     if (xml.querySelector('parsererror')) {
-      return { posts: [], error: true };
+      return { posts: [], error: true, stale: false };
     }
 
     const items = Array.from(xml.querySelectorAll('channel > item, item')).slice(0, limit);
@@ -156,9 +157,9 @@ export const fetchLatestPostsFromRss = async (limit = 8): Promise<FetchPostsResu
       };
     });
 
-    return { posts, error: false };
+    return { posts, error: false, stale: false };
   } catch {
-    return { posts: [], error: true };
+    return { posts: [], error: true, stale: false };
   }
 };
 
