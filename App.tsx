@@ -64,6 +64,10 @@ const ASSETS = {
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Sistema%20Gigantes.svg",
     "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Dr%20Carlos.svg",
     {
+      url: "/lush-orquestra-logo.svg",
+      alt: "Lush Orquestra"
+    },
+    {
       url: "/hajir-logo.svg",
       alt: "Hajir",
       // Unificando com padrão: opacity-40 hover:opacity-100 (gera o tom cinza visualmente)

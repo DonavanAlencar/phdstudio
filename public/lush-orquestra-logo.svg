@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 248 40" fill="#000" aria-hidden="true">
+  <!-- Ícone: losango + nota (silhueta para filtro invert do marquee) -->
+  <path d="M22 4 38 20 22 36 6 20Z"/>
+  <ellipse cx="15" cy="15.5" rx="4.2" ry="3.3" transform="rotate(-22 15 15.5)"/>
+  <path d="M19.5 10.5h2.8v15.5h-2.8z"/>
+  <path d="M22.3 10.5c3.2-1.2 6.4-1.4 6.4 1.4s-2.9 2.8-6.4 1.6v-3z"/>
+  <!-- LUSH -->
+  <text
+    x="48"
+    y="25.5"
+    font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
+    font-size="19"
+    font-weight="800"
+  >LUSH</text>
+  <!-- ORQUESTRA -->
+  <text
+    x="48"
+    y="36.5"
+    font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
+    font-size="6.8"
+    font-weight="600"
+    letter-spacing="0.38em"
+  >ORQUESTRA</text>
+</svg>
