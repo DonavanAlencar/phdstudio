@@ -1022,11 +1022,23 @@ const ClientMarquee = () => {
   const track = [...ASSETS.clientLogos, ...ASSETS.clientLogos];
 
   return (
-    <div className="relative bg-black/40 py-8 overflow-hidden group">
+    <div className="relative bg-black/40 pt-10 pb-8 overflow-hidden group">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
       {/* Gradientes de borda */}
       <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-black/80 to-transparent" />
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-black/80 to-transparent" />
+
+      <header className="relative z-10 container mx-auto px-4 text-center mb-8">
+        <h2 className="text-2xl md:text-3xl font-black font-heading tracking-tight text-white mb-3">
+          O próximo logo desta faixa pode ser o{' '}
+          <span className="text-brand-red">seu</span>
+        </h2>
+        <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto font-light leading-relaxed">
+          Editoras, saúde, varejo e lançamentos já confiaram a identidade delas à PHD Studio — porque
+          querem presença e resultado, não promessa vazia. Inspire-se com quem já está no time e
+          imagine a sua marca brilhando aqui também.
+        </p>
+      </header>
 
       {/* Faixa contínua de logos */}
       <div className="relative z-10 flex w-max flex-none items-center gap-x-20 whitespace-nowrap will-change-transform animate-marquee motion-reduce:animate-none group-hover:[animation-play-state:paused]">
