@@ -810,7 +810,7 @@ const Navbar = () => {
           </Link>
         )}
 
-        <Link to="/" className="relative z-50 block absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">
+        <Link to="/" className="relative z-50 block absolute left-4 md:static md:left-auto md:translate-x-0">
           <img
             src={ASSETS.logo}
             alt="PHD Studio"
