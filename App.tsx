@@ -51,25 +51,67 @@ const ASSETS = {
   recurringBg: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop",
   launchBg: "https://images.unsplash.com/photo-1642427749670-f20e2e76ed8c?q=80&w=800&auto=format&fit=crop",
 
-  // Client Logos (URLs reais do GitHub)
+  // Client Logos (imagem + site oficial)
   clientLogos: [
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/3%20Eus.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/FSalgueiro%20Editora.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Gira%20Roda.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/IPClin.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Le%20Chiq.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ville%20Capital.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/IS%20WE%20TV.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ruvolo.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Sistema%20Gigantes.svg",
-    "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Dr%20Carlos.svg",
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/3%20Eus.svg",
+      alt: "3 eus",
+      href: "https://www.facebook.com/3eus.coach"
+    },
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/FSalgueiro%20Editora.svg",
+      alt: "FSalgueiro Editora",
+      href: "https://www.fabiosalgueiro.com.br/"
+    },
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Gira%20Roda.svg",
+      alt: "Gira Roda",
+      href: "https://www.giraroda.com.br/"
+    },
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/IPClin.svg",
+      alt: "IPClin",
+      href: "https://www.grupoipclin.com.br/pt-br"
+    },
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Le%20Chiq.svg",
+      alt: "Le Chiq",
+      href: "https://lechiqourinhos.wixsite.com/website"
+    },
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ville%20Capital.svg",
+      alt: "Ville Capital",
+      href: "https://www.villecapital.com.br/"
+    },
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/IS%20WE%20TV.svg",
+      alt: "IS WE TV",
+      href: "https://www.youtube.com/@iswetv"
+    },
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ruvolo.svg",
+      alt: "Ruvolo",
+      href: "https://ruvolo.com.br/"
+    },
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Sistema%20Gigantes.svg",
+      alt: "Sistema Gigantes",
+      href: "https://sistemagigantes.com/"
+    },
+    {
+      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Dr%20Carlos.svg",
+      alt: "Dr. Carlos Eduardo Miranda",
+      href: "https://www.drcarloseduardomiranda.com.br/"
+    },
     {
       url: "https://raw.githubusercontent.com/DonavanAlencar/phdstudio/main/lush-orquestra-logo-rodape%20-%20Editado.svg",
-      alt: "Lush Orquestra"
+      alt: "Lush Orquestra",
+      href: "https://lushorquestra.com.br/"
     },
     {
       url: "/hajir-logo.svg",
-      alt: "Hajir",
+      alt: "Dra. Hajir Abdalla",
+      href: "https://drahajirabdalla.com.br/",
       imgClass: "h-[36px] w-auto object-contain brightness-0 invert"
     }
   ],
@@ -1043,30 +1085,37 @@ const ClientMarquee = () => {
       {/* Faixa contínua de logos */}
       <div className="relative z-10 flex w-max flex-none items-center gap-x-20 whitespace-nowrap will-change-transform animate-marquee motion-reduce:animate-none group-hover:[animation-play-state:paused]">
         {track.map((logo, index) => {
-          const isObj = typeof logo === 'object' && logo !== null;
-          const src = isObj ? logo.url : logo;
-          const alt = isObj && logo.alt ? logo.alt : `Logomarca de cliente ${index + 1}`;
+          const src = logo.url;
+          const alt = logo.alt || `Logomarca de cliente ${index + 1}`;
+          const href = logo.href;
 
           const customWrapperClass =
-            isObj && logo.wrapperClass
-              ? logo.wrapperClass
-              : "flex-shrink-0 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300";
-          const customImgClass = isObj
-            ? logo.imgClass || "h-12 w-auto object-contain brightness-0 invert"
-            : "h-12 w-auto object-contain brightness-0 invert";
+            logo.wrapperClass ||
+            "flex-shrink-0 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity duration-300";
+          const customImgClass =
+            logo.imgClass || "h-12 w-auto object-contain brightness-0 invert";
+
+          const img = (
+            <img
+              src={src}
+              alt={alt}
+              className={customImgClass}
+              loading="lazy"
+              decoding="async"
+            />
+          );
 
           return (
-            <div
-              key={`${src}-${index}`}
-              className={customWrapperClass}
-            >
-              <img
-                src={src}
-                alt={alt}
-                className={customImgClass}
-                loading="lazy"
-                decoding="async"
-              />
+            <div key={`${src}-${index}`} className={customWrapperClass}>
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center rounded-md outline-none ring-brand-red/0 transition-shadow hover:ring-2 hover:ring-brand-red/40 focus-visible:ring-2 focus-visible:ring-brand-red"
+                aria-label={`Abrir site oficial: ${alt}`}
+              >
+                {img}
+              </a>
             </div>
           );
         })}
