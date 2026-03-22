@@ -6,7 +6,6 @@ import {
   MessageCircle, Power, PowerOff, Package, Star, Stethoscope
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
-import ChatWidget from './src/components/ChatWidget';
 import ChatDiagnostic from './src/components/ChatDiagnostic';
 import ProductsAdmin from './src/components/ProductsAdmin';
 import MobileChatPage from './src/components/MobileChat/MobileChatPage';
@@ -3637,17 +3636,6 @@ function App() {
                       <HomePage />
                     </main>
                     <Footer />
-                    <ChatWidgetWrapper />
-                    {/* Floating WhatsApp Button */}
-                    <a
-                      href="https://wa.me/5511971490549"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
-                      aria-label="Falar no WhatsApp"
-                    >
-                      <Phone size={28} fill="currentColor" />
-                    </a>
                   </>
                 }
               />
@@ -3670,7 +3658,6 @@ function App() {
                       <PrivacyPolicyPage />
                     </main>
                     <Footer />
-                    <ChatWidgetWrapper />
                   </>
                 }
               />
@@ -3728,24 +3715,5 @@ function App() {
     </AuthProvider>
   );
 }
-
-// Wrapper para ChatWidget com contexto
-const ChatWidgetWrapper = () => {
-  const { isChatVisible } = useChatVisibility();
-  const location = useLocation();
-
-  // Não renderizar ChatWidget na rota /mobilechat ou rotas admin
-  const currentPath = location.pathname;
-  if (currentPath === '/mobilechat' || currentPath.startsWith('/admin')) {
-    return null;
-  }
-
-  // Verificação adicional com window.location para garantir
-  if (typeof window !== 'undefined' && window.location.pathname === '/mobilechat') {
-    return null;
-  }
-
-  return isChatVisible ? <ChatWidget /> : null;
-};
 
 export default App;
