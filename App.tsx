@@ -878,7 +878,7 @@ const Navbar = () => {
         </button>
 
         {/* Mobile Menu */}
-        <div className={`mobile-menu-overlay fixed inset-0 bg-black/75 backdrop-blur-sm z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`mobile-menu-overlay fixed inset-0 bg-black/75 backdrop-blur-sm z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 uppercase ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           {isAuthenticated && userRole === 'client' && username === 'vexin' ? (
             <>
               <Link
