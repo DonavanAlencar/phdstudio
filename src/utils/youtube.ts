@@ -23,6 +23,25 @@ export interface YouTubeVideo {
     publishedAt: string;
 }
 
+const UNAVAILABLE_VIDEO_TITLES = new Set([
+    'deleted video',
+    'private video',
+    'vídeo excluído',
+    'video excluido',
+    'vídeo privado',
+    'video privado',
+]);
+
+const isUnavailableVideo = (title: string) => {
+    return UNAVAILABLE_VIDEO_TITLES.has((title || '').trim().toLowerCase());
+};
+
+const filterVisibleVideos = (videos: YouTubeVideo[], limit: number) => {
+    return videos
+        .filter(video => video?.id && !isUnavailableVideo(video.title))
+        .slice(0, limit);
+};
+
 /**
  * Converte a duração ISO 8601 do YouTube para formato legível (MM:SS ou HH:MM:SS)
  */
@@ -53,7 +72,7 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<FetchVideosResult
             if (r.ok) {
                 const j = await r.json();
                 if (j?.success && Array.isArray(j.data)) {
-                    const v: YouTubeVideo[] = j.data.slice(0, limit);
+                    const v: YouTubeVideo[] = filterVisibleVideos(j.data, limit);
                     return { videos: v, error: false };
                 }
             }
@@ -118,7 +137,7 @@ export const fetchPlaylistVideos = async (limit = 10): Promise<FetchVideosResult
                 publishedAt: item.snippet.publishedAt,
             };
         });
-        return { videos, error: false };
+        return { videos: filterVisibleVideos(videos, limit), error: false };
     } catch (error) {
         return { videos: [], error: true };
     }
