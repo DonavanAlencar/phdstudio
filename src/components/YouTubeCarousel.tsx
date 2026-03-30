@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Youtube, ExternalLink, Play, X, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Youtube, ExternalLink, X, Clock } from 'lucide-react';
 import { fetchPlaylistVideos, YouTubeVideo } from '../utils/youtube';
 
 const YouTubeCarousel: React.FC = () => {
@@ -127,19 +127,7 @@ const YouTubeCarousel: React.FC = () => {
                                             <Clock size={10} />
                                             {video.duration}
                                         </div>
-
-                                        {/* Play Overlay */}
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                            <div className="bg-red-600 text-white p-4 rounded-full shadow-2xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                                                <Play size={28} fill="currentColor" />
-                                            </div>
-                                        </div>
                                     </div>
-
-                                    {/* Video Info */}
-                                    <h3 className="text-white font-bold text-sm line-clamp-2 leading-relaxed group-hover:text-red-500 transition-colors">
-                                        {video.title}
-                                    </h3>
                                 </div>
                             ))
                         ) : (
