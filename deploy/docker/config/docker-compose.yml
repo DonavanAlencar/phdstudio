@@ -34,7 +34,7 @@ services:
     labels:
       # Labels do Traefik para phdstudio.com.br
       - "traefik.enable=true"
-      - "traefik.http.routers.phdstudio.rule=Host(`phdstudio.com.br`) && !PathPrefix(`/api`)"
+      - "traefik.http.routers.phdstudio.rule=(Host(`phdstudio.com.br`) || Host(`www.phdstudio.com.br`)) && !PathPrefix(`/api`)"
       - "traefik.http.routers.phdstudio.entrypoints=websecure"
       - "traefik.http.routers.phdstudio.tls.certresolver=mytlschallenge"
       - "traefik.http.routers.phdstudio.priority=100"
@@ -76,14 +76,14 @@ services:
       # Instagram Feed (valores vêm do env_file - não sobrescrever aqui)
       # As variáveis INSTAGRAM_ACCESS_TOKEN, INSTAGRAM_USER_ID e INSTAGRAM_API_VERSION
       # são carregadas automaticamente do arquivo ../../config/shared/.env via env_file
-      - ALLOWED_ORIGINS=https://phdstudio.com.br,http://phdstudio.com.br
-      - CORS_ORIGIN=https://phdstudio.com.br
+      - ALLOWED_ORIGINS=https://phdstudio.com.br,http://phdstudio.com.br,https://www.phdstudio.com.br,http://www.phdstudio.com.br
+      - CORS_ORIGIN=https://phdstudio.com.br,https://www.phdstudio.com.br
       - API_PORT=3001
       - NODE_ENV=production
     labels:
       # Labels do Traefik para expor API via path prefix
       - "traefik.enable=true"
-      - "traefik.http.routers.phd-api.rule=Host(`phdstudio.com.br`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.phd-api.rule=(Host(`phdstudio.com.br`) || Host(`www.phdstudio.com.br`)) && PathPrefix(`/api`)"
       - "traefik.http.routers.phd-api.entrypoints=websecure"
       - "traefik.http.routers.phd-api.tls.certresolver=mytlschallenge"
       - "traefik.http.routers.phd-api.priority=200"
