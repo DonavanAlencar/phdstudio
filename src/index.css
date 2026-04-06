@@ -6,10 +6,34 @@
   --brand-dark: #050505;
   --brand-gray: #121212;
   --brand-light: #f3f4f6;
+  --brand-panel: rgba(12, 12, 12, 0.76);
+  --brand-stroke: rgba(255, 255, 255, 0.12);
 }
 
 body {
   background-color: #000;
+}
+
+.strategic-shell {
+  background: linear-gradient(160deg, rgba(10, 10, 10, 0.9) 0%, rgba(16, 16, 16, 0.78) 52%, rgba(10, 10, 10, 0.94) 100%);
+  border: 1px solid var(--brand-stroke);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.strategic-card {
+  background: var(--brand-panel);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 1rem;
+  backdrop-filter: blur(8px);
+  transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.strategic-card:hover {
+  border-color: rgba(229, 9, 20, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34);
 }
 
 /* Estilos específicos para admin - isolados da página principal */

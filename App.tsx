@@ -778,12 +778,12 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Soluções', href: '#solucoes' },
-    { name: 'Metodologia', href: '#metodologia' },
-    { name: 'Serviços', href: '#services' },
-    { name: 'Depoimentos', href: '#depoimentos' },
-    { name: 'PORTFÓLIO', href: '#portfolio-audiovisual' },
-    { name: 'FAQ', href: '#faq' },
+    { name: 'Problema', href: '#problema' },
+    { name: 'Paradigma', href: '#paradigma' },
+    { name: 'Produtos', href: '#produtos' },
+    { name: 'Método', href: '#metodo' },
+    { name: 'Prova', href: '#prova-estrutural' },
+    { name: 'Diagnóstico', href: '#contato' },
     { name: 'Blog', href: 'https://www.phdstudio.blog.br/', external: true },
   ];
 
@@ -1594,8 +1594,8 @@ const ContactForm = () => {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
       <div className="container mx-auto px-4 max-w-2xl relative z-10 bg-black/40 rounded-2xl shadow-2xl">
         <SectionTitle
-          title="Vamos transformar seu negócio?"
-          subtitle="Preencha o formulário e receba um diagnóstico gratuito em 48h."
+          title="Diagnóstico Estratégico de Crescimento"
+          subtitle="Entramos no seu funil, na sua operação e no seu stack para identificar onde o crescimento está vazando e o que precisa ser arquitetado primeiro."
           centered
         />
         <form onSubmit={handleSubmit} className="bg-brand-dark/40 border border-white/10 rounded-2xl p-8 md:p-10 space-y-6">
@@ -1658,7 +1658,7 @@ const ContactForm = () => {
               onChange={handleChange}
               rows={4}
               className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors resize-none"
-              placeholder="Conte-nos sobre seu negócio..."
+              placeholder="Descreva seu cenário atual, ticket, canais e principal gargalo de crescimento..."
             />
           </div>
 
@@ -1693,7 +1693,7 @@ const ContactForm = () => {
                   Enviando...
                 </>
               ) : (
-                'Enviar solicitação'
+                'Solicitar diagnóstico'
               )}
             </button>
           </div>
@@ -1772,18 +1772,18 @@ const Footer = () => (
             />
           </Link>
           <p className="text-gray-400 max-w-sm">
-            Agência híbrida de Marketing + IA + Tecnologia. Transformamos estratégias em vendas recorrentes e lançamentos de sucesso.
+            Sistema de crescimento com IA para empresas que precisam de previsibilidade comercial, não de campanhas isoladas.
           </p>
         </div>
 
         <div className="bg-brand-gray/40 p-8 rounded-2xl text-left md:text-right w-full md:w-auto">
           <h4 className="text-xl font-bold mb-2">Pronto para escalar?</h4>
-          <p className="text-gray-400 mb-6 text-sm">Receba um diagnóstico gratuito em 48h.</p>
+          <p className="text-gray-400 mb-6 text-sm">Solicite uma leitura técnica do seu funil e descubra o que está travando sua aquisição.</p>
           <a
             href="#contato"
             className="bg-brand-red text-white w-full px-8 py-4 rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 text-center block"
           >
-            QUERO MEU DIAGNÓSTICO
+            SOLICITAR DIAGNÓSTICO
           </a>
         </div>
       </div>
@@ -2993,18 +2993,313 @@ const ProjecaoVexinPage = () => {
 };
 
 // --- Home Page Layout ---
+const StrategicHero = () => (
+  <section className="relative min-h-screen flex items-center pt-24 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/65 to-black/85" />
+    <div className="container mx-auto px-4 relative z-10">
+      <div className="strategic-shell rounded-3xl p-8 md:p-14">
+        <div className="max-w-5xl space-y-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs md:text-sm uppercase tracking-[0.18em] text-red-300 font-semibold">
+            <span className="h-2 w-2 rounded-full bg-brand-red animate-pulse" />
+            Growth Architecture + Applied AI
+          </div>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-heading leading-[1.05] tracking-tight">
+            Se seu crescimento depende de campanha nova toda semana, seu negócio ainda não tem um sistema.
+          </h1>
+          <p className="text-lg md:text-2xl text-gray-300 max-w-4xl leading-relaxed">
+            A PHD Studio projeta e opera infraestruturas de aquisição com IA, conteúdo automatizado e engenharia de conversão.
+            Em vez de volume sem controle, você ganha um mecanismo que aprende, corrige rota e expande margem com previsibilidade.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <a href="#contato" className="bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-base md:text-lg hover:bg-red-700 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/25">
+              Solicitar diagnóstico estratégico
+              <ArrowRight size={18} />
+            </a>
+            <a href="#problema" className="border border-white/20 text-white px-8 py-4 rounded-lg font-semibold text-base md:text-lg hover:border-white/40 hover:bg-white/5 transition-all text-center">
+              Entender onde a operação perde dinheiro
+            </a>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4 pt-4">
+            {[
+              'Attribution model orientado a decisão (não só relatório)',
+              'Arquitetura de canais para reduzir dependência de mídia volátil',
+              'Ciclo de otimização com IA para execução em escala'
+            ].map((item) => (
+              <div key={item} className="strategic-card px-5 py-4 text-sm md:text-base text-gray-200">
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const ProblemSection = () => (
+  <section id="problema" className="relative py-24 bg-black/40 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
+    <div className="container mx-auto px-4 relative z-10">
+      <div className="strategic-shell rounded-3xl p-8 md:p-14">
+        <SectionTitle
+          title="O problema real não é tráfego. É arquitetura."
+          subtitle="A maioria das operações cresce em cima de improviso técnico: métricas desconectadas, handoffs lentos e decisões baseadas em feeling."
+        />
+        <div className="grid lg:grid-cols-3 gap-6">
+          <article className="strategic-card p-7 space-y-4">
+            <h3 className="text-xl font-bold">Atribuição quebrada</h3>
+            <p className="text-gray-300 leading-relaxed">
+              Quando cada plataforma reporta sua "verdade", a empresa otimiza o que parece bonito no dashboard e ignora o que realmente move caixa.
+              Resultado: investimento crescente com clareza decrescente.
+            </p>
+          </article>
+          <article className="strategic-card p-7 space-y-4">
+            <h3 className="text-xl font-bold">Ausência de sistema</h3>
+            <p className="text-gray-300 leading-relaxed">
+              Operações orientadas por tarefa vivem no modo reação. Sem camada de arquitetura, cada ajuste vira retrabalho e cada nova campanha
+              aumenta a complexidade operacional.
+            </p>
+          </article>
+          <article className="strategic-card p-7 space-y-4">
+            <h3 className="text-xl font-bold">Ineficiência acumulada</h3>
+            <p className="text-gray-300 leading-relaxed">
+              Tempo de equipe vira custo invisível: briefing mal definido, produção sem priorização e funil vazando entre marketing e vendas.
+              O CAC sobe sem que ninguém consiga explicar exatamente por quê.
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const NewParadigmSection = () => (
+  <section id="paradigma" className="relative py-24 bg-black/40 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
+    <div className="container mx-auto px-4 relative z-10">
+      <div className="strategic-shell rounded-3xl p-8 md:p-14">
+        <SectionTitle
+          title="Novo paradigma: de campanhas para sistemas de crescimento"
+          subtitle="Execução isolada é commodity. O diferencial competitivo agora está em desenhar estruturas que conectam aquisição, conteúdo e conversão como uma única máquina."
+        />
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="strategic-card p-8">
+            <h3 className="text-xl font-bold mb-5">Modelo antigo</h3>
+            <ul className="space-y-4 text-gray-300">
+              <li className="flex gap-3"><X size={18} className="text-red-400 mt-1 flex-shrink-0" /> Campanha como evento, não como sistema.</li>
+              <li className="flex gap-3"><X size={18} className="text-red-400 mt-1 flex-shrink-0" /> Decisão por métrica isolada de canal.</li>
+              <li className="flex gap-3"><X size={18} className="text-red-400 mt-1 flex-shrink-0" /> Escala que multiplica erro e desperdício.</li>
+            </ul>
+          </div>
+          <div className="strategic-card p-8 border-red-500/35">
+            <h3 className="text-xl font-bold mb-5">Modelo PHD Studio</h3>
+            <ul className="space-y-4 text-gray-200">
+              <li className="flex gap-3"><Check size={18} className="text-brand-red mt-1 flex-shrink-0" /> Arquitetura contínua com loops de aprendizado.</li>
+              <li className="flex gap-3"><Check size={18} className="text-brand-red mt-1 flex-shrink-0" /> Decisão orientada por fluxo de receita e margem.</li>
+              <li className="flex gap-3"><Check size={18} className="text-brand-red mt-1 flex-shrink-0" /> IA aplicada para acelerar execução sem perder controle.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const ProductSystemsSection = () => (
+  <section id="produtos" className="relative py-24 bg-black/40 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
+    <div className="container mx-auto px-4 relative z-10">
+      <div className="strategic-shell rounded-3xl p-8 md:p-14">
+        <SectionTitle
+          title="Produtos de crescimento, não pacotes de serviço"
+          subtitle="Cada produto resolve uma camada crítica do sistema comercial. O objetivo não é entregar peças; é aumentar capacidade de captura e conversão de demanda."
+        />
+        <div className="grid lg:grid-cols-3 gap-6">
+          <article className="strategic-card p-8 space-y-5">
+            <h3 className="text-2xl font-black font-heading">AI Acquisition System</h3>
+            <p className="text-gray-300 leading-relaxed">
+              Estrutura de aquisição com inteligência aplicada à alocação de verba, leitura de comportamento e priorização de oportunidades.
+              O sistema reduz ruído de canal e melhora a qualidade do pipeline, não só o volume de leads.
+            </p>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              Racional estratégico: sem governança de aquisição, empresa compra crescimento caro. Com arquitetura de decisão, cada ciclo melhora eficiência.
+            </p>
+          </article>
+          <article className="strategic-card p-8 space-y-5">
+            <h3 className="text-2xl font-black font-heading">Automated Content Engine</h3>
+            <p className="text-gray-300 leading-relaxed">
+              Motor de conteúdo conectado ao funil para gerar ativos orientados a estágio de compra, objeção e intenção.
+              IA acelera produção e variação criativa, enquanto o sistema mantém consistência de mensagem e aprendizado por performance.
+            </p>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              Racional estratégico: conteúdo sem engenharia vira custo de branding. Conteúdo com arquitetura vira ativo de aquisição e conversão.
+            </p>
+          </article>
+          <article className="strategic-card p-8 space-y-5">
+            <h3 className="text-2xl font-black font-heading">Conversion Infrastructure</h3>
+            <p className="text-gray-300 leading-relaxed">
+              Camada de conversão que conecta landing pages, CRM, automações e cadência comercial para eliminar vazamentos entre clique e receita.
+              A operação deixa de depender de esforço manual para manter follow-up e qualificação.
+            </p>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              Racional estratégico: empresas não escalam por falta de demanda; travam por incapacidade estrutural de transformar demanda em receita previsível.
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const ProcessSection = () => (
+  <section id="metodo" className="relative py-24 bg-black/40 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
+    <div className="container mx-auto px-4 relative z-10">
+      <div className="strategic-shell rounded-3xl p-8 md:p-14">
+        <SectionTitle
+          title="Como o sistema é construído"
+          subtitle="Do diagnóstico ao ajuste fino, a execução é orientada por arquitetura e por decisões rastreáveis."
+        />
+        <div className="grid md:grid-cols-2 gap-6">
+          {[
+            {
+              step: '01',
+              title: 'Diagnosis',
+              desc: 'Mapeamos economia do funil, fricções de jornada, qualidade de dados e maturidade operacional para identificar o ponto crítico de alavancagem.'
+            },
+            {
+              step: '02',
+              title: 'Architecture',
+              desc: 'Desenhamos o blueprint técnico: estrutura de canais, taxonomia de mensuração, lógica de conteúdo e mecânica de passagem para vendas.'
+            },
+            {
+              step: '03',
+              title: 'Implementation',
+              desc: 'Implementamos mídia, automações, ativos de conversão e integrações com governança operacional para manter velocidade sem perder controle.'
+            },
+            {
+              step: '04',
+              title: 'Optimization',
+              desc: 'Rodamos ciclos contínuos de aprendizado com IA para ajustar mensagem, segmentação e cadência de conversão com foco em receita e eficiência.'
+            }
+          ].map((item) => (
+            <article key={item.step} className="strategic-card p-7">
+              <div className="text-brand-red text-xs font-bold tracking-[0.2em] mb-3">STEP {item.step}</div>
+              <h3 className="text-2xl font-black font-heading mb-4">{item.title}</h3>
+              <p className="text-gray-300 leading-relaxed">{item.desc}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const StructuralProofSection = () => (
+  <section id="prova-estrutural" className="relative py-24 bg-black/40 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
+    <div className="container mx-auto px-4 relative z-10">
+      <div className="strategic-shell rounded-3xl p-8 md:p-14">
+        <SectionTitle
+          title="Prova estrutural: cenário realista de transformação"
+          subtitle="Sem prometer números mágicos. Apenas lógica operacional de causa e efeito aplicada a um caso plausível."
+        />
+        <div className="strategic-card p-8 md:p-10 space-y-6">
+          <p className="text-gray-200 leading-relaxed">
+            Uma empresa B2B de ticket médio alto chega com tráfego ativo, equipe comercial competente e geração de leads irregular.
+            O problema não está na ausência de esforço, e sim na desconexão entre captação, conteúdo e follow-up.
+          </p>
+          <div className="grid md:grid-cols-3 gap-5">
+            <div className="rounded-xl border border-white/10 bg-black/35 p-5">
+              <h4 className="text-sm uppercase tracking-[0.15em] text-gray-400 mb-3">Antes</h4>
+              <p className="text-gray-300 text-sm leading-relaxed">Campanhas com decisões por plataforma, criativos reativos e CRM subutilizado.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/35 p-5">
+              <h4 className="text-sm uppercase tracking-[0.15em] text-gray-400 mb-3">Intervenção</h4>
+              <p className="text-gray-300 text-sm leading-relaxed">Arquitetura de aquisição, motor de conteúdo por estágio de funil e automações de qualificação.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/35 p-5">
+              <h4 className="text-sm uppercase tracking-[0.15em] text-gray-400 mb-3">Efeito esperado</h4>
+              <p className="text-gray-300 text-sm leading-relaxed">Menor desperdício comercial, maior consistência de oportunidade e tomada de decisão mais rápida.</p>
+            </div>
+          </div>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            Não existe crescimento previsível sem coerência estrutural. O ganho vem do acoplamento inteligente entre os componentes do sistema.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const WhyThisWorksSection = () => (
+  <section id="porque-funciona" className="relative py-24 bg-black/40 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
+    <div className="container mx-auto px-4 relative z-10">
+      <div className="strategic-shell rounded-3xl p-8 md:p-14">
+        <SectionTitle
+          title="Por que isso funciona enquanto concorrentes travam"
+          subtitle="Competidores focam em execução de tarefa. Sistemas de crescimento focam em desenho de vantagem operacional."
+        />
+        <div className="grid lg:grid-cols-3 gap-6">
+          <article className="strategic-card p-7">
+            <h3 className="text-xl font-bold mb-4">Onde concorrentes falham</h3>
+            <p className="text-gray-300 leading-relaxed">
+              A maioria das agências entrega produção. Poucas entregam decisão. Sem modelo de sistema, a empresa fica dependente da próxima ideia e vulnerável a oscilação de canal.
+            </p>
+          </article>
+          <article className="strategic-card p-7">
+            <h3 className="text-xl font-bold mb-4">Por que sistemas vencem</h3>
+            <p className="text-gray-300 leading-relaxed">
+              Sistemas criam continuidade: aprendizado vira padrão, padrão vira eficiência, eficiência vira margem para escalar com menos fricção e mais previsibilidade.
+            </p>
+          </article>
+          <article className="strategic-card p-7">
+            <h3 className="text-xl font-bold mb-4">O papel da IA na execução</h3>
+            <p className="text-gray-300 leading-relaxed">
+              IA não substitui estratégia; multiplica capacidade operacional. Quando acoplada à arquitetura correta, reduz latência de decisão e acelera iteração com qualidade.
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const FinalCtaSection = () => (
+  <section className="relative py-24 bg-black/40 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
+    <div className="container mx-auto px-4 relative z-10">
+      <div className="strategic-shell rounded-3xl p-10 md:p-16 text-center space-y-7">
+        <p className="text-sm md:text-base uppercase tracking-[0.18em] text-red-300 font-semibold">Posicionamento final</p>
+        <h2 className="text-3xl md:text-5xl font-black font-heading leading-tight max-w-4xl mx-auto">
+          Não somos para empresas que querem "rodar tráfego". Somos para empresas que querem construir uma máquina de crescimento.
+        </h2>
+        <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed">
+          Se você busca previsibilidade comercial, clareza de decisão e escala operacional real, a próxima etapa é um diagnóstico estratégico.
+          Se procura apenas execução pontual, não somos o parceiro certo.
+        </p>
+        <div>
+          <a href="#contato" className="inline-flex items-center gap-2 bg-brand-red text-white px-9 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-all shadow-lg shadow-brand-red/25">
+            Quero avaliação técnica do meu sistema
+            <ArrowRight size={18} />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 const HomePage = () => (
   <>
-    <Hero />
-    <ClientMarquee />
-    <GrowthType />
-    <Solutions />
-    <Methodology />
-    <ServicesSection />
-    <BlogCarousel />
-    <YouTubeCarousel />
-    <Testimonials />
-    <FAQ />
+    <StrategicHero />
+    <ProblemSection />
+    <NewParadigmSection />
+    <ProductSystemsSection />
+    <ProcessSection />
+    <StructuralProofSection />
+    <WhyThisWorksSection />
+    <FinalCtaSection />
     <ContactForm />
   </>
 );
