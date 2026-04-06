@@ -1799,6 +1799,15 @@ const Footer = () => (
           >
             Política de Privacidade
           </Link>
+          <div className="flex flex-col text-center md:text-left leading-tight">
+            <span className="text-[10px] uppercase tracking-wider text-gray-500">Contato</span>
+            <a
+              href="mailto:contato@phdstudio.com.br"
+              className="text-xs md:text-sm text-gray-300 hover:text-white hover:underline underline-offset-4 transition-colors duration-200"
+            >
+              contato@phdstudio.com.br
+            </a>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <span className="uppercase tracking-wider text-xs text-gray-500 hidden md:inline">Siga a PHD</span>
