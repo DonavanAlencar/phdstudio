@@ -93,6 +93,8 @@ const STRATEGIC_VIDEOS: StrategicVideoItem[] = [
 ];
 
 const StrategicContentVideoSection: React.FC = () => {
+  const displayedVideos = STRATEGIC_VIDEOS.slice(0, 9);
+
   return (
     <section
       id="arquitetura-conteudo"
@@ -122,7 +124,7 @@ const StrategicContentVideoSection: React.FC = () => {
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {STRATEGIC_VIDEOS.map((video, index) => (
+            {displayedVideos.map((video, index) => (
               <article
                 key={video.id}
                 className="group rounded-2xl border border-white/10 bg-brand-gray/35 backdrop-blur-md overflow-hidden shadow-lg shadow-black/25 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-white/20 hover:shadow-xl hover:shadow-brand-red/10"
@@ -146,6 +148,17 @@ const StrategicContentVideoSection: React.FC = () => {
                 </div>
               </article>
             ))}
+          </div>
+
+          <div className="mt-10 flex justify-center">
+            <a
+              href="https://www.youtube.com/@phdstudiobr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-brand-gray/40 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-all hover:border-red-600 hover:bg-red-600"
+            >
+              Ver portfólio completo
+            </a>
           </div>
         </div>
       </div>
