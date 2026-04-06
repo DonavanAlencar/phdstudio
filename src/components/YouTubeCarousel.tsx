@@ -128,6 +128,9 @@ const YouTubeCarousel: React.FC = () => {
                                             {video.duration}
                                         </div>
                                     </div>
+                                    <h3 className="text-sm md:text-base font-semibold text-white leading-snug line-clamp-2 group-hover:text-red-400 transition-colors">
+                                        {video.title}
+                                    </h3>
                                 </div>
                             ))
                         ) : (
