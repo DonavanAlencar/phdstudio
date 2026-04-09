@@ -1860,6 +1860,10 @@ const Footer = () => (
           </div>
         </div>
       </div>
+      <div className="mt-8 pt-4 border-t border-white/5 text-center text-[11px] leading-relaxed text-gray-500">
+        <p>PHD Studio &copy; 2026</p>
+        <p className="whitespace-nowrap">CNPJ: 64.625.520/0001-72</p>
+      </div>
     </div>
   </footer>
 );
