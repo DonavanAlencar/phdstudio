@@ -1793,7 +1793,7 @@ const Footer = () => (
       <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row md:items-center md:justify-between text-sm text-gray-600 gap-6">
         <div className="flex flex-col items-center text-center gap-2 md:flex-row md:flex-wrap md:items-center md:justify-start md:text-left md:gap-x-5 md:gap-y-2">
           <p>&copy; 2026 PHD Studio. Todos os direitos reservados.</p>
-          <p className="whitespace-nowrap">CNPJ: 64.625.520/0001-72</p>
+          <p className="whitespace-nowrap">CNPJ: 40.674.510/0001-69</p>
           <Link
             to="/politica-de-privacidade"
             className="text-xs md:text-sm text-gray-500 hover:text-white underline underline-offset-4"
