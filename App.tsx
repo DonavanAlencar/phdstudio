@@ -1790,17 +1790,18 @@ const Footer = () => (
         </div>
       </div>
 
-      <div className=" pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4">
-        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+      <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row md:items-center md:justify-between text-sm text-gray-600 gap-6">
+        <div className="flex flex-col items-center text-center gap-2 md:flex-row md:flex-wrap md:items-center md:justify-start md:text-left md:gap-x-5 md:gap-y-2">
           <p>&copy; 2026 PHD Studio. Todos os direitos reservados.</p>
+          <p className="whitespace-nowrap">CNPJ: 64.625.520/0001-72</p>
           <Link
             to="/politica-de-privacidade"
             className="text-xs md:text-sm text-gray-500 hover:text-white underline underline-offset-4"
           >
             Política de Privacidade
           </Link>
-          <div className="flex flex-col text-center md:text-left leading-tight">
-            <span className="text-[10px] uppercase tracking-wider text-gray-500">Contato</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase tracking-wider text-gray-500">Contato:</span>
             <a
               href="mailto:contato@phdstudio.com.br"
               className="text-xs md:text-sm text-gray-300 hover:text-white hover:underline underline-offset-4 transition-colors duration-200"
@@ -1809,7 +1810,7 @@ const Footer = () => (
             </a>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="w-full md:w-auto flex items-center justify-center md:justify-end gap-4">
           <span className="uppercase tracking-wider text-xs text-gray-500 hidden md:inline">Siga a PHD</span>
           <div className="flex gap-4">
             <a
@@ -1859,10 +1860,6 @@ const Footer = () => (
             </a>
           </div>
         </div>
-      </div>
-      <div className="mt-8 pt-4 border-t border-white/5 text-center text-[11px] leading-relaxed text-gray-500">
-        <p>PHD Studio &copy; 2026</p>
-        <p className="whitespace-nowrap">CNPJ: 64.625.520/0001-72</p>
       </div>
     </div>
   </footer>
