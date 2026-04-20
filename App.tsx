@@ -19,6 +19,7 @@ import UsersManagement from './src/components/Logs/UsersManagement';
 import MobilechatConfigsManagement from './src/components/Logs/MobilechatConfigsManagement';
 import ClientsManagement from './src/components/Logs/ClientsManagement';
 import ScrollVideoBackground from './src/components/ScrollVideoBackground';
+import FloatingWhatsAppButton from './src/components/FloatingWhatsAppButton';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 // Admin CRM removido - foi transportado para outro lugar
 import {
@@ -3935,6 +3936,7 @@ function App() {
           <ScrollVideoBackground />
           <div className="relative z-10 font-sans min-h-screen text-white selection:bg-brand-red selection:text-white">
             <CookieBanner />
+            <FloatingWhatsAppButton />
             <Routes>
               <Route
                 path="/"
