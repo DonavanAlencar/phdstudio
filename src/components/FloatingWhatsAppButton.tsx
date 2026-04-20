@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 type FloatingWhatsAppButtonProps = {
@@ -25,6 +25,7 @@ export default function FloatingWhatsAppButton({
   hideOnPathPrefixes = ['/admin', '/logs', '/produtos', '/chat-diagnostico'],
 }: FloatingWhatsAppButtonProps) {
   const location = useLocation();
+  const [isNearFooter, setIsNearFooter] = useState(false);
 
   const shouldHide = useMemo(() => {
     const path = location?.pathname || '/';
@@ -32,6 +33,27 @@ export default function FloatingWhatsAppButton({
   }, [hideOnPathPrefixes, location?.pathname]);
 
   const href = useMemo(() => buildWhatsAppUrl(phoneE164, message), [phoneE164, message]);
+
+  useEffect(() => {
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        setIsNearFooter(Boolean(entry?.isIntersecting));
+      },
+      {
+        // Sobe antes de encostar nos ícones/links do rodapé (ajuste fino)
+        root: null,
+        threshold: 0,
+        rootMargin: '0px 0px 140px 0px',
+      }
+    );
+
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
 
   if (shouldHide) return null;
 
@@ -43,13 +65,13 @@ export default function FloatingWhatsAppButton({
       aria-label="Abrir conversa no WhatsApp com a PHD Studio"
       title="Falar no WhatsApp"
       className={[
-        'fixed bottom-[30px] right-[30px] z-[60]',
+        'fixed right-[30px] z-[60]',
         'h-14 w-14 md:h-16 md:w-16',
         'grid place-items-center rounded-full',
         'bg-[#25D366]',
         'shadow-[0_14px_36px_rgba(0,0,0,0.45)]',
         'ring-1 ring-white/10',
-        'transition-[transform,box-shadow,filter] duration-300 ease-out',
+        'transition-[transform,box-shadow,filter,bottom] duration-300 ease-out',
         'hover:scale-[1.06]',
         'hover:shadow-[0_18px_44px_rgba(0,0,0,0.55)]',
         'active:scale-[0.98]',
@@ -59,6 +81,7 @@ export default function FloatingWhatsAppButton({
         className,
       ].join(' ')}
       style={{
+        bottom: isNearFooter ? '104px' : '30px',
         WebkitTapHighlightColor: 'transparent',
       }}
     >
