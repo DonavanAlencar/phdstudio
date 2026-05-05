@@ -9,17 +9,17 @@ interface InsightItem {
 const INSIGHT_ITEMS: InsightItem[] = [
   {
     title: 'Por que a maioria das empresas usa IA errado (e paga por isso)',
-    text: 'Volume sem estratégia não vira resultado — o gargalo raramente é a ferramenta.',
+    text: 'Sem estratégia, volume é custo.',
     link: 'https://www.phdstudio.blog.br/',
   },
   {
     title: 'Mais conteúdo não significa mais resultado',
-    text: 'Intenção e direção batem cadência sem propósito.',
+    text: 'Cadência não substitui direção.',
     link: 'https://www.phdstudio.blog.br/',
   },
   {
     title: 'O erro invisível que destrói a performance de campanhas',
-    text: 'Quando a estrutura falha, nenhuma mídia segura a conta.',
+    text: 'Estrutura fraca não se salva com mídia.',
     link: 'https://www.phdstudio.blog.br/',
   },
 ];
@@ -39,15 +39,15 @@ const StrategicBlogInsightsSection: React.FC = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="strategic-shell rounded-3xl p-8 md:p-14">
           <header className="max-w-3xl mb-10 md:mb-12">
+            <p className="text-gray-400 text-base md:text-lg leading-relaxed mb-6 whitespace-pre-line">
+              {`Se você ainda não tem clareza sobre o problema,\ncomece por aqui.`}
+            </p>
             <h2
               id="insights-crescimento-heading"
               className="text-3xl md:text-5xl font-black font-heading leading-tight text-white mb-4"
             >
               Insights que Direcionam Crescimento
             </h2>
-            <p className="text-gray-300 text-base md:text-lg leading-relaxed">
-              Ideias aplicáveis sobre estrutura, conteúdo e performance — direto ao ponto no blog PHD Studio.
-            </p>
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -64,7 +64,7 @@ const StrategicBlogInsightsSection: React.FC = () => {
                   <h3 className="text-xl md:text-2xl font-bold leading-snug text-white mb-4">
                     {item.title}
                   </h3>
-                  <p className="text-gray-300 leading-relaxed mb-6">
+                  <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-5">
                     {item.text}
                   </p>
                   <span className="mt-auto inline-flex items-center text-sm md:text-base font-semibold text-red-300 transition-colors duration-300 group-hover:text-red-200">

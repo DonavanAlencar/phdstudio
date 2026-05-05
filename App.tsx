@@ -1596,22 +1596,21 @@ const ContactForm = () => {
     <section id="contato" className="relative py-20 md:py-28 bg-black/40 overflow-hidden scroll-mt-28">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
       <div className="container mx-auto px-4 max-w-2xl relative z-10 bg-black/40 rounded-2xl shadow-2xl">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-4">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-3">
             Diagnóstico Estratégico de Crescimento
           </h2>
-          <p className="text-gray-400 text-base max-w-xl mx-auto font-light leading-relaxed">
-            Mapeamos funil, operação e stack para fechar os vazios que impedem escala.
+          <p className="text-gray-400 text-sm md:text-base max-w-lg mx-auto font-light leading-relaxed">
+            Conteúdo, funil e operação no mesmo diagnóstico.
           </p>
         </div>
 
-        <div className="mb-10 rounded-2xl border border-white/10 bg-brand-gray/25 px-6 py-6 md:px-8 md:py-7 text-center space-y-4">
-          <p className="text-white text-lg md:text-xl font-semibold leading-snug">
-            Se você chegou até aqui, você já entendeu o problema.
+        <div className="mb-10 rounded-2xl border border-white/15 bg-gradient-to-b from-brand-gray/40 to-black/30 px-6 py-7 md:px-8 md:py-8 text-center space-y-4">
+          <p className="text-white text-base md:text-lg font-semibold leading-snug whitespace-pre-line">
+            {`Se você chegou até aqui,\nvocê já percebeu que o problema não é conteúdo.`}
           </p>
-          <p className="text-gray-300 text-base md:text-lg leading-relaxed">
-            Agora a decisão é:<br />
-            <span className="text-white font-medium">continuar testando… ou estruturar.</span>
+          <p className="text-gray-300 text-sm md:text-base leading-relaxed whitespace-pre-line">
+            {`Agora a decisão é simples:\n\ncontinuar tentando…\nou estruturar de verdade.`}
           </p>
         </div>
 
@@ -1710,7 +1709,7 @@ const ContactForm = () => {
                   Enviando...
                 </>
               ) : (
-                'Quero estruturar meu crescimento'
+                'Quero um diagnóstico do meu conteúdo'
               )}
             </button>
           </div>
@@ -3032,19 +3031,18 @@ const StrategicHero = () => (
             clientes?
           </span>
         </h1>
-        <p className="mt-4 md:mt-5 text-lg sm:text-xl md:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug md:leading-[1.2]">
-          Então o problema não é conteúdo.<span className="text-brand-red"> </span>
-          É o sistema.
+        <p className="mt-4 md:mt-5 text-lg sm:text-xl md:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug md:leading-[1.25] whitespace-pre-line">
+          {`Então o problema não é conteúdo.\nÉ a forma como ele está estruturado.`}
         </p>
-        <p className="mt-6 max-w-2xl mx-auto lg:mx-0 text-sm md:text-base text-gray-400 leading-relaxed">
-          Empresas não precisam de mais posts. Precisam de estrutura que transforma conteúdo em crescimento.
+        <p className="mt-6 max-w-2xl mx-auto lg:mx-0 text-sm md:text-base text-gray-300 leading-relaxed font-medium whitespace-pre-line">
+          {`Empresas não precisam de mais posts.\nPrecisam de um sistema que transforma conteúdo em crescimento.`}
         </p>
         <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
           <a
             href="#contato"
             className="bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-base md:text-lg hover:bg-red-700 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/35"
           >
-            Quero estruturar meu crescimento
+            Quero um diagnóstico do meu conteúdo
             <ArrowRight size={18} />
           </a>
           <a
@@ -3064,27 +3062,26 @@ const ProblemSection = () => (
     <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
     <div className="container mx-auto px-4 relative z-10">
       <div className="strategic-shell rounded-3xl p-8 md:p-12">
-        <SectionTitle
-          title="O problema real não é tráfego. É arquitetura."
-          subtitle="Improviso, relatórios desconectados e decisão no feeling — não falta esforço, falta encaixe entre partes."
-        />
+        <SectionTitle title="O problema real não é tráfego. É arquitetura." />
         <div className="grid lg:grid-cols-3 gap-5 md:gap-6">
           <article className="strategic-card p-6 md:p-7">
-            <h3 className="text-lg font-bold text-white mb-3">Atribuição quebrada</h3>
+            <h3 className="text-lg font-bold text-white mb-3 leading-snug">
+              Você não sabe por que seu conteúdo não vende
+            </h3>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-              Cada canal diz uma “verdade”. Você otimiza o que brilha no dashboard e perde o fio com o que paga a conta.
+              Posta com frequência, mas não consegue entender o que gera resultado.
             </p>
           </article>
           <article className="strategic-card p-6 md:p-7">
-            <h3 className="text-lg font-bold text-white mb-3">Ausência de sistema</h3>
+            <h3 className="text-lg font-bold text-white mb-3 leading-snug">Você produz sem direção clara</h3>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-              Tudo vira reação e retrabalho. Sem estrutura, cada campanha nova só empilha complexidade.
+              Falta estrutura. Cada conteúdo é isolado, sem função estratégica.
             </p>
           </article>
           <article className="strategic-card p-6 md:p-7">
-            <h3 className="text-lg font-bold text-white mb-3">Ineficiência acumulada</h3>
+            <h3 className="text-lg font-bold text-white mb-3 leading-snug">Seu esforço não escala</h3>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-              Funil vazando entre marketing e vendas vira custo invisível — e o CAC sobe sem explicação clara.
+              Você investe tempo, mas não constrói um sistema que gera retorno contínuo.
             </p>
           </article>
         </div>
@@ -3106,7 +3103,7 @@ const ContentGrowthPillarsSection = () => (
             </div>
             <h3 className="text-xl font-black font-heading text-white">Aquisição</h3>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-              Conteúdo que captura atenção e gera interesse real
+              Conteúdo que atrai atenção qualificada — não apenas visualizações.
             </p>
           </article>
           <article className="strategic-card p-6 md:p-8 text-center flex flex-col items-center gap-4">
@@ -3115,7 +3112,7 @@ const ContentGrowthPillarsSection = () => (
             </div>
             <h3 className="text-xl font-black font-heading text-white">Conversão</h3>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-              Estrutura que transforma atenção em oportunidade
+              Estrutura que transforma atenção em interesse real e oportunidades.
             </p>
           </article>
           <article className="strategic-card p-6 md:p-8 text-center flex flex-col items-center gap-4">
@@ -3124,7 +3121,7 @@ const ContentGrowthPillarsSection = () => (
             </div>
             <h3 className="text-xl font-black font-heading text-white">Infraestrutura</h3>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-              Sistema que sustenta e escala resultados ao longo do tempo
+              Um sistema que sustenta e escala resultados ao longo do tempo.
             </p>
           </article>
         </div>
@@ -3134,27 +3131,27 @@ const ContentGrowthPillarsSection = () => (
 );
 
 const CreativeSpotlightSection = () => (
-  <section id="phd-creative-destaque" className="relative py-20 md:py-28 overflow-hidden scroll-mt-28">
-    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-950/80 via-black to-black" aria-hidden />
-    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_70%_at_80%_30%,rgba(168,85,247,0.14),transparent_50%)]" aria-hidden />
+  <section id="phd-creative-destaque" className="relative py-24 md:py-32 overflow-hidden scroll-mt-28">
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-950/90 via-neutral-950 to-black" aria-hidden />
+    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_20%,rgba(168,85,247,0.22),transparent_55%)]" aria-hidden />
     <div className="container mx-auto px-4 relative z-10">
-      <div className="relative rounded-3xl border border-purple-500/35 bg-gradient-to-b from-white/[0.07] to-black/40 p-8 md:p-12 lg:p-14 shadow-[0_0_60px_-12px_rgba(168,85,247,0.35)]">
+      <div className="relative rounded-3xl border-2 border-purple-400/40 bg-gradient-to-b from-purple-500/10 via-white/[0.05] to-black/50 p-8 md:p-12 lg:p-16 shadow-[0_0_80px_-8px_rgba(168,85,247,0.45),0_25px_50px_-12px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
+        <p className="text-center lg:text-left text-sm md:text-base font-black uppercase tracking-[0.35em] text-purple-200 mb-6 lg:mb-8">
+          Esse é o ponto onde tudo muda.
+        </p>
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
           <div className="space-y-5 md:space-y-6 order-2 lg:order-1">
-            <h2 className="text-3xl md:text-5xl font-black font-heading text-white leading-tight">
+            <h2 className="text-4xl md:text-6xl font-black font-heading text-white leading-[1.05]">
               PHD Studio Creative
             </h2>
-            <p className="text-xl md:text-2xl font-bold text-gray-100 leading-snug max-w-xl">
-              Onde o conteúdo deixa de ser estética e passa a gerar resultado
-            </p>
-            <p className="text-gray-200 text-base md:text-lg leading-relaxed max-w-lg">
-              Direção criativa, produção e inteligência aplicadas para transformar conteúdo em ativo de crescimento.
+            <p className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-50 leading-snug max-w-xl whitespace-pre-line">
+              {`É aqui que o conteúdo deixa de ser estética\ne passa a funcionar como um ativo de crescimento.`}
             </p>
             <a
               href="https://phdstudio.com.br/creative"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-base md:text-lg hover:bg-red-700 transition-all shadow-lg shadow-brand-red/40"
+              className="inline-flex items-center gap-2 bg-brand-red text-white px-8 py-4 md:px-10 md:py-5 rounded-xl font-black text-base md:text-lg hover:bg-red-700 transition-all shadow-xl shadow-brand-red/50 ring-2 ring-white/10"
             >
               Ver como funciona o Creative
               <ArrowRight size={18} />
@@ -3228,7 +3225,7 @@ const CreativePage = () => (
             href="/#contato"
             className="inline-flex items-center gap-2 bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-all shadow-lg shadow-brand-red/25"
           >
-            Quero estruturar meu crescimento
+            Quero um diagnóstico do meu conteúdo
             <ArrowRight size={18} />
           </a>
           <Link
