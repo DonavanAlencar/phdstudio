@@ -28,7 +28,7 @@ const StrategicBlogInsightsSection: React.FC = () => {
   return (
     <section
       id="insights-crescimento"
-      className="relative py-24 bg-black/40 overflow-hidden"
+      className="relative py-28 md:py-32 bg-black/40 overflow-hidden"
       aria-labelledby="insights-crescimento-heading"
     >
       <div

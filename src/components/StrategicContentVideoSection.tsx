@@ -98,7 +98,7 @@ const StrategicContentVideoSection: React.FC = () => {
   return (
     <section
       id="arquitetura-conteudo"
-      className="relative py-24 bg-black/40 overflow-hidden"
+      className="relative py-28 md:py-32 bg-black/40 overflow-hidden"
       aria-labelledby="strategic-content-heading"
     >
       <div
@@ -116,7 +116,10 @@ const StrategicContentVideoSection: React.FC = () => {
               Arquitetura de Conteúdo que Gera Resultado
             </h2>
             <p className="text-gray-300 text-base md:text-lg leading-relaxed">
-              Não criamos vídeos apenas para estética. Cada peça é construída com intenção estratégica, combinando inteligência artificial, narrativa e direção criativa para gerar retenção, percepção e impacto real.
+              Não criamos vídeos apenas para estética.
+            </p>
+            <p className="text-gray-300 text-base md:text-lg leading-relaxed mt-4">
+              Cada peça é construída com intenção estratégica, combinando inteligência artificial, narrativa e direção criativa para gerar retenção, percepção e impacto real.
             </p>
             <p className="text-gray-400 text-base md:text-lg leading-relaxed mt-4">
               Aqui estão alguns exemplos de como transformamos conteúdo em ativo de crescimento.
