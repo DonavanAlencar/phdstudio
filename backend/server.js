@@ -16,6 +16,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import path from 'path';
+import { fileURLToPath } from 'url';
 // Swagger/OpenAPI Documentation
 import { swaggerSpec, swaggerUi } from './swagger.js';
 import { queryCRM, closeConnections, crmPool } from './utils/db.js';
@@ -49,6 +51,10 @@ import chatSettingsRoutes from './routes/chatSettings.js';
 
 // Carregar variáveis de ambiente
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRootDir = path.resolve(__dirname, '..');
 
 const app = express();
 const PORT = process.env.API_PORT || 3001;
@@ -117,6 +123,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 const MEDIA_BASE_URL = process.env.PRODUCTS_MEDIA_BASE_URL || process.env.WP_URL || 'https://phdstudio.com.br';
+
+// Servir o favicon do projeto (usado também pelo Swagger UI)
+app.get('/favicon.png', (req, res) => {
+    res.sendFile(path.join(projectRootDir, 'favicon.png'));
+});
 
 // Rate limiting - proteção contra brute force
 const limiter = rateLimit({
@@ -491,7 +502,7 @@ app.use('/api/docs', swaggerUi.serve);
 app.get('/api/docs', swaggerUi.setup(swaggerSpec, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'PHD Studio API - Documentação',
-    customfavIcon: '/favicon.ico',
+    customfavIcon: '/favicon.png',
     swaggerOptions: {
         persistAuthorization: true,
         displayRequestDuration: true,
@@ -504,7 +515,7 @@ app.use('/docs', swaggerUi.serve);
 app.get('/docs', swaggerUi.setup(swaggerSpec, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'PHD Studio API - Documentação',
-    customfavIcon: '/favicon.ico',
+    customfavIcon: '/favicon.png',
     swaggerOptions: {
         persistAuthorization: true,
         displayRequestDuration: true,
