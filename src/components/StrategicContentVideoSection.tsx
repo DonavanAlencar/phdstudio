@@ -93,12 +93,12 @@ const STRATEGIC_VIDEOS: StrategicVideoItem[] = [
 ];
 
 const StrategicContentVideoSection: React.FC = () => {
-  const displayedVideos = STRATEGIC_VIDEOS.slice(0, 9);
+  const displayedVideos = STRATEGIC_VIDEOS.slice(0, 6);
 
   return (
     <section
       id="arquitetura-conteudo"
-      className="relative py-28 md:py-32 bg-black/40 overflow-hidden"
+      className="relative py-20 md:py-28 bg-black/40 overflow-hidden scroll-mt-28"
       aria-labelledby="strategic-content-heading"
     >
       <div
@@ -108,25 +108,19 @@ const StrategicContentVideoSection: React.FC = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="strategic-shell rounded-3xl p-8 md:p-14">
-          <header className="max-w-4xl mb-12">
+          <header className="max-w-3xl mb-10 md:mb-14">
             <h2
               id="strategic-content-heading"
-              className="text-3xl md:text-5xl font-black font-heading leading-tight text-white mb-5"
+              className="text-3xl md:text-5xl font-black font-heading leading-tight text-white mb-4"
             >
               Arquitetura de Conteúdo que Gera Resultado
             </h2>
             <p className="text-gray-300 text-base md:text-lg leading-relaxed">
-              Não criamos vídeos apenas para estética.
-            </p>
-            <p className="text-gray-300 text-base md:text-lg leading-relaxed mt-4">
-              Cada peça é construída com intenção estratégica, combinando inteligência artificial, narrativa e direção criativa para gerar retenção, percepção e impacto real.
-            </p>
-            <p className="text-gray-400 text-base md:text-lg leading-relaxed mt-4">
-              Aqui estão alguns exemplos de como transformamos conteúdo em ativo de crescimento.
+              Peças com intenção — não volume. IA, narrativa e direção criativa para retenção e impacto.
             </p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 md:gap-8 lg:gap-10">
             {displayedVideos.map((video, index) => (
               <article
                 key={video.id}

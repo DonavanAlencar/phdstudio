@@ -9,17 +9,17 @@ interface InsightItem {
 const INSIGHT_ITEMS: InsightItem[] = [
   {
     title: 'Por que a maioria das empresas usa IA errado (e paga por isso)',
-    text: 'A aplicação superficial de inteligência artificial gera volume, mas não gera resultado. O problema não é a ferramenta — é a estratégia.',
+    text: 'Volume sem estratégia não vira resultado — o gargalo raramente é a ferramenta.',
     link: 'https://www.phdstudio.blog.br/',
   },
   {
     title: 'Mais conteúdo não significa mais resultado',
-    text: 'Produção sem direção estratégica dilui atenção. O que gera crescimento é intenção, não volume.',
+    text: 'Intenção e direção batem cadência sem propósito.',
     link: 'https://www.phdstudio.blog.br/',
   },
   {
     title: 'O erro invisível que destrói a performance de campanhas',
-    text: 'A maioria dos problemas não está na mídia, mas na estrutura. Sem base estratégica, nenhum investimento escala.',
+    text: 'Quando a estrutura falha, nenhuma mídia segura a conta.',
     link: 'https://www.phdstudio.blog.br/',
   },
 ];
@@ -28,7 +28,7 @@ const StrategicBlogInsightsSection: React.FC = () => {
   return (
     <section
       id="insights-crescimento"
-      className="relative py-28 md:py-32 bg-black/40 overflow-hidden"
+      className="relative py-20 md:py-28 bg-black/40 overflow-hidden scroll-mt-28"
       aria-labelledby="insights-crescimento-heading"
     >
       <div
@@ -38,15 +38,15 @@ const StrategicBlogInsightsSection: React.FC = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="strategic-shell rounded-3xl p-8 md:p-14">
-          <header className="max-w-4xl mb-12">
+          <header className="max-w-3xl mb-10 md:mb-12">
             <h2
               id="insights-crescimento-heading"
-              className="text-3xl md:text-5xl font-black font-heading leading-tight text-white mb-5"
+              className="text-3xl md:text-5xl font-black font-heading leading-tight text-white mb-4"
             >
               Insights que Direcionam Crescimento
             </h2>
-            <p className="text-gray-300 text-base md:text-lg leading-relaxed whitespace-pre-line">
-              {'Não produzimos conteúdo por volume.\n\nCada material publicado nasce de análise real de comportamento, performance e tomada de decisão em marketing.\n\nAqui estão alguns dos princípios que orientam como construímos crescimento.'}
+            <p className="text-gray-300 text-base md:text-lg leading-relaxed">
+              Ideias aplicáveis sobre estrutura, conteúdo e performance — direto ao ponto no blog PHD Studio.
             </p>
           </header>
 
