@@ -20,6 +20,7 @@ import MobilechatConfigsManagement from './src/components/Logs/MobilechatConfigs
 import ClientsManagement from './src/components/Logs/ClientsManagement';
 import ScrollVideoBackground from './src/components/ScrollVideoBackground';
 import FloatingWhatsAppButton from './src/components/FloatingWhatsAppButton';
+import InstitutionalBrandsMarquee from './src/components/InstitutionalBrandsMarquee';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 // Admin CRM removido - foi transportado para outro lugar
 import {
@@ -3185,6 +3186,7 @@ const CreativeSpotlightSection = () => (
 const HomePage = () => (
   <>
     <StrategicHero />
+    <InstitutionalBrandsMarquee />
     <ProblemSection />
     <ContentGrowthPillarsSection />
     <CreativeSpotlightSection />

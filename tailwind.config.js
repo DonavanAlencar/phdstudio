@@ -23,6 +23,10 @@ export default {
         'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         marquee: 'marquee 50s linear infinite',
+        /** Marquee premium: ciclo completo bem lento para leitura contemplativa */
+        'marquee-institutional': 'marquee 300s linear infinite',
+        /** Mobile ainda mais lento */
+        'marquee-institutional-slow': 'marquee 420s linear infinite',
       },
       keyframes: {
         fadeInUp: {
