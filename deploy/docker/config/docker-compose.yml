@@ -39,7 +39,14 @@ services:
       - "traefik.http.routers.phdstudio.tls.certresolver=mytlschallenge"
       - "traefik.http.routers.phdstudio.priority=100"
       - "traefik.http.services.phdstudio.loadbalancer.server.port=80"
-      # HTTP já redireciona automaticamente para HTTPS via Traefik (entrypoint web)
+      # HTTP (porta 80): redireciona para HTTPS — sem isso, requests em http:// retornam 404 (só existia router em websecure)
+      - "traefik.http.routers.phdstudio-http-redirect.rule=(Host(`phdstudio.com.br`) || Host(`www.phdstudio.com.br`))"
+      - "traefik.http.routers.phdstudio-http-redirect.entrypoints=web"
+      - "traefik.http.routers.phdstudio-http-redirect.middlewares=phdstudio-force-https"
+      - "traefik.http.routers.phdstudio-http-redirect.service=noop@internal"
+      - "traefik.http.routers.phdstudio-http-redirect.priority=50"
+      - "traefik.http.middlewares.phdstudio-force-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.phdstudio-force-https.redirectscheme.permanent=true"
       # Labels para Easypanel (se necessário)
       - "easypanel.domain=phdstudio.com.br"
       - "easypanel.port=80"
