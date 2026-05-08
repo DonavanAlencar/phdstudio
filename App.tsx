@@ -3059,7 +3059,7 @@ const StrategicHero = () => (
 );
 
 const ProblemSection = () => (
-  <section id="problema" className="relative py-20 md:py-24 bg-black/40 overflow-hidden scroll-mt-28">
+  <section id="problema" className="relative pt-12 pb-20 md:pt-14 md:pb-24 bg-black/40 overflow-hidden scroll-mt-28">
     <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
     <div className="container mx-auto px-4 relative z-10">
       <div className="strategic-shell rounded-3xl p-8 md:p-12">

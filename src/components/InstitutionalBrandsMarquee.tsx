@@ -27,7 +27,7 @@ export default function InstitutionalBrandsMarquee() {
   const track = [...INSTITUTIONAL_LOGOS, ...INSTITUTIONAL_LOGOS];
 
   return (
-    <div className="institutional-band relative -mt-16 overflow-hidden pt-20 pb-20 sm:pt-24 sm:pb-24 md:-mt-20 md:pt-24 md:pb-28 lg:pt-28 lg:pb-32">
+    <div className="institutional-band relative overflow-hidden py-14 sm:py-16 md:py-20 lg:py-24">
       {/* Continuidade com o hero: mesma família de luz e temperatura */}
       <div
         className="pointer-events-none absolute inset-0 bg-gradient-to-b from-neutral-950/90 via-[#030303] to-[#000000]"
@@ -43,7 +43,7 @@ export default function InstitutionalBrandsMarquee() {
       />
       {/* Ponte com a seção problema: continuidade editorial escura */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-t from-black/90 via-black/35 to-transparent md:h-48"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 bg-gradient-to-t from-black/85 via-black/25 to-transparent md:h-32"
         aria-hidden
       />
 
