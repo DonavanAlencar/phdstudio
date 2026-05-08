@@ -10,7 +10,6 @@ const INSTITUTIONAL_LOGOS = [
   { src: '/logos/is-we-tv.svg', key: 'is-we-tv' },
   { src: '/logos/le-chiq.svg', key: 'le-chiq' },
   { src: '/logos/logo-site-hajir.svg', key: 'logo-site-hajir' },
-  { src: '/logos/lush-producoes.svg', key: 'lush-producoes' },
   { src: '/logos/ruvolo.svg', key: 'ruvolo' },
   { src: '/logos/sistema-gigantes.svg', key: 'sistema-gigantes' },
   { src: '/logos/ville-capital.svg', key: 'ville-capital' },
