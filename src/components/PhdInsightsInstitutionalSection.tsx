@@ -67,7 +67,7 @@ const PhdInsightsInstitutionalSection: React.FC = () => {
 
             <div className="order-1 lg:order-2">
               <div
-                className="relative rounded-xl ring-2 ring-amber-500/30 overflow-hidden bg-black/50 aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:max-h-[min(520px,55vh)] transition-transform duration-500 hover:ring-amber-400/45"
+                className="relative rounded-xl ring-2 ring-amber-500/30 overflow-hidden bg-black/50 flex items-center justify-center transition-transform duration-500 hover:ring-amber-400/45"
                 style={{
                   boxShadow:
                     '0 28px 64px -20px rgba(0,0,0,0.85), 0 0 48px -12px rgba(245, 158, 11, 0.22)',
@@ -76,7 +76,7 @@ const PhdInsightsInstitutionalSection: React.FC = () => {
                 <img
                   src="/banners/phd-insights.jpeg"
                   alt="PHD Insights — inteligência estratégica, IA aplicada, inovação e liderança em negócios"
-                  className="w-full h-full object-cover lg:object-contain lg:h-auto lg:max-h-[min(520px,55vh)] align-middle"
+                  className="w-full max-w-full h-auto max-h-[min(72vh,640px)] lg:max-h-[min(520px,55vh)] object-contain object-center align-middle"
                   width={1600}
                   height={1000}
                   loading="lazy"
