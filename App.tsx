@@ -11,10 +11,9 @@ import ProductsAdmin from './src/components/ProductsAdmin';
 import MobileChatPage from './src/components/MobileChat/MobileChatPage';
 import ClientArea from './src/components/ClientArea/ClientArea';
 import YouTubeCarousel from './src/components/YouTubeCarousel';
-import BlogCarousel from './src/components/BlogCarousel';
 import ServicesSection from './src/components/ServicesSection';
 import StrategicContentVideoSection from './src/components/StrategicContentVideoSection';
-import StrategicBlogInsightsSection from './src/components/StrategicBlogInsightsSection';
+import PhdInsightsInstitutionalSection from './src/components/PhdInsightsInstitutionalSection';
 import UsersManagement from './src/components/Logs/UsersManagement';
 import MobilechatConfigsManagement from './src/components/Logs/MobilechatConfigsManagement';
 import ClientsManagement from './src/components/Logs/ClientsManagement';
@@ -3191,7 +3190,7 @@ const HomePage = () => (
     <ContentGrowthPillarsSection />
     <CreativeSpotlightSection />
     <StrategicContentVideoSection />
-    <StrategicBlogInsightsSection />
+    <PhdInsightsInstitutionalSection />
     <ContactForm />
   </>
 );

@@ -337,11 +337,9 @@ export default function KanbanBoard() {
                       column.cards
                         .sort((a, b) => a.position - b.position)
                         .map((card) => (
-                          <SortableCard
-                            key={card.id}
-                            card={card}
-                            onDelete={handleDeleteCard}
-                          />
+                          <React.Fragment key={card.id}>
+                            <SortableCard card={card} onDelete={handleDeleteCard} />
+                          </React.Fragment>
                         ))}
                   </div>
                 </SortableContext>

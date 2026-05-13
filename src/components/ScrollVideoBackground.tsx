@@ -124,11 +124,12 @@ const ScrollVideoBackground: React.FC = () => {
   useEffect(() => {
     const onFirstInteraction = () => {
       tryPlay();
-      window.removeEventListener('touchstart', onFirstInteraction, { passive: true });
-      window.removeEventListener('scroll', onFirstInteraction, { passive: true });
+      window.removeEventListener('touchstart', onFirstInteraction, listenerOpts);
+      window.removeEventListener('scroll', onFirstInteraction, listenerOpts);
     };
-    window.addEventListener('touchstart', onFirstInteraction, { passive: true });
-    window.addEventListener('scroll', onFirstInteraction, { passive: true });
+    const listenerOpts: AddEventListenerOptions = { passive: true };
+    window.addEventListener('touchstart', onFirstInteraction, listenerOpts);
+    window.addEventListener('scroll', onFirstInteraction, listenerOpts);
     return () => {
       window.removeEventListener('touchstart', onFirstInteraction);
       window.removeEventListener('scroll', onFirstInteraction);
