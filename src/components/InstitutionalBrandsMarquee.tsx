@@ -8,6 +8,7 @@ const INSTITUTIONAL_LOGOS: {
 }[] = [
   { src: '/logos/3-eus.svg', key: '3-eus', tuning: 0.96 },
   { src: '/logos/dr-carlos.svg', key: 'dr-carlos' },
+  { src: '/logos/dr-ricardo-piva.svg', key: 'dr-ricardo-piva', tuning: 0.9 },
   { src: '/logos/fsalgueiro-editora.svg', key: 'fsalgueiro-editora', tuning: 0.94 },
   { src: '/logos/gira-roda.svg', key: 'gira-roda', tuning: 0.9 },
   { src: '/logos/ipclin.svg', key: 'ipclin' },
