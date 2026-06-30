@@ -20,7 +20,7 @@ import ClientsManagement from './src/components/Logs/ClientsManagement';
 import ScrollVideoBackground from './src/components/ScrollVideoBackground';
 import FloatingWhatsAppButton from './src/components/FloatingWhatsAppButton';
 import InstitutionalBrandsMarquee from './src/components/InstitutionalBrandsMarquee';
-import { Surface, Container, Section, Divider, SectionHeader, Display, Body } from '@/src/dds';
+import { Surface, Container, Section, Divider, SectionHeader, Display, Heading, Body, Label } from '@/src/dds';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 // Admin CRM removido - foi transportado para outro lugar
 import {
@@ -1604,28 +1604,30 @@ const ContactForm = () => {
       <Container variant="narrow" paddingX="compact" className="relative z-phd-raised">
         <Surface material="graphite" chamfer="md" padding="default" className="shadow-phd-elevated">
         <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-3">
-            Diagnóstico Estratégico de Crescimento
-          </h2>
-          <p className="text-gray-400 text-sm md:text-base max-w-lg mx-auto font-light leading-relaxed">
-            Conteúdo, funil e operação no mesmo diagnóstico.
-          </p>
+          <SectionHeader align="center" className="mb-0">
+            <SectionHeader.Title>
+              Diagnóstico Estratégico de Crescimento
+            </SectionHeader.Title>
+            <SectionHeader.Description className="max-w-lg mx-auto">
+              Conteúdo, funil e operação no mesmo diagnóstico.
+            </SectionHeader.Description>
+          </SectionHeader>
         </div>
 
         <div className="mb-10 rounded-2xl border border-white/15 bg-gradient-to-b from-brand-gray/40 to-black/30 px-6 py-7 md:px-8 md:py-8 text-center space-y-4">
-          <p className="text-white text-base md:text-lg font-semibold leading-snug whitespace-pre-line">
+          <Body emphasis spacing="none" className="whitespace-pre-line">
             {`Se você chegou até aqui,\nvocê já percebeu que o problema não é conteúdo.`}
-          </p>
-          <p className="text-gray-300 text-sm md:text-base leading-relaxed whitespace-pre-line">
+          </Body>
+          <Body muted spacing="none" className="whitespace-pre-line">
             {`Agora a decisão é simples:\n\ncontinuar tentando…\nou estruturar de verdade.`}
-          </p>
+          </Body>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-brand-dark/40 border border-white/10 rounded-2xl p-8 md:p-10 space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+            <Label htmlFor="name" spacing="default" className="block">
               Nome completo
-            </label>
+            </Label>
             <input
               type="text"
               id="name"
@@ -1633,15 +1635,15 @@ const ContactForm = () => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-phd-primary placeholder:text-phd-tertiary focus:outline-none focus:border-brand-red transition-colors"
               placeholder="Seu nome"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+            <Label htmlFor="email" spacing="default" className="block">
               E-mail
-            </label>
+            </Label>
             <input
               type="email"
               id="email"
@@ -1649,15 +1651,15 @@ const ContactForm = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-phd-primary placeholder:text-phd-tertiary focus:outline-none focus:border-brand-red transition-colors"
               placeholder="seu@email.com"
             />
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+            <Label htmlFor="phone" spacing="default" className="block">
               WhatsApp
-            </label>
+            </Label>
             <input
               type="tel"
               id="phone"
@@ -1665,78 +1667,86 @@ const ContactForm = () => {
               value={formData.phone}
               onChange={handleChange}
               required
-              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors"
+              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-phd-primary placeholder:text-phd-tertiary focus:outline-none focus:border-brand-red transition-colors"
               placeholder="(11) 99999-9999"
             />
           </div>
 
           <div>
-            <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
+            <Label htmlFor="message" spacing="default" className="block">
               Mensagem (opcional)
-            </label>
+            </Label>
             <textarea
               id="message"
               name="message"
               value={formData.message}
               onChange={handleChange}
               rows={4}
-              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-red transition-colors resize-none"
+              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-phd-primary placeholder:text-phd-tertiary focus:outline-none focus:border-brand-red transition-colors resize-none"
               placeholder="Descreva seu cenário atual, ticket, canais e principal gargalo de crescimento..."
             />
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-start gap-2 text-xs text-gray-500">
+            <label htmlFor="lgpd-consent" className="flex items-start gap-2">
               <input
                 id="lgpd-consent"
                 type="checkbox"
                 required
                 className="mt-1 h-4 w-4 rounded border-white/20 bg-brand-gray/40 text-brand-red focus:ring-brand-red"
               />
-              <label htmlFor="lgpd-consent">
+              <Body as="span" size="sm" muted spacing="none">
                 Autorizo o uso dos meus dados para contato comercial e envio de comunicações da PHD Studio.
                 Li e concordo com a{' '}
-                <Link to="/politica-de-privacidade" className="underline underline-offset-2 hover:text-brand-red">
+                <Link to="/politica-de-privacidade" className="underline underline-offset-2 hover:text-phd-accent-brand">
                   Política de Privacidade
                 </Link>.
-              </label>
-            </div>
+              </Body>
+            </label>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-brand-red px-8 py-4 rounded-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-5 w-5 text-phd-inverse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Enviando...
+                  <Body as="span" className="font-phd-semibold text-phd-inverse">
+                    Enviando...
+                  </Body>
                 </>
               ) : (
-                'Quero um diagnóstico do meu conteúdo'
+                <Body as="span" className="font-phd-semibold text-phd-inverse">
+                  Quero um diagnóstico do meu conteúdo
+                </Body>
               )}
             </button>
           </div>
 
           {/* Mensagens de feedback - Sucesso */}
           {submitStatus === 'success' && (
-            <div className="mt-6 p-6 bg-gradient-to-r from-green-500/30 to-emerald-500/30 border-2 border-green-500 rounded-xl text-green-300 text-center shadow-lg shadow-green-500/20 animate-pulse">
+            <div className="mt-6 p-6 bg-gradient-to-r from-green-500/30 to-emerald-500/30 border-2 border-green-500 rounded-xl text-center shadow-lg shadow-green-500/20 animate-pulse">
               <div className="flex flex-col items-center justify-center gap-3">
                 <div className="flex items-center gap-3">
                   <div className="bg-green-500/20 p-3 rounded-full animate-bounce">
-                    <Check size={28} className="text-green-400" strokeWidth={3} />
+                    <Check size={28} className="text-phd-state-success" strokeWidth={3} />
                   </div>
-                  <span className="text-xl font-bold text-green-200">✓ E-mail enviado com sucesso!</span>
+                  <Body emphasis className="text-phd-state-success" spacing="none">
+                    ✓ E-mail enviado com sucesso!
+                  </Body>
                 </div>
-                <p className="text-base text-green-400/90 mt-2 font-medium">
+                <Body size="sm" className="text-phd-state-success mt-2" spacing="none">
                   Recebemos sua mensagem e entraremos em contato em breve.
-                </p>
-                <div className="mt-3 flex items-center gap-2 text-sm text-green-400/80 bg-green-500/10 px-4 py-2 rounded-lg">
-                  <Phone size={16} />
-                  <span>Ou entre em contato pelo WhatsApp se preferir</span>
+                </Body>
+                <div className="mt-3 flex items-center gap-2 bg-green-500/10 px-4 py-2 rounded-lg">
+                  <Phone size={16} className="text-phd-state-success" />
+                  <Body as="span" size="sm" className="text-phd-state-success" spacing="none">
+                    Ou entre em contato pelo WhatsApp se preferir
+                  </Body>
                 </div>
               </div>
             </div>
@@ -1744,31 +1754,37 @@ const ContactForm = () => {
 
           {/* Mensagens de feedback - Erro */}
           {submitStatus === 'error' && (
-            <div className="mt-6 p-6 bg-gradient-to-r from-red-500/30 to-rose-500/30 border-2 border-red-500 rounded-xl text-red-300 text-center shadow-lg shadow-red-500/20">
+            <div className="mt-6 p-6 bg-gradient-to-r from-red-500/30 to-rose-500/30 border-2 border-red-500 rounded-xl text-center shadow-lg shadow-red-500/20">
               <div className="flex flex-col items-center justify-center gap-3">
                 <div className="flex items-center gap-3">
                   <div className="bg-red-500/20 p-3 rounded-full">
-                    <X size={28} className="text-red-400" strokeWidth={3} />
+                    <X size={28} className="text-phd-state-error" strokeWidth={3} />
                   </div>
-                  <span className="text-xl font-bold text-red-200">✗ Erro ao enviar e-mail</span>
+                  <Body emphasis className="text-phd-state-error" spacing="none">
+                    ✗ Erro ao enviar e-mail
+                  </Body>
                 </div>
                 {errorMessage && (
                   <div className="mt-3 p-4 bg-red-500/20 border border-red-500/50 rounded-lg w-full">
-                    <p className="text-sm text-red-200 font-semibold">{errorMessage}</p>
+                    <Body size="sm" emphasis className="text-phd-state-error" spacing="none">
+                      {errorMessage}
+                    </Body>
                   </div>
                 )}
-                <div className="mt-4 flex flex-col gap-3 text-sm w-full">
-                  <p className="text-red-300/90 font-medium">
+                <div className="mt-4 flex flex-col gap-3 w-full">
+                  <Body size="sm" className="text-phd-state-error" spacing="none">
                     Por favor, tente novamente em alguns instantes.
-                  </p>
-                  <div className="flex items-center justify-center gap-2 text-red-400/90 bg-red-500/10 px-4 py-2 rounded-lg">
-                    <Phone size={18} />
-                    <span className="font-medium">Ou entre em contato diretamente pelo WhatsApp</span>
+                  </Body>
+                  <div className="flex items-center justify-center gap-2 bg-red-500/10 px-4 py-2 rounded-lg">
+                    <Phone size={18} className="text-phd-state-error" />
+                    <Body as="span" size="sm" className="text-phd-state-error" spacing="none">
+                      Ou entre em contato diretamente pelo WhatsApp
+                    </Body>
                   </div>
                 </div>
-                <p className="text-xs text-red-400/60 mt-3 italic">
+                <Body as="p" size="sm" muted spacing="none" className="mt-3">
                   (Verifique o console do navegador para mais detalhes técnicos)
-                </p>
+                </Body>
               </div>
             </div>
           )}
@@ -1797,53 +1813,69 @@ const Footer = () => (
               decoding="async"
             />
           </Link>
-          <p className="text-gray-400 max-w-sm">
+          <Body muted spacing="none" className="max-w-sm">
             Sistema de crescimento com IA para empresas que precisam de previsibilidade comercial, não de campanhas isoladas.
-          </p>
+          </Body>
         </div>
 
         <div className="bg-brand-gray/40 p-8 rounded-2xl text-left md:text-right w-full md:w-auto">
-          <h4 className="text-xl font-bold mb-2">Pronto para escalar?</h4>
-          <p className="text-gray-400 mb-6 text-sm">Solicite uma leitura técnica do seu funil e descubra o que está travando sua aquisição.</p>
+          <Heading level={4} spacing="none" className="mb-2">
+            Pronto para escalar?
+          </Heading>
+          <Body muted size="sm" spacing="none" className="mb-6">
+            Solicite uma leitura técnica do seu funil e descubra o que está travando sua aquisição.
+          </Body>
           <a
             href="#contato"
-            className="bg-brand-red text-white w-full px-8 py-4 rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 text-center block"
+            className="bg-brand-red w-full px-8 py-4 rounded-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 text-center block"
           >
-            SOLICITAR DIAGNÓSTICO
+            <Body as="span" className="font-phd-semibold text-phd-inverse">
+              SOLICITAR DIAGNÓSTICO
+            </Body>
           </a>
         </div>
       </div>
 
       <Divider className="my-0 mt-phd-stack-lg" />
-      <div className="pt-phd-stack-md flex flex-col md:flex-row md:items-center md:justify-between text-sm text-gray-600 gap-6">
+      <div className="pt-phd-stack-md flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="flex flex-col items-center text-center gap-2 md:flex-row md:flex-wrap md:items-center md:justify-start md:text-left md:gap-x-5 md:gap-y-2">
-          <p>&copy; 2026 PHD Studio. Todos os direitos reservados.</p>
-          <p className="whitespace-nowrap">CNPJ: 40.674.510/0001-69</p>
+          <Body as="p" size="sm" muted spacing="none">
+            &copy; 2026 PHD Studio. Todos os direitos reservados.
+          </Body>
+          <Body as="p" size="sm" muted spacing="none" className="whitespace-nowrap">
+            CNPJ: 40.674.510/0001-69
+          </Body>
           <Link
             to="/politica-de-privacidade"
-            className="text-xs md:text-sm text-gray-500 hover:text-white underline underline-offset-4"
+            className="hover:text-phd-primary underline underline-offset-4"
           >
-            Política de Privacidade
+            <Body as="span" size="sm" muted spacing="none">
+              Política de Privacidade
+            </Body>
           </Link>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-500">Contato:</span>
+            <Label spacing="none">Contato:</Label>
             <a
               href="mailto:contato@phdstudio.com.br"
-              className="text-xs md:text-sm text-gray-300 hover:text-white hover:underline underline-offset-4 transition-colors duration-200"
+              className="hover:text-phd-primary hover:underline underline-offset-4 transition-colors duration-200"
             >
-              contato@phdstudio.com.br
+              <Body as="span" size="sm" spacing="none">
+                contato@phdstudio.com.br
+              </Body>
             </a>
           </div>
         </div>
         <div className="w-full md:w-auto flex items-center justify-center md:justify-end gap-4">
-          <span className="uppercase tracking-wider text-xs text-gray-500 hidden md:inline">Siga a PHD</span>
+          <Label spacing="none" className="hidden md:inline">
+            Siga a PHD
+          </Label>
           <div className="flex gap-4">
             <a
               href="https://www.instagram.com/phdstudiooficial"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram PHD Studio"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-phd-tertiary hover:text-phd-primary transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm0 2h10c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3zm9 1a1 1 0 100 2 1 1 0 000-2zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z" />
@@ -1854,7 +1886,7 @@ const Footer = () => (
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook PHD Studio"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-phd-tertiary hover:text-phd-primary transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M13 3h4a1 1 0 110 2h-3v3h2.5a1 1 0 01.97 1.243l-.5 2A1 1 0 0115 12h-1v8a1 1 0 01-1 1h-2a1 1 0 01-1-1v-8H8a1 1 0 01-1-1V9a1 1 0 011-1h2V5a2 2 0 012-2z" />
@@ -1865,7 +1897,7 @@ const Footer = () => (
               target="_blank"
               rel="noopener noreferrer"
               aria-label="TikTok PHD Studio"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-phd-tertiary hover:text-phd-primary transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M16 3a1 1 0 01.89.55 4.4 4.4 0 003.11 2.3A1 1 0 0120 7v3a1 1 0 01-1.18.98A6.4 6.4 0 0116 10.5V15a5 5 0 11-5-5 1 1 0 010 2 3 3 0 103 3V4a1 1 0 011-1z" />
@@ -1876,7 +1908,7 @@ const Footer = () => (
               target="_blank"
               rel="noopener noreferrer"
               aria-label="YouTube PHD Studio"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-phd-tertiary hover:text-phd-primary transition-colors"
             >
               <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M10 9.5l4.5 2.5L10 14.5v-5z" />
@@ -3107,24 +3139,28 @@ const ProblemSection = () => (
         </SectionHeader>
         <div className="grid lg:grid-cols-3 gap-5 md:gap-6">
           <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
-            <h3 className="text-lg font-bold text-white mb-3 leading-snug">
+            <Heading level={3} scale="title" spacing="none" className="mb-3">
               Você não sabe por que seu conteúdo não vende
-            </h3>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+            </Heading>
+            <Body size="sm" spacing="none">
               Posta com frequência, mas não consegue entender o que gera resultado.
-            </p>
+            </Body>
           </Surface>
           <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
-            <h3 className="text-lg font-bold text-white mb-3 leading-snug">Você produz sem direção clara</h3>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+            <Heading level={3} scale="title" spacing="none" className="mb-3">
+              Você produz sem direção clara
+            </Heading>
+            <Body size="sm" spacing="none">
               Falta estrutura. Cada conteúdo é isolado, sem função estratégica.
-            </p>
+            </Body>
           </Surface>
           <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
-            <h3 className="text-lg font-bold text-white mb-3 leading-snug">Seu esforço não escala</h3>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+            <Heading level={3} scale="title" spacing="none" className="mb-3">
+              Seu esforço não escala
+            </Heading>
+            <Body size="sm" spacing="none">
               Você investe tempo, mas não constrói um sistema que gera retorno contínuo.
-            </p>
+            </Body>
           </Surface>
         </div>
       </Surface>
@@ -3153,28 +3189,28 @@ const ContentGrowthPillarsSection = () => (
             <div className="rounded-2xl bg-brand-red/15 border border-brand-red/30 p-4 text-brand-red">
               <Target size={28} strokeWidth={2.2} aria-hidden />
             </div>
-            <h3 className="text-xl font-black font-heading text-white">Aquisição</h3>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+            <Heading level={3} spacing="none">Aquisição</Heading>
+            <Body size="sm" muted spacing="none">
               Conteúdo que atrai atenção qualificada — não apenas visualizações.
-            </p>
+            </Body>
           </Surface>
           <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default text-center flex flex-col items-center gap-4">
             <div className="rounded-2xl bg-brand-red/15 border border-brand-red/30 p-4 text-brand-red">
               <TrendingUp size={28} strokeWidth={2.2} aria-hidden />
             </div>
-            <h3 className="text-xl font-black font-heading text-white">Conversão</h3>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+            <Heading level={3} spacing="none">Conversão</Heading>
+            <Body size="sm" muted spacing="none">
               Estrutura que transforma atenção em interesse real e oportunidades.
-            </p>
+            </Body>
           </Surface>
           <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default text-center flex flex-col items-center gap-4">
             <div className="rounded-2xl bg-purple-500/15 border border-purple-500/30 p-4 text-purple-300">
               <Layers size={28} strokeWidth={2.2} aria-hidden />
             </div>
-            <h3 className="text-xl font-black font-heading text-white">Infraestrutura</h3>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+            <Heading level={3} spacing="none">Infraestrutura</Heading>
+            <Body size="sm" muted spacing="none">
               Um sistema que sustenta e escala resultados ao longo do tempo.
-            </p>
+            </Body>
           </Surface>
         </div>
       </Surface>
@@ -3195,24 +3231,26 @@ const CreativeSpotlightSection = () => (
   >
     <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
       <div className="relative rounded-3xl border-2 border-purple-400/40 bg-gradient-to-b from-purple-500/10 via-white/[0.05] to-black/50 p-8 md:p-12 lg:p-16 shadow-[0_0_80px_-8px_rgba(168,85,247,0.45),0_25px_50px_-12px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
-        <p className="text-center lg:text-left text-sm md:text-base font-black uppercase tracking-[0.35em] text-purple-200 mb-6 lg:mb-8">
+        <Label spacing="none" className="text-center lg:text-left mb-6 lg:mb-8">
           Esse é o ponto onde tudo muda.
-        </p>
+        </Label>
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
           <div className="space-y-5 md:space-y-6 order-2 lg:order-1">
-            <h2 className="text-4xl md:text-6xl font-black font-heading text-white leading-[1.05]">
+            <Heading level={2} scale="display" spacing="none">
               PHD Studio Creative
-            </h2>
-            <p className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-50 leading-snug max-w-xl whitespace-pre-line">
+            </Heading>
+            <Body emphasis size="lg" spacing="none" className="max-w-xl whitespace-pre-line">
               {`É aqui que o conteúdo deixa de ser estética\ne passa a funcionar como um ativo de crescimento.`}
-            </p>
+            </Body>
             <a
               href="https://phdstudio.com.br/creative"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-brand-red text-white px-8 py-4 md:px-10 md:py-5 rounded-xl font-black text-base md:text-lg hover:bg-red-700 transition-all shadow-xl shadow-brand-red/50 ring-2 ring-white/10"
+              className="inline-flex items-center gap-2 bg-brand-red px-8 py-4 md:px-10 md:py-5 rounded-xl hover:bg-red-700 transition-all shadow-xl shadow-brand-red/50 ring-2 ring-white/10"
             >
-              Ver como funciona o Creative
+              <Body as="span" className="font-phd-semibold text-phd-inverse">
+                Ver como funciona o Creative
+              </Body>
               <ArrowRight size={18} />
             </a>
           </div>

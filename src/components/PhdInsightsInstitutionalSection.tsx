@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { Container, Section } from '@/src/dds';
+import { Container, Section, Heading, Body, Label } from '@/src/dds';
 
 const PhdInsightsInstitutionalSection: React.FC = () => {
   return (
@@ -32,35 +32,34 @@ const PhdInsightsInstitutionalSection: React.FC = () => {
             animationDuration: '0.85s',
           }}
         >
-          <p className="text-center lg:text-left text-sm md:text-base font-black uppercase tracking-[0.28em] text-amber-200/90 mb-6 lg:mb-8">
+          <Label spacing="none" className="text-center lg:text-left mb-6 lg:mb-8">
             Núcleo institucional de inteligência
-          </p>
+          </Label>
 
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
             <div className="space-y-5 md:space-y-6 order-2 lg:order-1">
-              <h2
-                id="phd-insights-heading"
-                className="text-4xl md:text-6xl font-black font-heading text-white leading-[1.05]"
-              >
+              <Heading level={2} scale="display" spacing="none" id="phd-insights-heading">
                 PHD Insights
-              </h2>
-              <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-amber-50/95 leading-snug tracking-tight">
+              </Heading>
+              <Heading level={3} spacing="none">
                 Tecnologia. Inteligência. Estratégia.
-              </h3>
-              <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-xl">
+              </Heading>
+              <Body size="lg" spacing="none" className="max-w-xl">
                 Conteúdo de alto impacto sobre IA, inovação, negócios e o futuro das empresas.
-              </p>
-              <p className="text-sm md:text-base text-gray-400 leading-relaxed max-w-xl border-l-2 border-amber-500/40 pl-4 md:pl-5">
+              </Body>
+              <Body muted spacing="none" className="max-w-xl border-l-2 border-amber-500/40 pl-4 md:pl-5">
                 Visão estratégica e inteligência aplicada para quem lidera com autoridade — sem ruído de
                 feed, com profundidade que posiciona marcas e decisores à frente do mercado.
-              </p>
+              </Body>
               <a
                 href="https://www.phdstudio.blog.br"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-500 text-neutral-950 px-8 py-4 md:px-10 md:py-5 rounded-xl font-black text-base md:text-lg shadow-xl shadow-amber-900/40 ring-2 ring-amber-300/30 transition-all duration-300 hover:brightness-110 hover:shadow-amber-500/25 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
+                className="group inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-500 px-8 py-4 md:px-10 md:py-5 rounded-xl shadow-xl shadow-amber-900/40 ring-2 ring-amber-300/30 transition-all duration-300 hover:brightness-110 hover:shadow-amber-500/25 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
               >
-                Explorar o PHD Insights
+                <Body as="span" className="font-phd-semibold text-phd-inverse">
+                  Explorar o PHD Insights
+                </Body>
                 <ArrowRight
                   size={18}
                   className="transition-transform duration-300 group-hover:translate-x-0.5"

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Surface, Container, Section } from '@/src/dds';
+import { Surface, Container, Section, SectionHeader, Body } from '@/src/dds';
 
 interface StrategicVideoItem {
   id: string;
@@ -51,9 +51,9 @@ const FeaturedVideoCard: React.FC<{ video: StrategicVideoItem }> = ({ video }) =
       />
     </div>
     <div className="p-6 md:p-8">
-      <p className="text-gray-200 text-base md:text-lg font-medium leading-relaxed">
+      <Body size="lg" spacing="none">
         {video.description}
-      </p>
+      </Body>
     </div>
   </article>
 );
@@ -77,9 +77,9 @@ const SecondaryVideoCard: React.FC<{ video: StrategicVideoItem; index: number }>
       />
     </div>
     <div className="p-5 md:p-6">
-      <p className="text-gray-300 text-sm md:text-base leading-relaxed transition-colors duration-300 group-hover:text-gray-200">
+      <Body size="sm" muted spacing="none">
         {video.description}
-      </p>
+      </Body>
     </div>
   </article>
 );
@@ -102,17 +102,14 @@ const StrategicContentVideoSection: React.FC = () => {
     >
       <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
         <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious">
-          <header className="max-w-3xl mb-10 md:mb-14">
-            <h2
-              id="strategic-content-heading"
-              className="text-3xl md:text-5xl font-black font-heading leading-tight text-white mb-6"
-            >
+          <SectionHeader className="max-w-3xl mb-10 md:mb-14">
+            <SectionHeader.Title id="strategic-content-heading">
               Arquitetura de Conteúdo que Gera Resultado
-            </h2>
-            <p className="text-gray-100 text-lg md:text-2xl font-semibold leading-snug">
+            </SectionHeader.Title>
+            <SectionHeader.Description emphasis muted={false} size="lg" className="mt-6">
               Isso é o que acontece quando conteúdo é estruturado com estratégia.
-            </p>
-          </header>
+            </SectionHeader.Description>
+          </SectionHeader>
 
           <div className="space-y-8 md:space-y-10">
             {featured && <FeaturedVideoCard video={featured} />}
@@ -128,9 +125,11 @@ const StrategicContentVideoSection: React.FC = () => {
               href="https://www.youtube.com/@phdstudiobr"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-brand-gray/40 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-all hover:border-red-600 hover:bg-red-600"
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-brand-gray/40 px-6 py-3 transition-all hover:border-red-600 hover:bg-red-600"
             >
-              Ver portfólio completo
+              <Body as="span" className="font-phd-semibold text-phd-primary">
+                Ver portfólio completo
+              </Body>
             </a>
           </div>
         </Surface>
