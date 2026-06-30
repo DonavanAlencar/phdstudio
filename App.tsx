@@ -20,7 +20,7 @@ import ClientsManagement from './src/components/Logs/ClientsManagement';
 import ScrollVideoBackground from './src/components/ScrollVideoBackground';
 import FloatingWhatsAppButton from './src/components/FloatingWhatsAppButton';
 import InstitutionalBrandsMarquee from './src/components/InstitutionalBrandsMarquee';
-import { Surface, Container, Section, Divider, SectionHeader } from '@/src/dds';
+import { Surface, Container, Section, Divider, SectionHeader, Display, Body } from '@/src/dds';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 // Admin CRM removido - foi transportado para outro lugar
 import {
@@ -3044,31 +3044,44 @@ const StrategicHero = () => (
   >
     <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
       <div className="max-w-5xl mx-auto text-center lg:text-left">
-        <h1 className="text-[2.25rem] sm:text-6xl md:text-7xl lg:text-8xl font-black font-heading leading-[1.02] md:leading-[1.02] tracking-tight text-white [text-wrap:balance] drop-shadow-[0_4px_32px_rgba(0,0,0,0.85)]">
+        <Display
+          as="h1"
+          scale="display-xl"
+          spacing="none"
+          className="[text-wrap:balance] drop-shadow-[0_4px_32px_rgba(0,0,0,0.85)]"
+        >
           Seu conteúdo não gera{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-brand-red to-red-600">
-            clientes?
-          </span>
-        </h1>
-        <p className="mt-4 md:mt-5 text-lg sm:text-xl md:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug md:leading-[1.25] whitespace-pre-line">
+          <span className="text-phd-accent-brand">clientes?</span>
+        </Display>
+        <Body
+          as="p"
+          emphasis
+          size="lg"
+          spacing="none"
+          className="mt-4 md:mt-5 whitespace-pre-line"
+        >
           {`Então o problema não é conteúdo.\nÉ a forma como ele está estruturado.`}
-        </p>
-        <p className="mt-6 max-w-2xl mx-auto lg:mx-0 text-sm md:text-base text-gray-300 leading-relaxed font-medium whitespace-pre-line">
+        </Body>
+        <Body muted spacing="none" className="mt-6 max-w-2xl mx-auto lg:mx-0 whitespace-pre-line">
           {`Empresas não precisam de mais posts.\nPrecisam de um sistema que transforma conteúdo em crescimento.`}
-        </p>
+        </Body>
         <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
           <a
             href="#contato"
-            className="bg-brand-red text-white px-8 py-4 rounded-lg font-bold text-base md:text-lg hover:bg-red-700 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/35"
+            className="bg-brand-red text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/35"
           >
-            Quero um diagnóstico do meu conteúdo
+            <Body as="span" className="font-phd-semibold text-phd-inverse">
+              Quero um diagnóstico do meu conteúdo
+            </Body>
             <ArrowRight size={18} />
           </a>
           <a
             href="#como-crescimento"
-            className="border-2 border-white/25 bg-white/5 text-white px-8 py-4 rounded-lg font-bold text-base md:text-lg hover:border-white/50 hover:bg-white/10 transition-all text-center"
+            className="border-2 border-white/25 bg-white/5 text-white px-8 py-4 rounded-lg hover:border-white/50 hover:bg-white/10 transition-all text-center"
           >
-            Ver como funciona
+            <Body as="span" emphasis className="font-phd-medium">
+              Ver como funciona
+            </Body>
           </a>
         </div>
       </div>
