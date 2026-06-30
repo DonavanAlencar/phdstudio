@@ -8,10 +8,7 @@ import {
 import emailjs from '@emailjs/browser';
 import ChatDiagnostic from './src/components/ChatDiagnostic';
 import ProductsAdmin from './src/components/ProductsAdmin';
-import MobileChatPage from './src/components/MobileChat/MobileChatPage';
 import ClientArea from './src/components/ClientArea/ClientArea';
-import YouTubeCarousel from './src/components/YouTubeCarousel';
-import ServicesSection from './src/components/ServicesSection';
 import StrategicContentVideoSection from './src/components/StrategicContentVideoSection';
 import PhdInsightsInstitutionalSection from './src/components/PhdInsightsInstitutionalSection';
 import UsersManagement from './src/components/Logs/UsersManagement';
@@ -44,8 +41,8 @@ import {
 
 // --- Assets Configuration ---
 const ASSETS = {
-  // Link direto para a nova imagem do logo no GitHub
-  logo: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Logo%20Novo%202.png",
+  logoHeader: "/brand/horizontal/phd-studio-vermelho.png",
+  logoFooter: "/brand/horizontal/phd-studio-branco.png",
 
   // Video mock (using high quality tech image for background) - Otimizado para performance
   heroBg: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",
@@ -57,62 +54,62 @@ const ASSETS = {
   // Client Logos (imagem + site oficial)
   clientLogos: [
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/3%20Eus.svg",
+      url: "/logos/3-eus.svg",
       alt: "3 eus",
       href: "https://www.facebook.com/3eus.coach"
     },
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/FSalgueiro%20Editora.svg",
+      url: "/logos/fsalgueiro-editora.svg",
       alt: "FSalgueiro Editora",
       href: "https://www.fabiosalgueiro.com.br/"
     },
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Gira%20Roda.svg",
+      url: "/logos/gira-roda.svg",
       alt: "Gira Roda",
       href: "https://www.giraroda.com.br/"
     },
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/IPClin.svg",
+      url: "/logos/ipclin.svg",
       alt: "IPClin",
       href: "https://www.grupoipclin.com.br/pt-br"
     },
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Le%20Chiq.svg",
+      url: "/logos/le-chiq.svg",
       alt: "Le Chiq",
       href: "https://lechiqourinhos.wixsite.com/website"
     },
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ville%20Capital.svg",
+      url: "/logos/ville-capital.svg",
       alt: "Ville Capital",
       href: "https://www.villecapital.com.br/"
     },
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/IS%20WE%20TV.svg",
+      url: "/logos/is-we-tv.svg",
       alt: "IS WE TV",
       href: "https://www.youtube.com/@iswetv"
     },
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Ruvolo.svg",
+      url: "/logos/ruvolo.svg",
       alt: "Ruvolo",
       href: "https://ruvolo.com.br/"
     },
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Sistema%20Gigantes.svg",
+      url: "/logos/sistema-gigantes.svg",
       alt: "Sistema Gigantes",
       href: "https://sistemagigantes.com/"
     },
     {
-      url: "https://raw.githubusercontent.com/PHDStudioBR/PHDStudioImages/main/Dr%20Carlos.svg",
+      url: "/logos/dr-carlos.svg",
       alt: "Dr. Carlos Eduardo Miranda",
       href: "https://www.drcarloseduardomiranda.com.br/"
     },
     {
-      url: "https://raw.githubusercontent.com/DonavanAlencar/phdstudio/main/lush-orquestra-logo-rodape%20-%20Editado.svg",
+      url: "/logos/lush-orquestra.svg",
       alt: "Lush Orquestra",
       href: "https://lushorquestra.com.br/"
     },
     {
-      url: "/hajir-logo.svg",
+      url: "/logos/logo-site-hajir.svg",
       alt: "Dra. Hajir Abdalla",
       href: "https://drahajirabdalla.com.br/",
       imgClass: "h-[36px] w-auto object-contain brightness-0 invert"
@@ -650,29 +647,28 @@ const CookieBanner = () => {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50">
       <div className="mx-auto max-w-4xl mb-4 px-4">
-        <div className="bg-black/90 border border-white/10 rounded-2xl p-4 md:p-5 shadow-2xl backdrop-blur">
+        <Surface material="graphite" chamfer="md" padding="compact" className="shadow-phd-elevated backdrop-blur">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4">
-            <div className="flex-1">
-              <p className="text-xs md:text-sm text-gray-300">
-                Usamos cookies e tecnologias semelhantes para melhorar sua experiência, analisar desempenho
-                e personalizar conteúdos e anúncios. Ao continuar navegando, você concorda com nossa{' '}
-                <Link
-                  to="/politica-de-privacidade"
-                  className="underline underline-offset-2 text-brand-red hover:text-red-400"
-                >
-                  Política de Privacidade
-                </Link>
-                .
-              </p>
-            </div>
-            <button
+            <Body size="sm" muted spacing="none" className="flex-1">
+              Usamos cookies e tecnologias semelhantes para melhorar sua experiência, analisar desempenho
+              e personalizar conteúdos e anúncios. Ao continuar navegando, você concorda com nossa{' '}
+              <Link
+                to="/politica-de-privacidade"
+                className="underline underline-offset-2 text-phd-accent-brand hover:text-phd-accent-brand-hover phd-transition-fast"
+              >
+                Política de Privacidade
+              </Link>
+              .
+            </Body>
+            <Button
               onClick={handleAccept}
-              className="mt-2 md:mt-0 px-5 py-2 rounded-lg bg-brand-red text-white text-xs md:text-sm font-semibold uppercase tracking-wide hover:bg-red-700 transition-colors"
+              variant="primary"
+              className="mt-2 md:mt-0 shrink-0 uppercase tracking-wide text-xs md:text-sm"
             >
               Aceitar
-            </button>
+            </Button>
           </div>
-        </div>
+        </Surface>
       </div>
     </div>
   );
@@ -773,6 +769,7 @@ const SectionTitle = ({ title, subtitle, centered = false }: { title: string, su
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const navigate = useNavigate();
   const { isAuthenticated, username, userRole, logout } = useAuth();
 
   useEffect(() => {
@@ -796,26 +793,26 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex justify-between items-center relative">
         {/* Botão Área do Cliente / Sair - Lado Esquerdo */}
         {isAuthenticated ? (
-          <button
+          <Button
             onClick={logout}
-            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider phd-transition-material duration-phd-normal shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
+            iconLeft={<X size={16} />}
+            className="hidden md:flex uppercase tracking-wider text-sm relative z-50"
           >
-            <X size={16} />
             Sair
-          </button>
+          </Button>
         ) : (
-          <Link
-            to="/login"
-            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider phd-transition-material duration-phd-normal shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
+          <Button
+            onClick={() => navigate('/login')}
+            iconLeft={<Lock size={16} />}
+            className="hidden md:flex uppercase tracking-wider text-sm relative z-50"
           >
-            <Lock size={16} />
             Área do Cliente
-          </Link>
+          </Button>
         )}
 
         <Link to="/" className="relative z-50 block absolute left-4 md:static md:left-auto md:translate-x-0">
           <img
-            src={ASSETS.logo}
+            src={ASSETS.logoHeader}
             alt="PHD Studio"
             className="h-10 w-auto object-contain md:h-12"
             width="200"
@@ -828,19 +825,19 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-8">
           {isAuthenticated && userRole === 'client' && username === 'vexin' ? (
             <>
-              <Link to="/funil_vexin" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+              <Link to="/funil_vexin" className="text-sm font-phd-medium text-phd-secondary hover:text-phd-accent-brand phd-transition-fast uppercase tracking-wider">
                 Funil
               </Link>
-              <Link to="/projecao_vexin" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+              <Link to="/projecao_vexin" className="text-sm font-phd-medium text-phd-secondary hover:text-phd-accent-brand phd-transition-fast uppercase tracking-wider">
                 Projeção
               </Link>
             </>
           ) : isAuthenticated && userRole === 'admin' ? (
             <>
-              <Link to="/produtos" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+              <Link to="/produtos" className="text-sm font-phd-medium text-phd-secondary hover:text-phd-accent-brand phd-transition-fast uppercase tracking-wider">
                 Produtos
               </Link>
-              <Link to="/logs" className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+              <Link to="/logs" className="text-sm font-phd-medium text-phd-secondary hover:text-phd-accent-brand phd-transition-fast uppercase tracking-wider">
                 Logs
               </Link>
             </>
@@ -853,7 +850,7 @@ const Navbar = () => {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider"
+                  className="text-sm font-phd-medium text-phd-secondary hover:text-phd-accent-brand phd-transition-fast uppercase tracking-wider"
                 >
                   {link.name}
                 </a>
@@ -861,13 +858,13 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="text-sm font-medium text-gray-300 hover:text-brand-red hover:underline transition-colors uppercase tracking-wider"
+                  className="text-sm font-phd-medium text-phd-secondary hover:text-phd-accent-brand hover:underline phd-transition-fast uppercase tracking-wider"
                   aria-label={link.ariaLabel}
                 >
                   {link.name}
                 </Link>
               ) : (
-                <a key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-brand-red transition-colors uppercase tracking-wider">
+                <a key={link.name} href={link.href} className="text-sm font-phd-medium text-phd-secondary hover:text-phd-accent-brand phd-transition-fast uppercase tracking-wider">
                   {link.name}
                 </a>
               )
@@ -888,77 +885,79 @@ const Navbar = () => {
               <Link
                 to="/funil_vexin"
                 onClick={() => setIsOpen(false)}
-                className="text-2xl font-bold text-white hover:text-brand-red"
+                className="text-2xl font-phd-bold text-phd-primary hover:text-phd-accent-brand phd-transition-fast"
               >
                 Funil
               </Link>
               <Link
                 to="/projecao_vexin"
                 onClick={() => setIsOpen(false)}
-                className="text-2xl font-bold text-white hover:text-brand-red"
+                className="text-2xl font-phd-bold text-phd-primary hover:text-phd-accent-brand phd-transition-fast"
               >
                 Projeção
               </Link>
-              <button
+              <Button
                 onClick={() => {
                   setIsOpen(false);
                   logout();
                 }}
-                className="mt-4 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
+                iconLeft={<X size={20} />}
+                className="mt-4 uppercase tracking-wider text-lg"
               >
-                <X size={20} />
                 Sair
-              </button>
+              </Button>
             </>
           ) : isAuthenticated && userRole === 'admin' ? (
             <>
               <Link
                 to="/produtos"
                 onClick={() => setIsOpen(false)}
-                className="text-2xl font-bold text-white hover:text-brand-red"
+                className="text-2xl font-phd-bold text-phd-primary hover:text-phd-accent-brand phd-transition-fast"
               >
                 Produtos
               </Link>
               <Link
                 to="/logs"
                 onClick={() => setIsOpen(false)}
-                className="text-2xl font-bold text-white hover:text-brand-red"
+                className="text-2xl font-phd-bold text-phd-primary hover:text-phd-accent-brand phd-transition-fast"
               >
                 Logs
               </Link>
-              <button
+              <Button
                 onClick={() => {
                   setIsOpen(false);
                   logout();
                 }}
-                className="mt-4 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
+                iconLeft={<X size={20} />}
+                className="mt-4 uppercase tracking-wider text-lg"
               >
-                <X size={20} />
                 Sair
-              </button>
+              </Button>
             </>
           ) : (
             <>
               {isAuthenticated ? (
-                <button
+                <Button
                   onClick={() => {
                     setIsOpen(false);
                     logout();
                   }}
-                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
+                  iconLeft={<X size={20} />}
+                  className="uppercase tracking-wider text-lg"
                 >
-                  <X size={20} />
                   Sair
-                </button>
+                </Button>
               ) : (
-                <Link
-                  to="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center gap-2"
+                <Button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate('/login');
+                  }}
+                  iconLeft={<Lock size={20} />}
+                  className="uppercase tracking-wider text-lg"
                 >
-                  <Lock size={20} />
                   Área do Cliente
-                </Link>
+                </Button>
               )}
 
               {navLinks.map((link) =>
@@ -969,7 +968,7 @@ const Navbar = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="text-2xl font-bold text-white hover:text-brand-red"
+                    className="text-2xl font-phd-bold text-phd-primary hover:text-phd-accent-brand phd-transition-fast"
                   >
                     {link.name}
                   </a>
@@ -978,13 +977,13 @@ const Navbar = () => {
                     key={link.name}
                     to={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="text-2xl font-bold text-white hover:text-brand-red hover:underline"
+                    className="text-2xl font-phd-bold text-phd-primary hover:text-phd-accent-brand phd-transition-fast hover:underline"
                     aria-label={link.ariaLabel}
                   >
                     {link.name}
                   </Link>
                 ) : (
-                  <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-brand-red">
+                  <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-2xl font-phd-bold text-phd-primary hover:text-phd-accent-brand phd-transition-fast">
                     {link.name}
                   </a>
                 )
@@ -1785,7 +1784,7 @@ const Footer = () => (
         <div className="text-left">
           <Link to="/" className="block w-fit mb-6">
             <img
-              src={ASSETS.logo}
+              src={ASSETS.logoFooter}
               alt="PHD Studio"
               className="h-16 w-auto object-contain"
               width="200"
@@ -1806,14 +1805,16 @@ const Footer = () => (
           <Body muted size="sm" spacing="none" className="mb-6">
             Solicite uma leitura técnica do seu funil e descubra o que está travando sua aquisição.
           </Body>
-          <a
+          <Button
+            as="a"
             href="#contato"
-            className="block w-full text-center min-h-[48px] px-phd-5 py-phd-3 phd-chamfer-sm bg-phd-surface-graphite-deep border border-phd-border-default shadow-phd-contact phd-overlay-hover hover:shadow-phd-raised phd-focus-ring phd-motion-press phd-transition-fast"
+            variant="secondary"
+            fullWidth
           >
             <Body as="span" className="font-phd-semibold text-phd-primary">
               SOLICITAR DIAGNÓSTICO
             </Body>
-          </a>
+          </Button>
         </Surface>
       </div>
 
@@ -1856,7 +1857,7 @@ const Footer = () => (
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram PHD Studio"
-              className="text-phd-tertiary hover:text-phd-primary transition-colors"
+              className="text-phd-tertiary hover:text-phd-primary phd-transition-fast"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm0 2h10c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3zm9 1a1 1 0 100 2 1 1 0 000-2zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z" />
@@ -1867,7 +1868,7 @@ const Footer = () => (
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook PHD Studio"
-              className="text-phd-tertiary hover:text-phd-primary transition-colors"
+              className="text-phd-tertiary hover:text-phd-primary phd-transition-fast"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M13 3h4a1 1 0 110 2h-3v3h2.5a1 1 0 01.97 1.243l-.5 2A1 1 0 0115 12h-1v8a1 1 0 01-1 1h-2a1 1 0 01-1-1v-8H8a1 1 0 01-1-1V9a1 1 0 011-1h2V5a2 2 0 012-2z" />
@@ -1878,7 +1879,7 @@ const Footer = () => (
               target="_blank"
               rel="noopener noreferrer"
               aria-label="TikTok PHD Studio"
-              className="text-phd-tertiary hover:text-phd-primary transition-colors"
+              className="text-phd-tertiary hover:text-phd-primary phd-transition-fast"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M16 3a1 1 0 01.89.55 4.4 4.4 0 003.11 2.3A1 1 0 0120 7v3a1 1 0 01-1.18.98A6.4 6.4 0 0116 10.5V15a5 5 0 11-5-5 1 1 0 010 2 3 3 0 103 3V4a1 1 0 011-1z" />
@@ -1889,7 +1890,7 @@ const Footer = () => (
               target="_blank"
               rel="noopener noreferrer"
               aria-label="YouTube PHD Studio"
-              className="text-phd-tertiary hover:text-phd-primary transition-colors"
+              className="text-phd-tertiary hover:text-phd-primary phd-transition-fast"
             >
               <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M10 9.5l4.5 2.5L10 14.5v-5z" />
@@ -3073,23 +3074,31 @@ const StrategicHero = () => (
           {`Empresas não precisam de mais posts.\nPrecisam de um sistema que transforma conteúdo em crescimento.`}
         </Body>
         <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
-          <a
+          <Button
+            as="a"
             href="#contato"
-            className="bg-brand-red text-white px-8 py-4 rounded-lg hover:bg-red-700 phd-transition-material text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/35"
+            variant="primary"
+            size="lg"
+            fullWidth={false}
+            iconRight={<ArrowRight size={18} aria-hidden />}
+            className="w-full sm:w-auto"
           >
             <Body as="span" className="font-phd-semibold text-phd-inverse">
               Quero um diagnóstico do meu conteúdo
             </Body>
-            <ArrowRight size={18} />
-          </a>
-          <a
+          </Button>
+          <Button
+            as="a"
             href="#como-crescimento"
-            className="border-2 border-white/25 bg-white/5 text-white px-8 py-4 rounded-lg hover:border-white/50 hover:bg-white/10 phd-transition-material text-center"
+            variant="secondary"
+            size="lg"
+            fullWidth={false}
+            className="w-full sm:w-auto"
           >
             <Body as="span" emphasis className="font-phd-medium">
               Ver como funciona
             </Body>
-          </a>
+          </Button>
         </div>
       </div>
     </Container>
@@ -3913,7 +3922,7 @@ function App() {
           <BrowserRouter>
           <VisitorTracker />
           <ScrollVideoBackground />
-          <div className="relative z-10 font-sans min-h-screen text-white selection:bg-brand-red selection:text-white">
+          <div className="relative z-10 font-sans min-h-screen text-white selection:bg-phd-accent-brand selection:text-phd-inverse">
             <CookieBanner />
             <FloatingWhatsAppButton />
             <Routes>
