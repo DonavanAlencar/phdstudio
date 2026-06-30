@@ -1,0 +1,160 @@
+/**
+ * PHD Design System — Motion foundation
+ * Keyframes e utilitários opt-in; animações legadas permanecem intactas.
+ */
+
+@keyframes phd-emerge {
+  from {
+    opacity: 0;
+    transform: translateY(var(--phd-translate-emerge));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes phd-emerge-subtle {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--phd-translate-emerge) / 2));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes phd-materialize {
+  from {
+    opacity: 0;
+    transform: scale(var(--phd-scale-emerge));
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes phd-recede {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(calc(var(--phd-translate-emerge) / -2));
+  }
+}
+
+@keyframes phd-dissolve {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(var(--phd-scale-emerge));
+  }
+}
+
+@keyframes phd-hex-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(var(--phd-rotate-loading));
+  }
+}
+
+@keyframes phd-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes phd-shake-error {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(calc(var(--phd-shake-error) * -1));
+  }
+  75% {
+    transform: translateX(var(--phd-shake-error));
+  }
+}
+
+/* Motion utility classes */
+.phd-motion-emerge {
+  animation: phd-emerge var(--phd-duration-normal) var(--phd-ease-enter) forwards;
+}
+
+.phd-motion-emerge-subtle {
+  animation: phd-emerge-subtle var(--phd-duration-normal) var(--phd-ease-enter) forwards;
+}
+
+.phd-motion-materialize {
+  animation: phd-materialize var(--phd-duration-slow) var(--phd-ease-enter) forwards;
+}
+
+.phd-motion-recede {
+  animation: phd-recede var(--phd-duration-normal) var(--phd-ease-exit) forwards;
+}
+
+.phd-motion-dissolve {
+  animation: phd-dissolve var(--phd-duration-slow) var(--phd-ease-exit) forwards;
+}
+
+.phd-motion-hex-rotate {
+  animation: phd-hex-rotate var(--phd-duration-continuous) var(--phd-ease-linear) infinite;
+}
+
+.phd-motion-skeleton-pulse {
+  animation: phd-skeleton-pulse 1500ms var(--phd-ease-default) infinite;
+}
+
+.phd-motion-shake-error {
+  animation: phd-shake-error var(--phd-duration-fast) linear;
+}
+
+.phd-motion-press:active {
+  transform: scale(var(--phd-scale-press));
+  transition: transform var(--phd-duration-instant) var(--phd-ease-spring);
+}
+
+.phd-transition-default {
+  transition-duration: var(--phd-duration-normal);
+  transition-timing-function: var(--phd-ease-default);
+}
+
+.phd-transition-fast {
+  transition-duration: var(--phd-duration-fast);
+  transition-timing-function: var(--phd-ease-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phd-motion-emerge,
+  .phd-motion-emerge-subtle,
+  .phd-motion-materialize,
+  .phd-motion-recede,
+  .phd-motion-dissolve {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .phd-motion-hex-rotate,
+  .phd-motion-skeleton-pulse {
+    animation: none;
+  }
+
+  .phd-motion-press:active {
+    transform: none;
+  }
+}

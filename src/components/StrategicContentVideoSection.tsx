@@ -1,4 +1,5 @@
 import React from 'react';
+import { Surface, Container, Section } from '@/src/dds';
 
 interface StrategicVideoItem {
   id: string;
@@ -88,18 +89,19 @@ const StrategicContentVideoSection: React.FC = () => {
   const [featured, ...secondary] = displayedVideos;
 
   return (
-    <section
+    <Section
       id="arquitetura-conteudo"
-      className="relative py-20 md:py-28 bg-black/40 overflow-hidden scroll-mt-28"
-      aria-labelledby="strategic-content-heading"
+      className="py-20 md:py-28 bg-black/40"
+      labelledBy="strategic-content-heading"
+      decor={
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85"
+          aria-hidden="true"
+        />
+      }
     >
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85"
-        aria-hidden="true"
-      />
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="strategic-shell rounded-3xl p-8 md:p-14">
+      <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
+        <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious">
           <header className="max-w-3xl mb-10 md:mb-14">
             <h2
               id="strategic-content-heading"
@@ -131,9 +133,9 @@ const StrategicContentVideoSection: React.FC = () => {
               Ver portfólio completo
             </a>
           </div>
-        </div>
-      </div>
-    </section>
+        </Surface>
+      </Container>
+    </Section>
   );
 };
 

@@ -1,0 +1,8 @@
+/**
+ * PHD Design System — Styles entry
+ * Importado por index.css; não altera estilos legados.
+ */
+
+@import './variables.css';
+@import './materials.css';
+@import './motion.css';

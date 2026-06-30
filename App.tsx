@@ -20,6 +20,7 @@ import ClientsManagement from './src/components/Logs/ClientsManagement';
 import ScrollVideoBackground from './src/components/ScrollVideoBackground';
 import FloatingWhatsAppButton from './src/components/FloatingWhatsAppButton';
 import InstitutionalBrandsMarquee from './src/components/InstitutionalBrandsMarquee';
+import { Surface, Container, Section, Divider } from '@/src/dds';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 // Admin CRM removido - foi transportado para outro lugar
 import {
@@ -1593,9 +1594,15 @@ const ContactForm = () => {
   };
 
   return (
-    <section id="contato" className="relative py-20 md:py-28 bg-black/40 overflow-hidden scroll-mt-28">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
-      <div className="container mx-auto px-4 max-w-2xl relative z-10 bg-black/40 rounded-2xl shadow-2xl">
+    <Section
+      id="contato"
+      className="py-20 md:py-28 bg-black/40"
+      decor={
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
+      }
+    >
+      <Container variant="narrow" paddingX="compact" className="relative z-phd-raised">
+        <Surface material="graphite" chamfer="md" padding="default" className="shadow-phd-elevated">
         <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight mb-3">
             Diagnóstico Estratégico de Crescimento
@@ -1766,14 +1773,17 @@ const ContactForm = () => {
             </div>
           )}
         </form>
-      </div>
-    </section>
+        </Surface>
+      </Container>
+    </Section>
   );
 };
 
 const Footer = () => (
-  <footer className="bg-black/40 border-t border-white/10 pt-20 pb-10">
-    <div className="container mx-auto px-4 bg-black/40 rounded-2xl shadow-2xl">
+  <footer className="bg-black/40 pb-10">
+    <Divider className="mt-0 mb-0" />
+    <Container variant="wide" paddingX="compact" className="pt-phd-stack-xl">
+      <Surface material="graphite" chamfer="md" padding="default" className="shadow-phd-elevated">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
         <div className="text-left">
           <Link to="/" className="block w-fit mb-6">
@@ -1804,7 +1814,8 @@ const Footer = () => (
         </div>
       </div>
 
-      <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row md:items-center md:justify-between text-sm text-gray-600 gap-6">
+      <Divider className="my-0 mt-phd-stack-lg" />
+      <div className="pt-phd-stack-md flex flex-col md:flex-row md:items-center md:justify-between text-sm text-gray-600 gap-6">
         <div className="flex flex-col items-center text-center gap-2 md:flex-row md:flex-wrap md:items-center md:justify-start md:text-left md:gap-x-5 md:gap-y-2">
           <p>&copy; 2026 PHD Studio. Todos os direitos reservados.</p>
           <p className="whitespace-nowrap">CNPJ: 40.674.510/0001-69</p>
@@ -1875,7 +1886,8 @@ const Footer = () => (
           </div>
         </div>
       </div>
-    </div>
+      </Surface>
+    </Container>
   </footer>
 );
 
@@ -3020,10 +3032,17 @@ const ProjecaoVexinPage = () => {
 
 // --- Home Page Layout ---
 const StrategicHero = () => (
-  <section className="relative min-h-[88vh] md:min-h-[90vh] flex items-center justify-center pt-28 pb-12 md:pt-32 md:pb-16 overflow-hidden">
-    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black via-neutral-950 to-black" aria-hidden />
-    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_0%,rgba(229,9,20,0.18),transparent_55%)]" aria-hidden />
-    <div className="container mx-auto px-4 relative z-10">
+  <Section
+    className="min-h-[88vh] md:min-h-[90vh] flex items-center justify-center pt-28 pb-12 md:pt-32 md:pb-16"
+    scrollMargin={false}
+    decor={
+      <>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black via-neutral-950 to-black" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_0%,rgba(229,9,20,0.18),transparent_55%)]" aria-hidden />
+      </>
+    }
+  >
+    <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
       <div className="max-w-5xl mx-auto text-center lg:text-left">
         <h1 className="text-[2.25rem] sm:text-6xl md:text-7xl lg:text-8xl font-black font-heading leading-[1.02] md:leading-[1.02] tracking-tight text-white [text-wrap:balance] drop-shadow-[0_4px_32px_rgba(0,0,0,0.85)]">
           Seu conteúdo não gera{' '}
@@ -3053,51 +3072,61 @@ const StrategicHero = () => (
           </a>
         </div>
       </div>
-    </div>
-  </section>
+    </Container>
+  </Section>
 );
 
 const ProblemSection = () => (
-  <section id="problema" className="relative pt-12 pb-20 md:pt-14 md:pb-24 bg-black/40 overflow-hidden scroll-mt-28">
-    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
-    <div className="container mx-auto px-4 relative z-10">
-      <div className="strategic-shell rounded-3xl p-8 md:p-12">
+  <Section
+    id="problema"
+    className="pt-12 pb-20 md:pt-14 md:pb-24 bg-black/40"
+    decor={
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
+    }
+  >
+    <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
+      <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious">
         <SectionTitle title="O problema real não é tráfego. É arquitetura." />
         <div className="grid lg:grid-cols-3 gap-5 md:gap-6">
-          <article className="strategic-card p-6 md:p-7">
+          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
             <h3 className="text-lg font-bold text-white mb-3 leading-snug">
               Você não sabe por que seu conteúdo não vende
             </h3>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
               Posta com frequência, mas não consegue entender o que gera resultado.
             </p>
-          </article>
-          <article className="strategic-card p-6 md:p-7">
+          </Surface>
+          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
             <h3 className="text-lg font-bold text-white mb-3 leading-snug">Você produz sem direção clara</h3>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
               Falta estrutura. Cada conteúdo é isolado, sem função estratégica.
             </p>
-          </article>
-          <article className="strategic-card p-6 md:p-7">
+          </Surface>
+          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
             <h3 className="text-lg font-bold text-white mb-3 leading-snug">Seu esforço não escala</h3>
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
               Você investe tempo, mas não constrói um sistema que gera retorno contínuo.
             </p>
-          </article>
+          </Surface>
         </div>
-      </div>
-    </div>
-  </section>
+      </Surface>
+    </Container>
+  </Section>
 );
 
 const ContentGrowthPillarsSection = () => (
-  <section id="como-crescimento" className="relative py-20 md:py-24 bg-black/40 overflow-hidden scroll-mt-28">
-    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
-    <div className="container mx-auto px-4 relative z-10">
-      <div className="strategic-shell rounded-3xl p-8 md:p-12">
+  <Section
+    id="como-crescimento"
+    className="py-20 md:py-24 bg-black/40"
+    decor={
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
+    }
+  >
+    <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
+      <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious">
         <SectionTitle title="Como transformamos conteúdo em crescimento" centered />
         <div className="grid md:grid-cols-3 gap-5 md:gap-6 mt-4">
-          <article className="strategic-card p-6 md:p-8 text-center flex flex-col items-center gap-4">
+          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default text-center flex flex-col items-center gap-4">
             <div className="rounded-2xl bg-brand-red/15 border border-brand-red/30 p-4 text-brand-red">
               <Target size={28} strokeWidth={2.2} aria-hidden />
             </div>
@@ -3105,8 +3134,8 @@ const ContentGrowthPillarsSection = () => (
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
               Conteúdo que atrai atenção qualificada — não apenas visualizações.
             </p>
-          </article>
-          <article className="strategic-card p-6 md:p-8 text-center flex flex-col items-center gap-4">
+          </Surface>
+          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default text-center flex flex-col items-center gap-4">
             <div className="rounded-2xl bg-brand-red/15 border border-brand-red/30 p-4 text-brand-red">
               <TrendingUp size={28} strokeWidth={2.2} aria-hidden />
             </div>
@@ -3114,8 +3143,8 @@ const ContentGrowthPillarsSection = () => (
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
               Estrutura que transforma atenção em interesse real e oportunidades.
             </p>
-          </article>
-          <article className="strategic-card p-6 md:p-8 text-center flex flex-col items-center gap-4">
+          </Surface>
+          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default text-center flex flex-col items-center gap-4">
             <div className="rounded-2xl bg-purple-500/15 border border-purple-500/30 p-4 text-purple-300">
               <Layers size={28} strokeWidth={2.2} aria-hidden />
             </div>
@@ -3123,18 +3152,25 @@ const ContentGrowthPillarsSection = () => (
             <p className="text-gray-300 text-sm md:text-base leading-relaxed">
               Um sistema que sustenta e escala resultados ao longo do tempo.
             </p>
-          </article>
+          </Surface>
         </div>
-      </div>
-    </div>
-  </section>
+      </Surface>
+    </Container>
+  </Section>
 );
 
 const CreativeSpotlightSection = () => (
-  <section id="phd-creative-destaque" className="relative py-24 md:py-32 overflow-hidden scroll-mt-28">
-    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-950/90 via-neutral-950 to-black" aria-hidden />
-    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_20%,rgba(168,85,247,0.22),transparent_55%)]" aria-hidden />
-    <div className="container mx-auto px-4 relative z-10">
+  <Section
+    id="phd-creative-destaque"
+    className="py-24 md:py-32"
+    decor={
+      <>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-950/90 via-neutral-950 to-black" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_20%,rgba(168,85,247,0.22),transparent_55%)]" aria-hidden />
+      </>
+    }
+  >
+    <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
       <div className="relative rounded-3xl border-2 border-purple-400/40 bg-gradient-to-b from-purple-500/10 via-white/[0.05] to-black/50 p-8 md:p-12 lg:p-16 shadow-[0_0_80px_-8px_rgba(168,85,247,0.45),0_25px_50px_-12px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
         <p className="text-center lg:text-left text-sm md:text-base font-black uppercase tracking-[0.35em] text-purple-200 mb-6 lg:mb-8">
           Esse é o ponto onde tudo muda.
@@ -3178,8 +3214,8 @@ const CreativeSpotlightSection = () => (
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </Container>
+  </Section>
 );
 
 const HomePage = () => (
@@ -3196,10 +3232,11 @@ const HomePage = () => (
 );
 
 const CreativePage = () => (
-  <section className="relative pt-28 pb-20 md:pb-28 overflow-hidden">
+  <Section className="pt-28 pb-20 md:pb-28" decor={
     <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/65 to-black/85" />
-    <div className="container mx-auto px-4 relative z-10">
-      <div className="strategic-shell rounded-3xl p-8 md:p-14 max-w-4xl mx-auto text-center space-y-8">
+  }>
+    <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
+      <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious max-w-phd-content mx-auto text-center space-y-8">
         <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-red-300 font-semibold">PHD Studio Creative</p>
         <h1 className="text-3xl md:text-5xl font-black font-heading leading-tight">
           Conteúdo com direção de resultado
@@ -3236,9 +3273,9 @@ const CreativePage = () => (
             Voltar à home
           </Link>
         </div>
-      </div>
-    </div>
-  </section>
+      </Surface>
+    </Container>
+  </Section>
 );
 
 // --- Visitor Tracking Component ---

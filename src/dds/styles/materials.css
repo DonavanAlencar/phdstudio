@@ -1,0 +1,123 @@
+/**
+ * PHD Design System — Material utility classes
+ * Classes opt-in; não aplicadas a componentes existentes (Fase 05A).
+ */
+
+/* ─── Obsidiana ─── */
+.phd-material-obsidiana {
+  background-color: var(--phd-surface-obsidian);
+  box-shadow: var(--phd-shadow-none);
+}
+
+.phd-material-obsidiana-textured {
+  background-color: var(--phd-surface-obsidian-textured);
+  box-shadow: var(--phd-shadow-none);
+}
+
+/* ─── Grafite ─── */
+.phd-material-grafite {
+  background-color: var(--phd-surface-graphite-deep);
+  border: 1px solid var(--phd-border-subtle);
+  box-shadow: var(--phd-shadow-contact), var(--phd-highlight-edge), var(--phd-highlight-edge-left);
+  clip-path: var(--phd-chamfer-clip-md);
+}
+
+.phd-material-grafite-hover:hover {
+  background-color: var(--phd-surface-graphite);
+  box-shadow: var(--phd-shadow-raised), var(--phd-highlight-edge), var(--phd-highlight-edge-left);
+}
+
+.phd-material-grafite-raised {
+  background-color: var(--phd-surface-graphite-raised);
+  border: 1px solid var(--phd-border-default);
+  box-shadow: var(--phd-shadow-raised), var(--phd-highlight-edge);
+  clip-path: var(--phd-chamfer-clip-md);
+}
+
+/* ─── Vidro Fumê ─── */
+.phd-material-vidro-fume {
+  background-color: var(--phd-surface-glass-dark);
+  border: 1px solid var(--phd-border-subtle);
+  backdrop-filter: blur(var(--phd-blur-md));
+  -webkit-backdrop-filter: blur(var(--phd-blur-md));
+  box-shadow: var(--phd-highlight-glass);
+}
+
+.phd-material-vidro-fume-heavy {
+  background-color: var(--phd-surface-glass-heavy);
+  border: 1px solid var(--phd-border-subtle);
+  backdrop-filter: blur(var(--phd-blur-lg));
+  -webkit-backdrop-filter: blur(var(--phd-blur-lg));
+  box-shadow: var(--phd-highlight-glass);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .phd-material-vidro-fume,
+  .phd-material-vidro-fume-heavy {
+    background-color: var(--phd-surface-graphite-deep);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ─── Metal Accent ─── */
+.phd-material-metal-accent {
+  background-color: var(--phd-accent-brand);
+  color: var(--phd-text-inverse);
+  border: 1px solid transparent;
+  box-shadow: var(--phd-shadow-accent);
+  clip-path: var(--phd-chamfer-clip-md);
+}
+
+.phd-material-metal-accent:hover {
+  background-color: var(--phd-accent-brand-hover);
+}
+
+/* ─── Recesso (inputs) ─── */
+.phd-material-recesso {
+  background-color: var(--phd-surface-recessed);
+  border: 1px solid var(--phd-border-default);
+  box-shadow: var(--phd-shadow-inset);
+  border-radius: var(--phd-radius-squircle-sm);
+}
+
+/* ─── Chamfer utilities ─── */
+.phd-chamfer-sm {
+  clip-path: var(--phd-chamfer-clip-sm);
+}
+
+.phd-chamfer-md {
+  clip-path: var(--phd-chamfer-clip-md);
+}
+
+.phd-chamfer-lg {
+  clip-path: var(--phd-chamfer-clip-lg);
+}
+
+/* ─── Focus ring DDS ─── */
+.phd-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: var(--phd-glow-focus);
+}
+
+/* ─── State overlays ─── */
+.phd-overlay-hover:hover {
+  background-image: linear-gradient(var(--phd-overlay-hover), var(--phd-overlay-hover));
+}
+
+.phd-overlay-active:active {
+  background-image: linear-gradient(var(--phd-overlay-active), var(--phd-overlay-active));
+}
+
+.phd-overlay-selected {
+  background-image: linear-gradient(var(--phd-overlay-selected), var(--phd-overlay-selected));
+}
+
+/* ─── Scrim ─── */
+.phd-scrim {
+  background-color: var(--phd-overlay-scrim);
+}
+
+.phd-scrim-heavy {
+  background-color: var(--phd-overlay-scrim-heavy);
+}

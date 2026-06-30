@@ -1,27 +1,31 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { Container, Section } from '@/src/dds';
 
 const PhdInsightsInstitutionalSection: React.FC = () => {
   return (
-    <section
+    <Section
       id="insights-crescimento"
-      className="relative py-24 md:py-32 overflow-hidden scroll-mt-28"
-      aria-labelledby="phd-insights-heading"
+      className="py-24 md:py-32"
+      labelledBy="phd-insights-heading"
+      decor={
+        <>
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-950/50 via-neutral-950 to-black"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_70%_at_50%_15%,rgba(245,158,11,0.18),transparent_55%)]"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_80%_90%,rgba(59,130,246,0.12),transparent_50%)]"
+            aria-hidden
+          />
+        </>
+      }
     >
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-950/50 via-neutral-950 to-black"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_70%_at_50%_15%,rgba(245,158,11,0.18),transparent_55%)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_80%_90%,rgba(59,130,246,0.12),transparent_50%)]"
-        aria-hidden
-      />
-
-      <div className="container mx-auto px-4 relative z-10">
+      <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
         <div
           className="relative rounded-3xl border-2 border-amber-400/35 bg-gradient-to-b from-amber-500/[0.08] via-white/[0.04] to-black/50 p-8 md:p-12 lg:p-16 shadow-[0_0_80px_-12px_rgba(245,158,11,0.35),0_25px_50px_-12px_rgba(0,0,0,0.75)] ring-1 ring-sky-500/10 motion-safe:animate-fade-in-up"
           style={{
@@ -87,8 +91,8 @@ const PhdInsightsInstitutionalSection: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 };
 

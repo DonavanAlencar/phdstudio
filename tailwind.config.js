@@ -1,3 +1,5 @@
+import ddsThemeExtend from './src/dds/tailwind/extend.js';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -7,9 +9,11 @@ export default {
   ],
   theme: {
     extend: {
+      ...ddsThemeExtend,
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         heading: ['Montserrat', 'sans-serif'],
+        ...ddsThemeExtend.fontFamily,
       },
       colors: {
         brand: {
@@ -18,8 +22,10 @@ export default {
           gray: 'var(--brand-gray, #121212)',
           light: 'var(--brand-light, #F3F4F6)',
         },
+        ...ddsThemeExtend.colors,
       },
       animation: {
+        ...ddsThemeExtend.animation,
         'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         marquee: 'marquee 50s linear infinite',
@@ -29,6 +35,7 @@ export default {
         'marquee-institutional-slow': 'marquee 420s linear infinite',
       },
       keyframes: {
+        ...ddsThemeExtend.keyframes,
         fadeInUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
