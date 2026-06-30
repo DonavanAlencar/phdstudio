@@ -14,10 +14,7 @@ const PhdInsightsInstitutionalSection: React.FC = () => {
           material="graphite-raised"
           chamfer="lg"
           padding="spacious"
-          className="shadow-phd-elevated motion-safe:animate-fade-in-up"
-          style={{
-            animationDuration: '0.85s',
-          }}
+          className="shadow-phd-elevated motion-safe:animate-phd-emerge"
         >
           <Label spacing="none" className="text-phd-accent-insights text-center lg:text-left mb-6 lg:mb-8">
             Núcleo institucional de inteligência
@@ -52,7 +49,7 @@ const PhdInsightsInstitutionalSection: React.FC = () => {
                 iconRight={
                   <ArrowRight
                     size={18}
-                    className="transition-transform duration-300 group-hover:translate-x-0.5"
+                    className="phd-transition-fast ease-phd-standard group-hover:translate-x-0.5"
                     aria-hidden
                   />
                 }

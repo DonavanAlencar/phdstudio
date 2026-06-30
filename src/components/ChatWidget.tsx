@@ -342,11 +342,11 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-brand-red hover:bg-red-600 text-white rounded-full shadow-2xl shadow-brand-red/50 flex items-center justify-center transition-all duration-300 hover:scale-110 group"
+          className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-brand-red hover:bg-red-600 text-white rounded-full shadow-2xl shadow-brand-red/50 flex items-center justify-center phd-motion-press phd-transition-material group"
           aria-label="Abrir chat"
         >
-          <MessageCircle className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-pulse"></span>
+          <MessageCircle className="w-6 h-6 phd-transition-fast" aria-hidden />
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full" aria-hidden />
         </button>
       )}
 
@@ -416,10 +416,10 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-white/10 text-gray-100 border border-white/10 rounded-2xl rounded-bl-none px-4 py-3">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  <div className="flex gap-1.5" aria-label="Digitando">
+                    <span className="w-2 h-2 bg-gray-400 rounded-full phd-motion-skeleton-pulse" />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full phd-motion-skeleton-pulse [animation-delay:var(--phd-delay-stagger)]" />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full phd-motion-skeleton-pulse [animation-delay:calc(var(--phd-delay-stagger)*2)]" />
                   </div>
                 </div>
               </div>
@@ -444,7 +444,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
               <button
                 onClick={handleSendMessage}
                 disabled={!inputText.trim() || isLoading}
-                className="w-12 h-12 bg-brand-red hover:bg-red-600 text-white rounded-lg flex items-center justify-center transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                className="w-12 h-12 bg-brand-red hover:bg-red-600 text-white rounded-lg flex items-center justify-center phd-motion-press phd-transition-fast disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Enviar mensagem"
               >
                 <Send className="w-5 h-5" />

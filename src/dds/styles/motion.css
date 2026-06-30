@@ -90,6 +90,24 @@
   }
 }
 
+@keyframes phd-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes phd-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Motion utility classes */
 .phd-motion-emerge {
   animation: phd-emerge var(--phd-duration-normal) var(--phd-ease-enter) forwards;
@@ -116,11 +134,20 @@
 }
 
 .phd-motion-skeleton-pulse {
-  animation: phd-skeleton-pulse 1500ms var(--phd-ease-default) infinite;
+  animation: phd-skeleton-pulse var(--phd-duration-skeleton) var(--phd-ease-standard) infinite;
 }
 
 .phd-motion-shake-error {
   animation: phd-shake-error var(--phd-duration-fast) linear;
+}
+
+.phd-motion-progress-fill {
+  transform-origin: left center;
+  animation: phd-progress-fill var(--phd-duration-slow) var(--phd-ease-decelerate) forwards;
+}
+
+.phd-motion-fade {
+  animation: phd-fade var(--phd-duration-normal) var(--phd-ease-decelerate) forwards;
 }
 
 .phd-motion-press:active {
@@ -130,12 +157,40 @@
 
 .phd-transition-default {
   transition-duration: var(--phd-duration-normal);
-  transition-timing-function: var(--phd-ease-default);
+  transition-timing-function: var(--phd-ease-standard);
 }
 
 .phd-transition-fast {
   transition-duration: var(--phd-duration-fast);
-  transition-timing-function: var(--phd-ease-default);
+  transition-timing-function: var(--phd-ease-standard);
+}
+
+.phd-transition-hover-elevation {
+  transition-property: box-shadow, transform, border-color;
+  transition-duration: var(--phd-duration-fast);
+  transition-timing-function: var(--phd-ease-standard);
+}
+
+.phd-transition-focus {
+  transition-property: box-shadow, border-color, outline-color;
+  transition-duration: var(--phd-duration-fast);
+  transition-timing-function: var(--phd-ease-decelerate);
+}
+
+.phd-transition-opacity {
+  transition-property: opacity;
+  transition-duration: var(--phd-duration-normal);
+  transition-timing-function: var(--phd-ease-standard);
+}
+
+.phd-transition-material {
+  transition-property: background-color, border-color, box-shadow, backdrop-filter;
+  transition-duration: var(--phd-duration-fast);
+  transition-timing-function: var(--phd-ease-standard);
+}
+
+.phd-hover-elevation:hover {
+  transform: translateY(var(--phd-translate-hover));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -155,6 +210,10 @@
   }
 
   .phd-motion-press:active {
+    transform: none;
+  }
+
+  .phd-hover-elevation:hover {
     transform: none;
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Surface, type SurfaceProps } from '../foundation/Surface';
 import { cn, createVariants } from '../../utils';
+import { componentMotion } from '../../motion/utilities';
 
 export type CardAccent = 'brand' | 'creative' | 'insights' | 'flow';
 
@@ -46,7 +47,11 @@ function CardRoot(
       padding={padding}
       chamfer={chamfer ?? (featured ? 'lg' : 'md')}
       interactive={interactive}
-      className={cn('flex flex-col gap-phd-stack-sm', className)}
+      className={cn(
+        'flex flex-col gap-phd-stack-sm',
+        interactive && componentMotion.cardInteractive,
+        className,
+      )}
       {...props}
     />
   );

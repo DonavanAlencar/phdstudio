@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from './Card';
 import { cn } from '../../utils';
+import { componentMotion } from '../../motion/utilities';
 
 export interface VideoCardProps {
   youtubeId: string;
@@ -8,6 +9,7 @@ export interface VideoCardProps {
   description: React.ReactNode;
   featured?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const VideoCard: React.FC<VideoCardProps> = ({
@@ -16,13 +18,15 @@ export const VideoCard: React.FC<VideoCardProps> = ({
   description,
   featured = false,
   className,
+  style,
 }) => (
   <Card
     featured={featured}
     padding="none"
     chamfer="md"
     interactive
-    className={cn('overflow-hidden gap-0', className)}
+    className={cn('overflow-hidden gap-0', componentMotion.videoCard, className)}
+    style={style}
     aria-label={featured ? 'Vídeo em destaque — conteúdo estruturado' : title}
   >
     <div className={cn('bg-phd-surface-obsidian', featured ? 'aspect-video md:aspect-[21/9]' : 'aspect-video')}>

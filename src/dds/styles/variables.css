@@ -236,9 +236,14 @@
   --phd-duration-slow: 500ms;
   --phd-duration-transform: 700ms;
   --phd-duration-continuous: 1200ms;
-  --phd-ease-default: cubic-bezier(0.16, 1, 0.3, 1);
-  --phd-ease-enter: cubic-bezier(0, 0, 0.2, 1);
-  --phd-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --phd-duration-skeleton: 1500ms;
+  --phd-duration-toast: 5000ms;
+  --phd-ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --phd-ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --phd-ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --phd-ease-default: var(--phd-ease-standard);
+  --phd-ease-enter: var(--phd-ease-decelerate);
+  --phd-ease-exit: var(--phd-ease-accelerate);
   --phd-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --phd-ease-linear: linear;
   --phd-delay-chain: 40ms;
@@ -255,6 +260,7 @@
   --phd-rotate-transform: 180deg;
   --phd-rotate-loading: 360deg;
   --phd-shake-error: 3px;
+  --phd-translate-hover: -2px;
 
   /* ─── Breakpoints / Grid / Containers ─── */
   --phd-bp-sm: 640px;

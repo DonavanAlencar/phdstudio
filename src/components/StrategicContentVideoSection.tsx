@@ -1,5 +1,6 @@
 import React from 'react';
 import { Surface, Container, Section, SectionHeader, Body, Button, VideoCard } from '@/src/dds';
+import { staggerDelay } from '@/src/dds/motion';
 
 interface StrategicVideoItem {
   id: string;
@@ -74,6 +75,8 @@ const StrategicContentVideoSection: React.FC = () => {
                   key={video.id}
                   youtubeId={video.youtubeId}
                   title={`Conteúdo estratégico ${index + 2}`}
+                  className="motion-safe:animate-phd-emerge-subtle"
+                  style={{ animationDelay: staggerDelay(index + 1) }}
                   description={
                     <Body size="sm" muted spacing="none">
                       {video.description}

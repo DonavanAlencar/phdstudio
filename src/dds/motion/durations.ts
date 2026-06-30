@@ -9,6 +9,8 @@ export const durations = {
   slow: 'var(--phd-duration-slow)',
   transform: 'var(--phd-duration-transform)',
   continuous: 'var(--phd-duration-continuous)',
+  skeleton: 'var(--phd-duration-skeleton)',
+  toast: 'var(--phd-duration-toast)',
 } as const;
 
 export const durationMs = {
@@ -18,6 +20,8 @@ export const durationMs = {
   slow: 500,
   transform: 700,
   continuous: 1200,
+  skeleton: 1500,
+  toast: 5000,
 } as const;
 
 export type DurationToken = keyof typeof durations;

@@ -189,8 +189,13 @@ export const ddsThemeExtend = {
     'phd-slow': 'var(--phd-duration-slow)',
     'phd-transform': 'var(--phd-duration-transform)',
     'phd-continuous': 'var(--phd-duration-continuous)',
+    'phd-skeleton': 'var(--phd-duration-skeleton)',
+    'phd-toast': 'var(--phd-duration-toast)',
   },
   transitionTimingFunction: {
+    'phd-standard': 'var(--phd-ease-standard)',
+    'phd-decelerate': 'var(--phd-ease-decelerate)',
+    'phd-accelerate': 'var(--phd-ease-accelerate)',
     'phd-default': 'var(--phd-ease-default)',
     'phd-enter': 'var(--phd-ease-enter)',
     'phd-exit': 'var(--phd-ease-exit)',
@@ -208,8 +213,10 @@ export const ddsThemeExtend = {
     'phd-recede': 'phd-recede var(--phd-duration-normal) var(--phd-ease-exit) forwards',
     'phd-dissolve': 'phd-dissolve var(--phd-duration-slow) var(--phd-ease-exit) forwards',
     'phd-hex-rotate': 'phd-hex-rotate var(--phd-duration-continuous) var(--phd-ease-linear) infinite',
-    'phd-skeleton-pulse': 'phd-skeleton-pulse 1500ms var(--phd-ease-default) infinite',
+    'phd-skeleton-pulse': 'phd-skeleton-pulse var(--phd-duration-skeleton) var(--phd-ease-standard) infinite',
     'phd-shake-error': 'phd-shake-error var(--phd-duration-fast) linear',
+    'phd-progress-fill': 'phd-progress-fill var(--phd-duration-slow) var(--phd-ease-decelerate) forwards',
+    'phd-fade': 'phd-fade var(--phd-duration-normal) var(--phd-ease-decelerate) forwards',
   },
   keyframes: {
     'phd-emerge': {
@@ -244,6 +251,14 @@ export const ddsThemeExtend = {
       '0%, 100%': { transform: 'translateX(0)' },
       '25%': { transform: 'translateX(calc(var(--phd-shake-error) * -1))' },
       '75%': { transform: 'translateX(var(--phd-shake-error))' },
+    },
+    'phd-progress-fill': {
+      from: { transform: 'scaleX(0)' },
+      to: { transform: 'scaleX(1)' },
+    },
+    'phd-fade': {
+      from: { opacity: '0' },
+      to: { opacity: '1' },
     },
   },
   screens: {

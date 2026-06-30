@@ -4,11 +4,14 @@ import { cn, createVariants } from '../../utils';
 export type ButtonVariant = 'primary' | 'secondary' | 'cta';
 export type ButtonSize = 'default' | 'lg';
 
+import { componentMotion } from '../../motion/utilities';
+
 const buttonVariants = createVariants({
   base: cn(
     'inline-flex items-center justify-center gap-phd-inline-xs',
     'min-h-[48px] px-phd-5 py-phd-3',
-    'phd-chamfer-sm phd-focus-ring phd-motion-press phd-transition-fast',
+    'phd-chamfer-sm phd-focus-ring',
+    componentMotion.button,
     'font-phd-body text-base leading-none',
     'disabled:opacity-[var(--phd-opacity-disabled)] disabled:shadow-phd-none disabled:pointer-events-none',
   ),
@@ -22,7 +25,7 @@ const buttonVariants = createVariants({
       secondary: cn(
         'bg-phd-surface-graphite-deep border border-phd-border-default',
         'shadow-phd-contact font-phd-medium text-phd-primary',
-        'phd-overlay-hover hover:shadow-phd-raised',
+        'phd-overlay-hover hover:shadow-phd-raised phd-transition-hover-elevation',
       ),
       cta: cn(
         'phd-material-metal-accent font-phd-semibold text-phd-inverse',

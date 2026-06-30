@@ -201,11 +201,11 @@ const ServicesSection: React.FC = () => {
             return (
               <article
                 key={service.id}
-                className="group relative rounded-2xl border border-white/10 bg-brand-gray/40 backdrop-blur-sm p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-red/10 hover:border-white/20"
+                className="group relative rounded-2xl border border-white/10 bg-brand-gray/40 backdrop-blur-sm p-6 phd-transition-hover-elevation phd-transition-material phd-hover-elevation hover:shadow-phd-raised hover:border-white/20"
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" aria-hidden />
                 <div className="relative">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-red/10 border border-brand-red/20 text-brand-red mb-4 transition-transform duration-300 group-hover:scale-105">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-red/10 border border-brand-red/20 text-brand-red mb-4 phd-transition-material">
                     <Icon size={24} aria-hidden />
                   </div>
                   <h3 className="text-white font-bold font-heading text-lg leading-snug mb-2">

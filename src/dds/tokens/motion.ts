@@ -10,9 +10,14 @@ export const duration = {
   slow: 'var(--phd-duration-slow)',
   transform: 'var(--phd-duration-transform)',
   continuous: 'var(--phd-duration-continuous)',
+  skeleton: 'var(--phd-duration-skeleton)',
+  toast: 'var(--phd-duration-toast)',
 } as const;
 
 export const easing = {
+  standard: 'var(--phd-ease-standard)',
+  decelerate: 'var(--phd-ease-decelerate)',
+  accelerate: 'var(--phd-ease-accelerate)',
   default: 'var(--phd-ease-default)',
   enter: 'var(--phd-ease-enter)',
   exit: 'var(--phd-ease-exit)',

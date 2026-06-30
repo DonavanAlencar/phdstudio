@@ -792,13 +792,13 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-6'}`}>
+    <nav className={`fixed w-full z-50 phd-transition-material duration-phd-normal ${scrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 py-3' : 'bg-transparent py-6'}`}>
       <div className="container mx-auto px-4 flex justify-between items-center relative">
         {/* Botão Área do Cliente / Sair - Lado Esquerdo */}
         {isAuthenticated ? (
           <button
             onClick={logout}
-            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
+            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider phd-transition-material duration-phd-normal shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
           >
             <X size={16} />
             Sair
@@ -806,7 +806,7 @@ const Navbar = () => {
         ) : (
           <Link
             to="/login"
-            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
+            className="hidden md:flex bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider phd-transition-material duration-phd-normal shadow-lg shadow-red-600/30 items-center gap-2 relative z-50"
           >
             <Lock size={16} />
             Área do Cliente
@@ -882,7 +882,7 @@ const Navbar = () => {
         </button>
 
         {/* Mobile Menu */}
-        <div className={`mobile-menu-overlay fixed inset-0 bg-black/75 backdrop-blur-sm z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-300 uppercase ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`mobile-menu-overlay fixed inset-0 bg-black/75 backdrop-blur-sm z-40 flex flex-col justify-center items-center gap-8 transition-transform duration-phd-normal ease-phd-decelerate uppercase ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           {isAuthenticated && userRole === 'client' && username === 'vexin' ? (
             <>
               <Link
@@ -1004,9 +1004,9 @@ const Hero = () => {
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" />
 
       <div className="container mx-auto px-4 relative z-10 grid md:grid-cols-2 gap-12 items-center bg-black/40 rounded-2xl shadow-2xl">
-        <div className="space-y-8 animate-fade-in-up">
+        <div className="space-y-8 motion-safe:animate-phd-emerge">
           <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-brand-red text-sm font-bold tracking-wide">
-            <span className="w-2 h-2 bg-brand-red rounded-full animate-pulse"></span>
+            <span className="w-2 h-2 bg-brand-red rounded-full" aria-hidden="true"></span>
             MARKETING + TECNOLOGIA
           </div>
 
@@ -1042,9 +1042,9 @@ const Hero = () => {
         </div>
 
         {/* Right side video */}
-        <div className="relative block animate-fade-in-up mt-12 md:mt-0 mb-16 md:mb-0" style={{ animationDelay: '0.2s' }}>
+        <div className="relative block motion-safe:animate-phd-emerge motion-safe:delay-phd-stagger mt-12 md:mt-0 mb-16 md:mb-0">
           {/* rotate-0 no mobile (horizontal fixo), rotate-[-2deg] no desktop */}
-          <div className="relative z-10 bg-brand-gray/40 border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-0 md:rotate-[-2deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
+          <div className="relative z-10 bg-brand-gray/40 border border-white/10 rounded-2xl p-2 shadow-2xl transform rotate-0 md:rotate-[-2deg] hover:rotate-0 transition-transform duration-phd-slow ease-phd-standard overflow-hidden">
             <div className="relative w-full aspect-video rounded-xl overflow-hidden">
               <iframe
                 className="w-full h-full rounded-xl"
@@ -1838,7 +1838,7 @@ const Footer = () => (
             <Label spacing="none">Contato:</Label>
             <a
               href="mailto:contato@phdstudio.com.br"
-              className="hover:text-phd-primary hover:underline underline-offset-4 transition-colors duration-200"
+              className="hover:text-phd-primary hover:underline underline-offset-4 phd-transition-fast"
             >
               <Body as="span" size="sm" spacing="none">
                 contato@phdstudio.com.br
@@ -3075,7 +3075,7 @@ const StrategicHero = () => (
         <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
           <a
             href="#contato"
-            className="bg-brand-red text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/35"
+            className="bg-brand-red text-white px-8 py-4 rounded-lg hover:bg-red-700 phd-transition-material text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-red/35"
           >
             <Body as="span" className="font-phd-semibold text-phd-inverse">
               Quero um diagnóstico do meu conteúdo
@@ -3084,7 +3084,7 @@ const StrategicHero = () => (
           </a>
           <a
             href="#como-crescimento"
-            className="border-2 border-white/25 bg-white/5 text-white px-8 py-4 rounded-lg hover:border-white/50 hover:bg-white/10 transition-all text-center"
+            className="border-2 border-white/25 bg-white/5 text-white px-8 py-4 rounded-lg hover:border-white/50 hover:bg-white/10 phd-transition-material text-center"
           >
             <Body as="span" emphasis className="font-phd-medium">
               Ver como funciona

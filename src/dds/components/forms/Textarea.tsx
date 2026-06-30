@@ -1,10 +1,12 @@
 import React from 'react';
 import { cn, createVariants } from '../../utils';
+import { componentMotion } from '../../motion/utilities';
 
 const textareaVariants = createVariants({
   base: cn(
     'w-full min-h-[120px] px-phd-compact py-phd-compact resize-y',
-    'phd-material-recesso phd-focus-ring phd-transition-fast',
+    'phd-material-recesso phd-focus-ring',
+    componentMotion.input,
     'font-phd-body text-phd-primary placeholder:text-phd-tertiary',
     'border border-phd-border-default',
     'hover:border-phd-border-strong',
@@ -15,7 +17,7 @@ const textareaVariants = createVariants({
     state: {
       default: '',
       error: 'border-phd-state-error phd-motion-shake-error',
-      success: 'border-phd-state-success',
+      success: 'border-phd-state-success phd-motion-emerge-subtle',
     },
   },
   defaultVariants: {

@@ -68,10 +68,10 @@ const YouTubeCarousel: React.FC = () => {
                         href="https://www.youtube.com/@phdstudiobr"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex items-center gap-2 text-white font-bold bg-brand-gray/40 border border-white/10 px-6 py-3 rounded-lg hover:bg-red-600 hover:border-red-600 transition-all shadow-lg hover:shadow-red-600/20 text-sm uppercase tracking-wide"
+                        className="group flex items-center gap-2 text-white font-bold bg-brand-gray/40 border border-white/10 px-6 py-3 rounded-lg hover:bg-red-600 hover:border-red-600 phd-transition-material shadow-lg hover:shadow-red-600/20 text-sm uppercase tracking-wide"
                     >
                         <span>Ver Canal Completo</span>
-                        <ExternalLink size={18} className="group-hover:translate-x-1 transition-transform" />
+                        <ExternalLink size={18} className="phd-transition-fast ease-phd-standard group-hover:translate-x-0.5" />
                     </a>
                 </div>
 
@@ -81,14 +81,14 @@ const YouTubeCarousel: React.FC = () => {
                         <>
                             <button
                                 onClick={() => scroll('left')}
-                                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 bg-black/80 border border-white/10 p-3 rounded-full text-white shadow-xl hover:bg-red-600 hover:border-red-600 transition-all opacity-0 group-hover/nav:opacity-100 backdrop-blur-sm"
+                                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 bg-black/80 border border-white/10 p-3 rounded-full text-white shadow-xl hover:bg-red-600 hover:border-red-600 phd-transition-material phd-transition-opacity opacity-0 group-hover/nav:opacity-100 backdrop-blur-sm"
                                 aria-label="Vídeo anterior"
                             >
                                 <ChevronLeft size={24} />
                             </button>
                             <button
                                 onClick={() => scroll('right')}
-                                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 bg-black/80 border border-white/10 p-3 rounded-full text-white shadow-xl hover:bg-red-600 hover:border-red-600 transition-all opacity-0 group-hover/nav:opacity-100 backdrop-blur-sm"
+                                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 bg-black/80 border border-white/10 p-3 rounded-full text-white shadow-xl hover:bg-red-600 hover:border-red-600 phd-transition-material phd-transition-opacity opacity-0 group-hover/nav:opacity-100 backdrop-blur-sm"
                                 aria-label="Próximo vídeo"
                             >
                                 <ChevronRight size={24} />
@@ -104,7 +104,7 @@ const YouTubeCarousel: React.FC = () => {
                         {loading ? (
                             // Skeleton Loaders
                             Array(4).fill(0).map((_, i) => (
-                                <div key={i} className="flex-shrink-0 w-[320px] aspect-video rounded-xl bg-white/5 animate-pulse border border-white/10" />
+                                <div key={i} className="flex-shrink-0 w-[320px] aspect-video rounded-xl bg-white/5 phd-motion-skeleton-pulse border border-white/10" />
                             ))
                         ) : videos.length > 0 ? (
                             videos.map((video) => (
@@ -118,7 +118,7 @@ const YouTubeCarousel: React.FC = () => {
                                         <img
                                             src={video.thumbnail}
                                             alt={video.title}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            className="w-full h-full object-cover phd-transition-opacity group-hover:opacity-90"
                                             loading="lazy"
                                         />
 
@@ -128,7 +128,7 @@ const YouTubeCarousel: React.FC = () => {
                                             {video.duration}
                                         </div>
                                     </div>
-                                    <h3 className="text-sm md:text-base font-semibold text-white leading-snug line-clamp-2 group-hover:text-red-400 transition-colors">
+                                    <h3 className="text-sm md:text-base font-semibold text-white leading-snug line-clamp-2 group-hover:text-red-400 phd-transition-fast">
                                         {video.title}
                                     </h3>
                                 </div>
@@ -162,13 +162,13 @@ const YouTubeCarousel: React.FC = () => {
                     <div className="absolute inset-0 bg-black/95 backdrop-blur-sm"></div>
 
                     <div
-                        className="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 animate-fade-in-up"
+                        className="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 motion-safe:animate-phd-materialize"
                         onClick={e => e.stopPropagation()}
                     >
                         {/* Close Button */}
                         <button
                             onClick={closeVideo}
-                            className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-red-600 text-white p-2 rounded-full transition-colors"
+                            className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-red-600 text-white p-2 rounded-full phd-transition-fast"
                             aria-label="Fechar vídeo"
                         >
                             <X size={24} />

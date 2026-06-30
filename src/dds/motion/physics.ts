@@ -48,3 +48,21 @@ export const microPatterns = {
   press: 'phd-motion-press',
   shakeError: 'phd-motion-shake-error',
 } as const;
+
+export const feedbackPatterns = {
+  success: 'phd-motion-emerge-subtle',
+  error: 'phd-motion-shake-error',
+  loading: 'phd-motion-hex-rotate',
+  progress: 'phd-motion-progress-fill',
+  skeleton: 'phd-motion-skeleton-pulse',
+  focus: 'phd-transition-focus',
+} as const;
+
+export const transitionPatterns = {
+  hoverElevation: 'phd-transition-hover-elevation',
+  focus: 'phd-transition-focus',
+  opacity: 'phd-transition-opacity',
+  material: 'phd-transition-material',
+  default: 'phd-transition-default',
+  fast: 'phd-transition-fast',
+} as const;

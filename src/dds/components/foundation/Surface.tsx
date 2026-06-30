@@ -16,7 +16,7 @@ export type SurfaceState = 'default' | 'hover' | 'active' | 'selected' | 'disabl
 const surfaceVariants = createVariants({
   base: cn(
     'relative',
-    'transition-[box-shadow,background-color,border-color,opacity] duration-phd-fast ease-phd-default',
+    'phd-transition-material duration-phd-fast ease-phd-standard',
   ),
   variants: {
     material: {
@@ -46,7 +46,10 @@ const surfaceVariants = createVariants({
       lg: 'phd-chamfer-lg',
     },
     interactive: {
-      true: 'hover:bg-phd-surface-graphite hover:shadow-phd-raised phd-overlay-hover',
+      true: cn(
+        'hover:bg-phd-surface-graphite hover:shadow-phd-raised phd-overlay-hover',
+        'phd-transition-hover-elevation phd-transition-material',
+      ),
       false: '',
     },
     state: {
