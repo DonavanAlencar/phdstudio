@@ -99,12 +99,47 @@
   --phd-data-negative: var(--phd-state-error);
   --phd-data-neutral: var(--phd-text-secondary);
 
-  /* ─── Typography families ─── */
-  --phd-font-display: 'Montserrat', sans-serif;
-  --phd-font-body: 'Inter', sans-serif;
-  --phd-font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  /* ─── Typography — fallbacks ─── */
+  --phd-font-fallback-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --phd-font-fallback-mono: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
 
-  /* ─── Typography scale ─── */
+  /* ─── Typography families (oficial DDS) ─── */
+  --phd-font-display-wide: 'Michroma', var(--phd-font-fallback-sans);
+  --phd-font-display-legacy: 'Montserrat', var(--phd-font-fallback-sans);
+  --phd-font-body-family: 'Inter', var(--phd-font-fallback-sans);
+  --phd-font-mono-family: 'JetBrains Mono', 'IBM Plex Mono', var(--phd-font-fallback-mono);
+
+  /* Papéis semânticos — CES Display / Heading / Body / Label / Mono */
+  --phd-font-role-display: var(--phd-font-display-wide);
+  --phd-font-role-heading: var(--phd-font-display-wide);
+  --phd-font-role-body: var(--phd-font-body-family);
+  --phd-font-role-label: var(--phd-font-body-family);
+  --phd-font-role-mono: var(--phd-font-mono-family);
+
+  /* Aliases 05A (infra DDS) — não alteram Landing legada (font-heading) */
+  --phd-font-display: var(--phd-font-role-display);
+  --phd-font-body: var(--phd-font-role-body);
+  --phd-font-mono: var(--phd-font-role-mono);
+
+  /* font-display strategy (carregamento web) */
+  --phd-font-display-strategy-display: swap;
+  --phd-font-display-strategy-body: swap;
+  --phd-font-display-strategy-mono: swap;
+
+  /* OpenType / font features */
+  --phd-font-features-body: 'kern' 1, 'liga' 1;
+  --phd-font-features-display: 'kern' 1, 'liga' 1, 'calt' 1;
+  --phd-font-features-mono: 'kern' 1, 'liga' 1, 'calt' 1;
+  --phd-font-features-data: 'tnum' 1, 'lnum' 1, 'kern' 1;
+  --phd-font-features-tabular: 'tnum' 1, 'lnum' 1;
+  --phd-font-variant-numeric-proportional: proportional-nums;
+  --phd-font-variant-numeric-tabular: tabular-nums lining-nums;
+  --phd-font-variant-numeric-lining: lining-nums;
+
+  --phd-text-transform-none: none;
+  --phd-text-transform-uppercase: uppercase;
+
+  /* ─── Typography scale (desktop base) ─── */
   --phd-type-display-xl-size: 4rem;
   --phd-type-display-xl-leading: 1.1;
   --phd-type-display-xl-tracking: 0.04em;
@@ -122,17 +157,22 @@
   --phd-type-heading-3-tracking: 0.01em;
   --phd-type-title-size: 1.125rem;
   --phd-type-title-leading: 1.4;
+  --phd-type-title-tracking: 0;
   --phd-type-body-size: 1rem;
   --phd-type-body-leading: 1.5;
+  --phd-type-body-tracking: 0;
   --phd-type-body-sm-size: 0.875rem;
   --phd-type-body-sm-leading: 1.5;
+  --phd-type-body-sm-tracking: 0;
   --phd-type-caption-size: 0.75rem;
   --phd-type-caption-leading: 1.4;
+  --phd-type-caption-tracking: 0.02em;
   --phd-type-label-size: 0.75rem;
   --phd-type-label-leading: 1;
   --phd-type-label-tracking: 0.06em;
   --phd-type-mono-size: 0.875rem;
   --phd-type-mono-leading: 1.4;
+  --phd-type-mono-tracking: 0;
   --phd-type-mono-lg-size: 1.5rem;
   --phd-type-mono-lg-leading: 1.2;
   --phd-type-mono-lg-tracking: -0.01em;

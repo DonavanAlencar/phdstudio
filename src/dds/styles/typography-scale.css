@@ -1,0 +1,129 @@
+/**
+ * PHD DDS — Escala tipográfica responsiva
+ * Desktop: valores base (:root em variables.css)
+ * Tablet (< 1280px): -1 nível na hierarquia
+ * Mobile (< 768px): -2 níveis (DDS §1.4, CES-005/006)
+ *
+ * Tokens --phd-type-r-* são consumidos por utilitários .phd-type-* e Tailwind text-phd-r-*.
+ * Não afetam classes legadas (font-heading, text-3xl, etc.).
+ */
+
+:root {
+  /* display-xl */
+  --phd-type-r-display-xl-size: var(--phd-type-display-xl-size);
+  --phd-type-r-display-xl-leading: var(--phd-type-display-xl-leading);
+  --phd-type-r-display-xl-tracking: var(--phd-type-display-xl-tracking);
+
+  /* display */
+  --phd-type-r-display-size: var(--phd-type-display-size);
+  --phd-type-r-display-leading: var(--phd-type-display-leading);
+  --phd-type-r-display-tracking: var(--phd-type-display-tracking);
+
+  /* heading-1 */
+  --phd-type-r-heading-1-size: var(--phd-type-heading-1-size);
+  --phd-type-r-heading-1-leading: var(--phd-type-heading-1-leading);
+  --phd-type-r-heading-1-tracking: var(--phd-type-heading-1-tracking);
+
+  /* heading-2 */
+  --phd-type-r-heading-2-size: var(--phd-type-heading-2-size);
+  --phd-type-r-heading-2-leading: var(--phd-type-heading-2-leading);
+  --phd-type-r-heading-2-tracking: var(--phd-type-heading-2-tracking);
+
+  /* heading-3 */
+  --phd-type-r-heading-3-size: var(--phd-type-heading-3-size);
+  --phd-type-r-heading-3-leading: var(--phd-type-heading-3-leading);
+  --phd-type-r-heading-3-tracking: var(--phd-type-heading-3-tracking);
+
+  /* title */
+  --phd-type-r-title-size: var(--phd-type-title-size);
+  --phd-type-r-title-leading: var(--phd-type-title-leading);
+  --phd-type-r-title-tracking: var(--phd-type-title-tracking);
+
+  /* body */
+  --phd-type-r-body-size: var(--phd-type-body-size);
+  --phd-type-r-body-leading: var(--phd-type-body-leading);
+  --phd-type-r-body-tracking: var(--phd-type-body-tracking);
+
+  /* body-sm */
+  --phd-type-r-body-sm-size: var(--phd-type-body-sm-size);
+  --phd-type-r-body-sm-leading: var(--phd-type-body-sm-leading);
+  --phd-type-r-body-sm-tracking: var(--phd-type-body-sm-tracking);
+
+  /* caption */
+  --phd-type-r-caption-size: var(--phd-type-caption-size);
+  --phd-type-r-caption-leading: var(--phd-type-caption-leading);
+  --phd-type-r-caption-tracking: var(--phd-type-caption-tracking);
+
+  /* label */
+  --phd-type-r-label-size: var(--phd-type-label-size);
+  --phd-type-r-label-leading: var(--phd-type-label-leading);
+  --phd-type-r-label-tracking: var(--phd-type-label-tracking);
+
+  /* mono */
+  --phd-type-r-mono-size: var(--phd-type-mono-size);
+  --phd-type-r-mono-leading: var(--phd-type-mono-leading);
+  --phd-type-r-mono-tracking: var(--phd-type-mono-tracking);
+
+  /* mono-lg */
+  --phd-type-r-mono-lg-size: var(--phd-type-mono-lg-size);
+  --phd-type-r-mono-lg-leading: var(--phd-type-mono-lg-leading);
+  --phd-type-r-mono-lg-tracking: var(--phd-type-mono-lg-tracking);
+}
+
+/* Tablet: downscale -1 (bp-xl = 1280px) */
+@media (max-width: 1279px) {
+  :root {
+    --phd-type-r-display-xl-size: var(--phd-type-display-size);
+    --phd-type-r-display-xl-leading: var(--phd-type-display-leading);
+    --phd-type-r-display-xl-tracking: var(--phd-type-display-tracking);
+
+    --phd-type-r-display-size: var(--phd-type-heading-1-size);
+    --phd-type-r-display-leading: var(--phd-type-heading-1-leading);
+    --phd-type-r-display-tracking: var(--phd-type-heading-1-tracking);
+
+    --phd-type-r-heading-1-size: var(--phd-type-heading-2-size);
+    --phd-type-r-heading-1-leading: var(--phd-type-heading-2-leading);
+    --phd-type-r-heading-1-tracking: var(--phd-type-heading-2-tracking);
+
+    --phd-type-r-heading-2-size: var(--phd-type-heading-3-size);
+    --phd-type-r-heading-2-leading: var(--phd-type-heading-3-leading);
+    --phd-type-r-heading-2-tracking: var(--phd-type-heading-3-tracking);
+
+    --phd-type-r-heading-3-size: var(--phd-type-title-size);
+    --phd-type-r-heading-3-leading: var(--phd-type-title-leading);
+    --phd-type-r-heading-3-tracking: var(--phd-type-title-tracking);
+
+    --phd-type-r-mono-lg-size: var(--phd-type-mono-size);
+    --phd-type-r-mono-lg-leading: var(--phd-type-mono-leading);
+    --phd-type-r-mono-lg-tracking: var(--phd-type-mono-tracking);
+  }
+}
+
+/* Mobile: downscale adicional -1 (bp-md = 768px) */
+@media (max-width: 767px) {
+  :root {
+    --phd-type-r-display-xl-size: var(--phd-type-heading-1-size);
+    --phd-type-r-display-xl-leading: var(--phd-type-heading-1-leading);
+    --phd-type-r-display-xl-tracking: var(--phd-type-heading-1-tracking);
+
+    --phd-type-r-display-size: var(--phd-type-heading-2-size);
+    --phd-type-r-display-leading: var(--phd-type-heading-2-leading);
+    --phd-type-r-display-tracking: var(--phd-type-heading-2-tracking);
+
+    --phd-type-r-heading-1-size: var(--phd-type-heading-3-size);
+    --phd-type-r-heading-1-leading: var(--phd-type-heading-3-leading);
+    --phd-type-r-heading-1-tracking: var(--phd-type-heading-3-tracking);
+
+    --phd-type-r-heading-2-size: var(--phd-type-title-size);
+    --phd-type-r-heading-2-leading: var(--phd-type-title-leading);
+    --phd-type-r-heading-2-tracking: var(--phd-type-title-tracking);
+
+    --phd-type-r-heading-3-size: var(--phd-type-body-size);
+    --phd-type-r-heading-3-leading: var(--phd-type-body-leading);
+    --phd-type-r-heading-3-tracking: var(--phd-type-body-tracking);
+
+    --phd-type-r-body-size: var(--phd-type-body-sm-size);
+    --phd-type-r-body-leading: var(--phd-type-body-sm-leading);
+    --phd-type-r-body-tracking: var(--phd-type-body-sm-tracking);
+  }
+}

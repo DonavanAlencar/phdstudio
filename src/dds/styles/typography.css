@@ -1,0 +1,146 @@
+/**
+ * PHD DDS — Typography utility classes (opt-in)
+ * Consumem exclusivamente tokens --phd-*; escala responsiva --phd-type-r-*.
+ * Não aplicadas à Landing legada — migração na Fase 05B.2B.
+ */
+
+/* ─── Display ─── */
+.phd-type-display-xl {
+  font-family: var(--phd-font-role-display);
+  font-size: var(--phd-type-r-display-xl-size);
+  line-height: var(--phd-type-r-display-xl-leading);
+  letter-spacing: var(--phd-type-r-display-xl-tracking);
+  font-weight: var(--phd-font-weight-bold);
+  font-feature-settings: var(--phd-font-features-display);
+}
+
+.phd-type-display {
+  font-family: var(--phd-font-role-display);
+  font-size: var(--phd-type-r-display-size);
+  line-height: var(--phd-type-r-display-leading);
+  letter-spacing: var(--phd-type-r-display-tracking);
+  font-weight: var(--phd-font-weight-bold);
+  font-feature-settings: var(--phd-font-features-display);
+}
+
+/* ─── Headings ─── */
+.phd-type-heading-1 {
+  font-family: var(--phd-font-role-heading);
+  font-size: var(--phd-type-r-heading-1-size);
+  line-height: var(--phd-type-r-heading-1-leading);
+  letter-spacing: var(--phd-type-r-heading-1-tracking);
+  font-weight: var(--phd-font-weight-semibold);
+  font-feature-settings: var(--phd-font-features-display);
+}
+
+.phd-type-heading-2 {
+  font-family: var(--phd-font-role-heading);
+  font-size: var(--phd-type-r-heading-2-size);
+  line-height: var(--phd-type-r-heading-2-leading);
+  letter-spacing: var(--phd-type-r-heading-2-tracking);
+  font-weight: var(--phd-font-weight-semibold);
+  font-feature-settings: var(--phd-font-features-display);
+}
+
+.phd-type-heading-3 {
+  font-family: var(--phd-font-role-heading);
+  font-size: var(--phd-type-r-heading-3-size);
+  line-height: var(--phd-type-r-heading-3-leading);
+  letter-spacing: var(--phd-type-r-heading-3-tracking);
+  font-weight: var(--phd-font-weight-semibold);
+  font-feature-settings: var(--phd-font-features-display);
+}
+
+/* ─── Title ─── */
+.phd-type-title {
+  font-family: var(--phd-font-role-body);
+  font-size: var(--phd-type-r-title-size);
+  line-height: var(--phd-type-r-title-leading);
+  letter-spacing: var(--phd-type-r-title-tracking);
+  font-weight: var(--phd-font-weight-medium);
+  font-feature-settings: var(--phd-font-features-body);
+}
+
+/* ─── Body ─── */
+.phd-type-body-lg,
+.phd-type-body {
+  font-family: var(--phd-font-role-body);
+  font-size: var(--phd-type-r-body-size);
+  line-height: var(--phd-type-r-body-leading);
+  letter-spacing: var(--phd-type-r-body-tracking);
+  font-weight: var(--phd-font-weight-regular);
+  font-feature-settings: var(--phd-font-features-body);
+}
+
+.phd-type-body-sm {
+  font-family: var(--phd-font-role-body);
+  font-size: var(--phd-type-r-body-sm-size);
+  line-height: var(--phd-type-r-body-sm-leading);
+  letter-spacing: var(--phd-type-r-body-sm-tracking);
+  font-weight: var(--phd-font-weight-regular);
+  font-feature-settings: var(--phd-font-features-body);
+}
+
+/* ─── Caption ─── */
+.phd-type-caption {
+  font-family: var(--phd-font-role-body);
+  font-size: var(--phd-type-r-caption-size);
+  line-height: var(--phd-type-r-caption-leading);
+  letter-spacing: var(--phd-type-r-caption-tracking);
+  font-weight: var(--phd-font-weight-regular);
+  font-feature-settings: var(--phd-font-features-body);
+}
+
+/* ─── Label ─── */
+.phd-type-label {
+  font-family: var(--phd-font-role-label);
+  font-size: var(--phd-type-r-label-size);
+  line-height: var(--phd-type-r-label-leading);
+  letter-spacing: var(--phd-type-r-label-tracking);
+  font-weight: var(--phd-font-weight-medium);
+  text-transform: var(--phd-text-transform-uppercase);
+  font-feature-settings: var(--phd-font-features-body);
+}
+
+/* ─── Mono / dados ─── */
+.phd-type-mono {
+  font-family: var(--phd-font-role-mono);
+  font-size: var(--phd-type-r-mono-size);
+  line-height: var(--phd-type-r-mono-leading);
+  letter-spacing: var(--phd-type-r-mono-tracking);
+  font-weight: var(--phd-font-weight-medium);
+  font-feature-settings: var(--phd-font-features-data);
+  font-variant-numeric: var(--phd-font-variant-numeric-tabular);
+}
+
+.phd-type-mono-lg {
+  font-family: var(--phd-font-role-mono);
+  font-size: var(--phd-type-r-mono-lg-size);
+  line-height: var(--phd-type-r-mono-lg-leading);
+  letter-spacing: var(--phd-type-r-mono-lg-tracking);
+  font-weight: var(--phd-font-weight-medium);
+  font-feature-settings: var(--phd-font-features-data);
+  font-variant-numeric: var(--phd-font-variant-numeric-tabular);
+}
+
+/* ─── Hierarquia de cor (opacidade) ─── */
+.phd-type-color-primary {
+  color: var(--phd-text-primary);
+}
+
+.phd-type-color-secondary {
+  color: var(--phd-text-secondary);
+}
+
+.phd-type-color-tertiary {
+  color: var(--phd-text-tertiary);
+}
+
+.phd-type-color-inverse {
+  color: var(--phd-text-inverse);
+}
+
+/* Leitura longa — max-width semântico */
+.phd-type-prose {
+  max-width: 65ch;
+}

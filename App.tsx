@@ -20,7 +20,7 @@ import ClientsManagement from './src/components/Logs/ClientsManagement';
 import ScrollVideoBackground from './src/components/ScrollVideoBackground';
 import FloatingWhatsAppButton from './src/components/FloatingWhatsAppButton';
 import InstitutionalBrandsMarquee from './src/components/InstitutionalBrandsMarquee';
-import { Surface, Container, Section, Divider } from '@/src/dds';
+import { Surface, Container, Section, Divider, SectionHeader } from '@/src/dds';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 // Admin CRM removido - foi transportado para outro lugar
 import {
@@ -3079,6 +3079,7 @@ const StrategicHero = () => (
 const ProblemSection = () => (
   <Section
     id="problema"
+    labelledBy="problema-heading"
     className="pt-12 pb-20 md:pt-14 md:pb-24 bg-black/40"
     decor={
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
@@ -3086,7 +3087,11 @@ const ProblemSection = () => (
   >
     <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
       <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious">
-        <SectionTitle title="O problema real não é tráfego. É arquitetura." />
+        <SectionHeader>
+          <SectionHeader.Title id="problema-heading">
+            O problema real não é tráfego. É arquitetura.
+          </SectionHeader.Title>
+        </SectionHeader>
         <div className="grid lg:grid-cols-3 gap-5 md:gap-6">
           <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
             <h3 className="text-lg font-bold text-white mb-3 leading-snug">
@@ -3117,6 +3122,7 @@ const ProblemSection = () => (
 const ContentGrowthPillarsSection = () => (
   <Section
     id="como-crescimento"
+    labelledBy="como-crescimento-heading"
     className="py-20 md:py-24 bg-black/40"
     decor={
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
@@ -3124,7 +3130,11 @@ const ContentGrowthPillarsSection = () => (
   >
     <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
       <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious">
-        <SectionTitle title="Como transformamos conteúdo em crescimento" centered />
+        <SectionHeader align="center">
+          <SectionHeader.Title id="como-crescimento-heading">
+            Como transformamos conteúdo em crescimento
+          </SectionHeader.Title>
+        </SectionHeader>
         <div className="grid md:grid-cols-3 gap-5 md:gap-6 mt-4">
           <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default text-center flex flex-col items-center gap-4">
             <div className="rounded-2xl bg-brand-red/15 border border-brand-red/30 p-4 text-brand-red">

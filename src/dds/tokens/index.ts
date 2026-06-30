@@ -16,7 +16,26 @@ export {
   dataColors,
 } from './colors';
 export { spacing, spaceInline, spaceStack, padding } from './spacing';
-export { typography, fontFamily, fontSize, lineHeight, fontWeight, letterSpacing } from './typography';
+export {
+  typography,
+  fontFamily,
+  fontRoles,
+  fontFallbackSans,
+  fontFallbackMono,
+  fontDisplayStrategy,
+  fontFeatures,
+  fontVariantNumeric,
+  textTransform,
+  fontSize,
+  fontSizeResponsive,
+  lineHeight,
+  fontWeight,
+  letterSpacing,
+  typeScaleStatic,
+  typeScaleResponsive,
+  type FontRole,
+  type TypeScaleToken,
+} from './typography';
 export { radius, chamferClip } from './radius';
 export { elevation, shadow, highlight, glow } from './elevation';
 export { opacity, blur } from './opacity';

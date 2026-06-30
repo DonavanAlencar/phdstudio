@@ -1,0 +1,36 @@
+/**
+ * PHD DDS — Font loading strategy
+ *
+ * Famílias carregadas via Google Fonts em index.html (display=swap).
+ * Papéis: Display/Heading (Michroma), Body/Label (Inter), Mono (JetBrains Mono).
+ * Legado: Montserrat permanece via tailwind font-heading até Fase 05B.2B.
+ *
+ * CLS: font-display swap + fallbacks system-ui; escala fixa via tokens rem.
+ * Self-host: migrar para public/fonts/ em fase futura para cache e subsetting.
+ */
+
+/* Aplicação opt-in de font-feature-settings por papel */
+.phd-font-features-body {
+  font-feature-settings: var(--phd-font-features-body);
+}
+
+.phd-font-features-display {
+  font-feature-settings: var(--phd-font-features-display);
+}
+
+.phd-font-features-mono {
+  font-feature-settings: var(--phd-font-features-mono);
+}
+
+.phd-font-features-data {
+  font-feature-settings: var(--phd-font-features-data);
+  font-variant-numeric: var(--phd-font-variant-numeric-tabular);
+}
+
+.phd-font-variant-tabular {
+  font-variant-numeric: var(--phd-font-variant-numeric-tabular);
+}
+
+.phd-font-variant-proportional {
+  font-variant-numeric: var(--phd-font-variant-numeric-proportional);
+}

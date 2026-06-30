@@ -4,5 +4,8 @@
  */
 
 @import './variables.css';
+@import './typography-scale.css';
+@import './fonts.css';
+@import './typography.css';
 @import './materials.css';
 @import './motion.css';
