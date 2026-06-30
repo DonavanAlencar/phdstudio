@@ -1,5 +1,5 @@
 import React from 'react';
-import { Surface, Container, Section, SectionHeader, Body } from '@/src/dds';
+import { Surface, Container, Section, SectionHeader, Body, Button, VideoCard } from '@/src/dds';
 
 interface StrategicVideoItem {
   id: string;
@@ -34,56 +34,6 @@ const STRATEGIC_VIDEOS: StrategicVideoItem[] = [
   },
 ];
 
-const FeaturedVideoCard: React.FC<{ video: StrategicVideoItem }> = ({ video }) => (
-  <article
-    className="group rounded-3xl border-2 border-white/15 bg-brand-gray/45 backdrop-blur-md overflow-hidden shadow-2xl shadow-black/40 transition-all duration-300 ease-out hover:border-brand-red/40"
-    aria-label="Vídeo em destaque — conteúdo estruturado"
-  >
-    <div className="aspect-video md:aspect-[21/9] bg-black/60">
-      <iframe
-        src={`https://www.youtube.com/embed/${video.youtubeId}?rel=0&modestbranding=1&playsinline=1`}
-        title="Conteúdo estratégico em destaque"
-        className="w-full h-full"
-        loading="lazy"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerPolicy="strict-origin-when-cross-origin"
-        allowFullScreen
-      />
-    </div>
-    <div className="p-6 md:p-8">
-      <Body size="lg" spacing="none">
-        {video.description}
-      </Body>
-    </div>
-  </article>
-);
-
-const SecondaryVideoCard: React.FC<{ video: StrategicVideoItem; index: number }> = ({
-  video,
-  index,
-}) => (
-  <article
-    className="group rounded-2xl border border-white/10 bg-brand-gray/35 backdrop-blur-md overflow-hidden shadow-lg shadow-black/25 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/20"
-  >
-    <div className="aspect-video bg-black/60">
-      <iframe
-        src={`https://www.youtube.com/embed/${video.youtubeId}?rel=0&modestbranding=1&playsinline=1`}
-        title={`Conteúdo estratégico ${index + 2}`}
-        className="w-full h-full"
-        loading="lazy"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerPolicy="strict-origin-when-cross-origin"
-        allowFullScreen
-      />
-    </div>
-    <div className="p-5 md:p-6">
-      <Body size="sm" muted spacing="none">
-        {video.description}
-      </Body>
-    </div>
-  </article>
-);
-
 const StrategicContentVideoSection: React.FC = () => {
   const displayedVideos = STRATEGIC_VIDEOS.slice(0, 4);
   const [featured, ...secondary] = displayedVideos;
@@ -91,14 +41,8 @@ const StrategicContentVideoSection: React.FC = () => {
   return (
     <Section
       id="arquitetura-conteudo"
-      className="py-20 md:py-28 bg-black/40"
+      className="py-20 md:py-28"
       labelledBy="strategic-content-heading"
-      decor={
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85"
-          aria-hidden="true"
-        />
-      }
     >
       <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
         <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious">
@@ -112,25 +56,46 @@ const StrategicContentVideoSection: React.FC = () => {
           </SectionHeader>
 
           <div className="space-y-8 md:space-y-10">
-            {featured && <FeaturedVideoCard video={featured} />}
+            {featured && (
+              <VideoCard
+                featured
+                youtubeId={featured.youtubeId}
+                title="Conteúdo estratégico em destaque"
+                description={
+                  <Body size="lg" spacing="none">
+                    {featured.description}
+                  </Body>
+                }
+              />
+            )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               {secondary.map((video, index) => (
-                <SecondaryVideoCard key={video.id} video={video} index={index} />
+                <VideoCard
+                  key={video.id}
+                  youtubeId={video.youtubeId}
+                  title={`Conteúdo estratégico ${index + 2}`}
+                  description={
+                    <Body size="sm" muted spacing="none">
+                      {video.description}
+                    </Body>
+                  }
+                />
               ))}
             </div>
           </div>
 
           <div className="mt-10 md:mt-12 flex justify-center">
-            <a
+            <Button
+              as="a"
               href="https://www.youtube.com/@phdstudiobr"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-brand-gray/40 px-6 py-3 transition-all hover:border-red-600 hover:bg-red-600"
+              variant="secondary"
             >
-              <Body as="span" className="font-phd-semibold text-phd-primary">
+              <Body as="span" className="font-phd-semibold">
                 Ver portfólio completo
               </Body>
-            </a>
+            </Button>
           </div>
         </Surface>
       </Container>

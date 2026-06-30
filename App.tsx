@@ -20,7 +20,7 @@ import ClientsManagement from './src/components/Logs/ClientsManagement';
 import ScrollVideoBackground from './src/components/ScrollVideoBackground';
 import FloatingWhatsAppButton from './src/components/FloatingWhatsAppButton';
 import InstitutionalBrandsMarquee from './src/components/InstitutionalBrandsMarquee';
-import { Surface, Container, Section, Divider, SectionHeader, Display, Heading, Body, Label } from '@/src/dds';
+import { Surface, Container, Section, Divider, SectionHeader, Display, Heading, Body, Label, Button, Card, Input, Textarea, Toast } from '@/src/dds';
 import { saveAccessLog, saveLoginLog, getAccessLogs, getLoginLogs } from './src/utils/logsStorage';
 // Admin CRM removido - foi transportado para outro lugar
 import {
@@ -1596,10 +1596,7 @@ const ContactForm = () => {
   return (
     <Section
       id="contato"
-      className="py-20 md:py-28 bg-black/40"
-      decor={
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80" aria-hidden="true" />
-      }
+      className="py-20 md:py-28"
     >
       <Container variant="narrow" paddingX="compact" className="relative z-phd-raised">
         <Surface material="graphite" chamfer="md" padding="default" className="shadow-phd-elevated">
@@ -1614,28 +1611,27 @@ const ContactForm = () => {
           </SectionHeader>
         </div>
 
-        <div className="mb-10 rounded-2xl border border-white/15 bg-gradient-to-b from-brand-gray/40 to-black/30 px-6 py-7 md:px-8 md:py-8 text-center space-y-4">
+        <Surface material="graphite" chamfer="md" padding="default" className="mb-10 text-center space-y-4">
           <Body emphasis spacing="none" className="whitespace-pre-line">
             {`Se você chegou até aqui,\nvocê já percebeu que o problema não é conteúdo.`}
           </Body>
           <Body muted spacing="none" className="whitespace-pre-line">
             {`Agora a decisão é simples:\n\ncontinuar tentando…\nou estruturar de verdade.`}
           </Body>
-        </div>
+        </Surface>
 
-        <form onSubmit={handleSubmit} className="bg-brand-dark/40 border border-white/10 rounded-2xl p-8 md:p-10 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <Label htmlFor="name" spacing="default" className="block">
               Nome completo
             </Label>
-            <input
+            <Input
               type="text"
               id="name"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-phd-primary placeholder:text-phd-tertiary focus:outline-none focus:border-brand-red transition-colors"
               placeholder="Seu nome"
             />
           </div>
@@ -1644,14 +1640,13 @@ const ContactForm = () => {
             <Label htmlFor="email" spacing="default" className="block">
               E-mail
             </Label>
-            <input
+            <Input
               type="email"
               id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-phd-primary placeholder:text-phd-tertiary focus:outline-none focus:border-brand-red transition-colors"
               placeholder="seu@email.com"
             />
           </div>
@@ -1660,14 +1655,13 @@ const ContactForm = () => {
             <Label htmlFor="phone" spacing="default" className="block">
               WhatsApp
             </Label>
-            <input
+            <Input
               type="tel"
               id="phone"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               required
-              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-phd-primary placeholder:text-phd-tertiary focus:outline-none focus:border-brand-red transition-colors"
               placeholder="(11) 99999-9999"
             />
           </div>
@@ -1676,13 +1670,12 @@ const ContactForm = () => {
             <Label htmlFor="message" spacing="default" className="block">
               Mensagem (opcional)
             </Label>
-            <textarea
+            <Textarea
               id="message"
               name="message"
               value={formData.message}
               onChange={handleChange}
               rows={4}
-              className="w-full bg-brand-gray/40 border border-white/10 rounded-lg px-4 py-3 text-phd-primary placeholder:text-phd-tertiary focus:outline-none focus:border-brand-red transition-colors resize-none"
               placeholder="Descreva seu cenário atual, ticket, canais e principal gargalo de crescimento..."
             />
           </div>
@@ -1693,7 +1686,7 @@ const ContactForm = () => {
                 id="lgpd-consent"
                 type="checkbox"
                 required
-                className="mt-1 h-4 w-4 rounded border-white/20 bg-brand-gray/40 text-brand-red focus:ring-brand-red"
+                className="mt-1 h-4 w-4 phd-chamfer-sm border border-phd-border-default bg-phd-surface-recessed text-phd-accent-brand phd-focus-ring"
               />
               <Body as="span" size="sm" muted spacing="none">
                 Autorizo o uso dos meus dados para contato comercial e envio de comunicações da PHD Studio.
@@ -1704,89 +1697,77 @@ const ContactForm = () => {
               </Body>
             </label>
 
-            <button
+            <Button
               type="submit"
+              variant="cta"
+              loading={isLoading}
               disabled={isLoading}
-              className="w-full bg-brand-red px-8 py-4 rounded-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 text-phd-inverse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <Body as="span" className="font-phd-semibold text-phd-inverse">
-                    Enviando...
-                  </Body>
-                </>
+                <Body as="span" className="font-phd-semibold text-phd-inverse">
+                  Enviando...
+                </Body>
               ) : (
                 <Body as="span" className="font-phd-semibold text-phd-inverse">
                   Quero um diagnóstico do meu conteúdo
                 </Body>
               )}
-            </button>
+            </Button>
           </div>
 
-          {/* Mensagens de feedback - Sucesso */}
           {submitStatus === 'success' && (
-            <div className="mt-6 p-6 bg-gradient-to-r from-green-500/30 to-emerald-500/30 border-2 border-green-500 rounded-xl text-center shadow-lg shadow-green-500/20 animate-pulse">
-              <div className="flex flex-col items-center justify-center gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="bg-green-500/20 p-3 rounded-full animate-bounce">
-                    <Check size={28} className="text-phd-state-success" strokeWidth={3} />
-                  </div>
-                  <Body emphasis className="text-phd-state-success" spacing="none">
-                    ✓ E-mail enviado com sucesso!
-                  </Body>
-                </div>
-                <Body size="sm" className="text-phd-state-success mt-2" spacing="none">
+            <Toast
+              variant="success"
+              className="mt-phd-stack-md mx-auto"
+              onDismiss={() => setSubmitStatus('idle')}
+            >
+              <div className="space-y-phd-stack-sm text-left">
+                <Body emphasis className="text-phd-state-success" spacing="none">
+                  ✓ E-mail enviado com sucesso!
+                </Body>
+                <Body size="sm" className="text-phd-state-success" spacing="none">
                   Recebemos sua mensagem e entraremos em contato em breve.
                 </Body>
-                <div className="mt-3 flex items-center gap-2 bg-green-500/10 px-4 py-2 rounded-lg">
-                  <Phone size={16} className="text-phd-state-success" />
+                <div className="flex items-center gap-phd-inline-sm">
+                  <Phone size={16} className="text-phd-state-success shrink-0" aria-hidden />
                   <Body as="span" size="sm" className="text-phd-state-success" spacing="none">
                     Ou entre em contato pelo WhatsApp se preferir
                   </Body>
                 </div>
               </div>
-            </div>
+            </Toast>
           )}
 
-          {/* Mensagens de feedback - Erro */}
           {submitStatus === 'error' && (
-            <div className="mt-6 p-6 bg-gradient-to-r from-red-500/30 to-rose-500/30 border-2 border-red-500 rounded-xl text-center shadow-lg shadow-red-500/20">
-              <div className="flex flex-col items-center justify-center gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="bg-red-500/20 p-3 rounded-full">
-                    <X size={28} className="text-phd-state-error" strokeWidth={3} />
-                  </div>
-                  <Body emphasis className="text-phd-state-error" spacing="none">
-                    ✗ Erro ao enviar e-mail
-                  </Body>
-                </div>
+            <Toast
+              variant="error"
+              className="mt-phd-stack-md mx-auto"
+              onDismiss={() => setSubmitStatus('idle')}
+              autoDismissMs={0}
+            >
+              <div className="space-y-phd-stack-sm text-left">
+                <Body emphasis className="text-phd-state-error" spacing="none">
+                  ✗ Erro ao enviar e-mail
+                </Body>
                 {errorMessage && (
-                  <div className="mt-3 p-4 bg-red-500/20 border border-red-500/50 rounded-lg w-full">
-                    <Body size="sm" emphasis className="text-phd-state-error" spacing="none">
-                      {errorMessage}
-                    </Body>
-                  </div>
-                )}
-                <div className="mt-4 flex flex-col gap-3 w-full">
-                  <Body size="sm" className="text-phd-state-error" spacing="none">
-                    Por favor, tente novamente em alguns instantes.
+                  <Body size="sm" emphasis className="text-phd-state-error" spacing="none">
+                    {errorMessage}
                   </Body>
-                  <div className="flex items-center justify-center gap-2 bg-red-500/10 px-4 py-2 rounded-lg">
-                    <Phone size={18} className="text-phd-state-error" />
-                    <Body as="span" size="sm" className="text-phd-state-error" spacing="none">
-                      Ou entre em contato diretamente pelo WhatsApp
-                    </Body>
-                  </div>
+                )}
+                <Body size="sm" className="text-phd-state-error" spacing="none">
+                  Por favor, tente novamente em alguns instantes.
+                </Body>
+                <div className="flex items-center gap-phd-inline-sm">
+                  <Phone size={18} className="text-phd-state-error shrink-0" aria-hidden />
+                  <Body as="span" size="sm" className="text-phd-state-error" spacing="none">
+                    Ou entre em contato diretamente pelo WhatsApp
+                  </Body>
                 </div>
-                <Body as="p" size="sm" muted spacing="none" className="mt-3">
+                <Body as="p" size="sm" muted spacing="none">
                   (Verifique o console do navegador para mais detalhes técnicos)
                 </Body>
               </div>
-            </div>
+            </Toast>
           )}
         </form>
         </Surface>
@@ -1796,7 +1777,7 @@ const ContactForm = () => {
 };
 
 const Footer = () => (
-  <footer className="bg-black/40 pb-10">
+  <footer className="bg-phd-surface-obsidian pb-10">
     <Divider className="mt-0 mb-0" />
     <Container variant="wide" paddingX="compact" className="pt-phd-stack-xl">
       <Surface material="graphite" chamfer="md" padding="default" className="shadow-phd-elevated">
@@ -1818,7 +1799,7 @@ const Footer = () => (
           </Body>
         </div>
 
-        <div className="bg-brand-gray/40 p-8 rounded-2xl text-left md:text-right w-full md:w-auto">
+        <Surface material="graphite" chamfer="md" padding="default" className="text-left md:text-right w-full md:w-auto">
           <Heading level={4} spacing="none" className="mb-2">
             Pronto para escalar?
           </Heading>
@@ -1827,13 +1808,13 @@ const Footer = () => (
           </Body>
           <a
             href="#contato"
-            className="bg-brand-red w-full px-8 py-4 rounded-lg hover:bg-red-700 transition-colors shadow-lg shadow-brand-red/20 text-center block"
+            className="block w-full text-center min-h-[48px] px-phd-5 py-phd-3 phd-chamfer-sm bg-phd-surface-graphite-deep border border-phd-border-default shadow-phd-contact phd-overlay-hover hover:shadow-phd-raised phd-focus-ring phd-motion-press phd-transition-fast"
           >
-            <Body as="span" className="font-phd-semibold text-phd-inverse">
+            <Body as="span" className="font-phd-semibold text-phd-primary">
               SOLICITAR DIAGNÓSTICO
             </Body>
           </a>
-        </div>
+        </Surface>
       </div>
 
       <Divider className="my-0 mt-phd-stack-lg" />
@@ -3067,12 +3048,6 @@ const StrategicHero = () => (
   <Section
     className="min-h-[88vh] md:min-h-[90vh] flex items-center justify-center pt-28 pb-12 md:pt-32 md:pb-16"
     scrollMargin={false}
-    decor={
-      <>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black via-neutral-950 to-black" aria-hidden />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_0%,rgba(229,9,20,0.18),transparent_55%)]" aria-hidden />
-      </>
-    }
   >
     <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
       <div className="max-w-5xl mx-auto text-center lg:text-left">
@@ -3080,7 +3055,7 @@ const StrategicHero = () => (
           as="h1"
           scale="display-xl"
           spacing="none"
-          className="[text-wrap:balance] drop-shadow-[0_4px_32px_rgba(0,0,0,0.85)]"
+          className="[text-wrap:balance]"
         >
           Seu conteúdo não gera{' '}
           <span className="text-phd-accent-brand">clientes?</span>
@@ -3125,10 +3100,7 @@ const ProblemSection = () => (
   <Section
     id="problema"
     labelledBy="problema-heading"
-    className="pt-12 pb-20 md:pt-14 md:pb-24 bg-black/40"
-    decor={
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
-    }
+    className="pt-12 pb-20 md:pt-14 md:pb-24"
   >
     <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
       <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious">
@@ -3138,30 +3110,30 @@ const ProblemSection = () => (
           </SectionHeader.Title>
         </SectionHeader>
         <div className="grid lg:grid-cols-3 gap-5 md:gap-6">
-          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
+          <Card padding="compact" className="md:p-phd-default">
             <Heading level={3} scale="title" spacing="none" className="mb-3">
               Você não sabe por que seu conteúdo não vende
             </Heading>
             <Body size="sm" spacing="none">
               Posta com frequência, mas não consegue entender o que gera resultado.
             </Body>
-          </Surface>
-          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
+          </Card>
+          <Card padding="compact" className="md:p-phd-default">
             <Heading level={3} scale="title" spacing="none" className="mb-3">
               Você produz sem direção clara
             </Heading>
             <Body size="sm" spacing="none">
               Falta estrutura. Cada conteúdo é isolado, sem função estratégica.
             </Body>
-          </Surface>
-          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default">
+          </Card>
+          <Card padding="compact" className="md:p-phd-default">
             <Heading level={3} scale="title" spacing="none" className="mb-3">
               Seu esforço não escala
             </Heading>
             <Body size="sm" spacing="none">
               Você investe tempo, mas não constrói um sistema que gera retorno contínuo.
             </Body>
-          </Surface>
+          </Card>
         </div>
       </Surface>
     </Container>
@@ -3172,10 +3144,7 @@ const ContentGrowthPillarsSection = () => (
   <Section
     id="como-crescimento"
     labelledBy="como-crescimento-heading"
-    className="py-20 md:py-24 bg-black/40"
-    decor={
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/85 via-black/60 to-black/85" />
-    }
+    className="py-20 md:py-24"
   >
     <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
       <Surface material="graphite-raised" padding="default" chamfer="lg" className="md:p-phd-spacious">
@@ -3185,33 +3154,33 @@ const ContentGrowthPillarsSection = () => (
           </SectionHeader.Title>
         </SectionHeader>
         <div className="grid md:grid-cols-3 gap-5 md:gap-6 mt-4">
-          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default text-center flex flex-col items-center gap-4">
-            <div className="rounded-2xl bg-brand-red/15 border border-brand-red/30 p-4 text-brand-red">
+          <Card padding="compact" className="md:p-phd-default text-center flex flex-col items-center gap-4">
+            <Card.Icon accent="brand">
               <Target size={28} strokeWidth={2.2} aria-hidden />
-            </div>
+            </Card.Icon>
             <Heading level={3} spacing="none">Aquisição</Heading>
             <Body size="sm" muted spacing="none">
               Conteúdo que atrai atenção qualificada — não apenas visualizações.
             </Body>
-          </Surface>
-          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default text-center flex flex-col items-center gap-4">
-            <div className="rounded-2xl bg-brand-red/15 border border-brand-red/30 p-4 text-brand-red">
+          </Card>
+          <Card padding="compact" className="md:p-phd-default text-center flex flex-col items-center gap-4">
+            <Card.Icon accent="brand">
               <TrendingUp size={28} strokeWidth={2.2} aria-hidden />
-            </div>
+            </Card.Icon>
             <Heading level={3} spacing="none">Conversão</Heading>
             <Body size="sm" muted spacing="none">
               Estrutura que transforma atenção em interesse real e oportunidades.
             </Body>
-          </Surface>
-          <Surface as="article" material="graphite" padding="compact" chamfer="md" interactive className="md:p-phd-default text-center flex flex-col items-center gap-4">
-            <div className="rounded-2xl bg-purple-500/15 border border-purple-500/30 p-4 text-purple-300">
+          </Card>
+          <Card padding="compact" className="md:p-phd-default text-center flex flex-col items-center gap-4">
+            <Card.Icon accent="flow">
               <Layers size={28} strokeWidth={2.2} aria-hidden />
-            </div>
+            </Card.Icon>
             <Heading level={3} spacing="none">Infraestrutura</Heading>
             <Body size="sm" muted spacing="none">
               Um sistema que sustenta e escala resultados ao longo do tempo.
             </Body>
-          </Surface>
+          </Card>
         </div>
       </Surface>
     </Container>
@@ -3222,16 +3191,10 @@ const CreativeSpotlightSection = () => (
   <Section
     id="phd-creative-destaque"
     className="py-24 md:py-32"
-    decor={
-      <>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-950/90 via-neutral-950 to-black" aria-hidden />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_20%,rgba(168,85,247,0.22),transparent_55%)]" aria-hidden />
-      </>
-    }
   >
     <Container variant="wide" paddingX="compact" className="relative z-phd-raised">
-      <div className="relative rounded-3xl border-2 border-purple-400/40 bg-gradient-to-b from-purple-500/10 via-white/[0.05] to-black/50 p-8 md:p-12 lg:p-16 shadow-[0_0_80px_-8px_rgba(168,85,247,0.45),0_25px_50px_-12px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
-        <Label spacing="none" className="text-center lg:text-left mb-6 lg:mb-8">
+      <Surface material="graphite-raised" chamfer="lg" padding="spacious" className="shadow-phd-elevated">
+        <Label spacing="none" className="text-phd-accent-creative text-center lg:text-left mb-6 lg:mb-8">
           Esse é o ponto onde tudo muda.
         </Label>
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
@@ -3242,30 +3205,26 @@ const CreativeSpotlightSection = () => (
             <Body emphasis size="lg" spacing="none" className="max-w-xl whitespace-pre-line">
               {`É aqui que o conteúdo deixa de ser estética\ne passa a funcionar como um ativo de crescimento.`}
             </Body>
-            <a
+            <Button
+              as="a"
               href="https://phdstudio.com.br/creative"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-brand-red px-8 py-4 md:px-10 md:py-5 rounded-xl hover:bg-red-700 transition-all shadow-xl shadow-brand-red/50 ring-2 ring-white/10"
+              variant="secondary"
+              size="lg"
+              iconRight={<ArrowRight size={18} aria-hidden />}
             >
-              <Body as="span" className="font-phd-semibold text-phd-inverse">
+              <Body as="span" className="font-phd-semibold">
                 Ver como funciona o Creative
               </Body>
-              <ArrowRight size={18} />
-            </a>
+            </Button>
           </div>
           <div className="order-1 lg:order-2">
-            <div
-              className="relative rounded-xl ring-2 ring-purple-500/35 overflow-hidden"
-              style={{
-                boxShadow:
-                  '0 28px 64px -20px rgba(0,0,0,0.85), 0 0 48px -12px rgba(168, 85, 247, 0.25)',
-              }}
-            >
+            <div className="relative phd-chamfer-md border border-phd-border-default shadow-phd-elevated overflow-hidden bg-phd-surface-obsidian">
               <img
                 src="/banners/creative-banner.jpg"
                 alt="PHD Studio Creative"
-                className="w-full h-auto object-contain align-middle bg-black/40"
+                className="w-full h-auto object-contain align-middle"
                 width={1600}
                 height={900}
                 loading="lazy"
@@ -3274,7 +3233,7 @@ const CreativeSpotlightSection = () => (
             </div>
           </div>
         </div>
-      </div>
+      </Surface>
     </Container>
   </Section>
 );

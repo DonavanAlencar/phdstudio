@@ -147,7 +147,7 @@ const ScrollVideoBackground: React.FC = () => {
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-black min-h-[100vh] min-h-[100dvh]"
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-phd-surface-obsidian min-h-[100vh] min-h-[100dvh]"
       aria-hidden="true"
       style={{ transform: 'translateZ(0)' }}
     >
@@ -163,7 +163,7 @@ const ScrollVideoBackground: React.FC = () => {
         onLoadedMetadata={handleLoadedMetadata}
       />
       {/* Optional subtle overlay to ensure readability */}
-      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0 bg-phd-surface-obsidian opacity-[var(--phd-opacity-low)]" />
     </div>
   );
 };

@@ -28,47 +28,9 @@ export default function InstitutionalBrandsMarquee() {
   const track = [...INSTITUTIONAL_LOGOS, ...INSTITUTIONAL_LOGOS];
 
   return (
-    <div className="institutional-band relative overflow-hidden py-14 sm:py-16 md:py-20 lg:py-24">
-      {/* Continuidade com o hero: mesma família de luz e temperatura */}
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-neutral-950/90 via-[#030303] to-[#000000]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_45%_at_50%_-8%,rgba(229,9,20,0.075),transparent_58%)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_108%,rgba(255,255,255,0.028),transparent_55%)]"
-        aria-hidden
-      />
-      {/* Ponte com a seção problema: continuidade editorial escura */}
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 bg-gradient-to-t from-black/85 via-black/25 to-transparent md:h-32"
-        aria-hidden
-      />
-
-      {/* Ruído + grade: quase imperceptíveis */}
-      <div className="institutional-noise pointer-events-none absolute inset-0 z-[1] opacity-[0.45] mix-blend-overlay" aria-hidden />
-      <div
-        className="pointer-events-none absolute inset-0 z-[1] opacity-[0.28] [background-image:linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] [background-size:64px_64px] md:[background-size:72px_72px]"
-        aria-hidden
-      />
-      {/* Micro varredura estática (sem animação de sci-fi) */}
-      <div className="institutional-scan pointer-events-none absolute inset-0 z-[1]" aria-hidden />
-
-      {/* Fade lateral cinematográfico */}
-      <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-[2] w-20 bg-gradient-to-r from-black via-black/70 to-transparent sm:w-28 md:w-40 lg:w-52"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-[2] w-20 bg-gradient-to-l from-black via-black/70 to-transparent sm:w-28 md:w-40 lg:w-52"
-        aria-hidden
-      />
-
+    <div className="institutional-band relative overflow-hidden bg-phd-surface-obsidian py-14 sm:py-16 md:py-20 lg:py-24">
       <section
-        className="relative z-[3] mx-auto w-full overflow-hidden"
+        className="relative z-phd-raised mx-auto w-full overflow-hidden"
         aria-label="Presença institucional acumulada"
       >
         <div className="institutional-marquee-gpu relative mx-auto overflow-hidden px-1 md:px-2">
