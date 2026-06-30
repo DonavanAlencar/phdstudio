@@ -1,4 +1,5 @@
 # Deploy PHD Studio: SSH no servidor e executa deploy-remote.sh (Docker)
+# Sincronização Git: exclusivamente em deploy/docker/scripts/deploy-remote.sh (sync_to_remote)
 name: Deploy to Server
 
 on:
@@ -13,33 +14,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      # Porta SSH: use o secret SERVER_SSH_PORT se existir, senão 22
       SSH_PORT: ${{ secrets.SERVER_SSH_PORT || '22' }}
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
     - name: Setup SSH
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-    
+
     - name: Test server connectivity
       timeout-minutes: 2
       continue-on-error: true
       run: |
         echo "🔍 Testando conectividade com o servidor..."
         echo "IP do servidor: ${{ secrets.SERVER_HOST }}"
-        
-        # Testar ping (pode falhar se ICMP estiver bloqueado, mas não é crítico)
+
         if ping -c 2 -W 5 ${{ secrets.SERVER_HOST }} 2>/dev/null; then
           echo "✅ Ping respondeu"
         else
           echo "⚠️ Ping não respondeu (pode ser normal se ICMP estiver bloqueado)"
         fi
-        
-        # Testar porta SSH com timeout e retry
+
         echo "🔌 Testando porta SSH (${{ env.SSH_PORT }})..."
         PORT_ACCESSIBLE=false
         for i in {1..3}; do
@@ -48,23 +43,17 @@ jobs:
             PORT_ACCESSIBLE=true
             break
           else
-            echo "⚠️ Tentativa $i/3: Porta ${{ env.SSH_PORT }} não acessível (pode ser firewall temporário)"
+            echo "⚠️ Tentativa $i/3: Porta ${{ env.SSH_PORT }} não acessível"
             if [ $i -lt 3 ]; then
               sleep 2
             fi
           fi
         done
-        
+
         if [ "$PORT_ACCESSIBLE" = "false" ]; then
-          echo "⚠️ Porta ${{ env.SSH_PORT }} não está acessível (testando continuará com SSH direto)"
-          echo "Possíveis causas:"
-          echo "  - Firewall bloqueando conexões do GitHub Actions (mas pode permitir SSH)"
-          echo "  - Porta SSH pode estar em outra porta (2222, 22022, etc)"
-          echo "  - Servidor pode estar em manutenção"
-          echo ""
-          echo "ℹ️ Continuando com teste SSH direto (pode funcionar mesmo se teste de porta falhar)"
+          echo "⚠️ Porta ${{ env.SSH_PORT }} não acessível — continuando com teste SSH direto"
         fi
-    
+
     - name: Test SSH connection
       timeout-minutes: 2
       run: |
@@ -75,61 +64,19 @@ jobs:
             -o ServerAliveCountMax=3 \
             -o BatchMode=yes \
             -p ${{ env.SSH_PORT }} \
-            -v root@${{ secrets.SERVER_HOST }} 'echo "✅ Conexão SSH OK"' || {
+            root@${{ secrets.SERVER_HOST }} 'echo "✅ Conexão SSH OK"' || {
           echo "❌ Falha ao conectar via SSH"
           echo "Verifique:"
-          echo "  1. Se a chave SSH está configurada corretamente no GitHub Secrets"
-          echo "  2. Se o servidor está acessível (IP: ${{ secrets.SERVER_HOST }}, porta: ${{ env.SSH_PORT }})"
-          echo "  3. Se o firewall permite conexões do GitHub Actions"
-          echo "  4. Guia: docs/troubleshooting-deploy-ssh.md"
+          echo "  1. Chave SSH no GitHub Secrets (SSH_PRIVATE_KEY)"
+          echo "  2. Servidor acessível (${{ secrets.SERVER_HOST }}:${{ env.SSH_PORT }})"
+          echo "  3. Guia: docs/troubleshooting-deploy-ssh.md"
           exit 1
         }
-    
-    - name: Ensure Git is up to date before deploy
-      timeout-minutes: 5
-      run: |
-        echo "🔄 Garantindo que o código está sincronizado no servidor..."
-        ssh -o StrictHostKeyChecking=no \
-            -o ConnectTimeout=20 \
-            -o ServerAliveInterval=30 \
-            -o ServerAliveCountMax=3 \
-            -o BatchMode=yes \
-            -p ${{ env.SSH_PORT }} \
-            root@${{ secrets.SERVER_HOST }} '
-          set -e
-          cd /root/phdstudio || exit 1
-          
-          echo "📥 Fazendo fetch do repositório..."
-          git fetch origin main || git fetch origin master || exit 1
-          
-          echo "🔄 Verificando branch atual..."
-          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          TARGET_BRANCH="main"
-          if [ "$CURRENT_BRANCH" != "main" ]; then
-            if git show-ref --verify --quiet refs/heads/master; then
-              TARGET_BRANCH="master"
-            fi
-          else
-            TARGET_BRANCH="main"
-          fi
-          
-          echo "📍 Branch alvo: $TARGET_BRANCH"
-          if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
-            echo "🔄 Mudando para branch $TARGET_BRANCH..."
-            git checkout "$TARGET_BRANCH" || exit 1
-          fi
-          
-          echo "📥 Fazendo pull para garantir sincronização..."
-          git pull origin "$TARGET_BRANCH" || exit 1
-          
-          echo "✅ Código sincronizado. Commit atual:"
-          git log -1 --oneline
-        '
-    
+
     - name: Deploy to server (Docker / Traefik)
-      timeout-minutes: 10
+      timeout-minutes: 12
       run: |
-        echo "🚀 Iniciando deploy..."
+        echo "🚀 Iniciando deploy remoto (sync Git + Docker em deploy-remote.sh)..."
         ssh -o StrictHostKeyChecking=no \
             -o ConnectTimeout=20 \
             -o ServerAliveInterval=30 \
@@ -139,40 +86,10 @@ jobs:
             root@${{ secrets.SERVER_HOST }} '
           set -e
           cd /root/phdstudio || exit 1
-          
-          # Garantir que estamos no branch correto e atualizado
-          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          TARGET_BRANCH="main"
-          if [ "$CURRENT_BRANCH" != "main" ]; then
-            if git show-ref --verify --quiet refs/heads/master; then
-              TARGET_BRANCH="master"
-            fi
-          else
-            TARGET_BRANCH="main"
-          fi
-          
-          if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
-            git checkout "$TARGET_BRANCH" || exit 1
-          fi
-          
-          # Última verificação de sincronização antes do deploy
-          echo "🔄 Última verificação de sincronização..."
-          git fetch origin "$TARGET_BRANCH" || exit 1
-          LOCAL=$(git rev-parse @)
-          REMOTE=$(git rev-parse "origin/$TARGET_BRANCH")
-          
-          if [ "$LOCAL" != "$REMOTE" ]; then
-            echo "⚠️ Código não está sincronizado. Fazendo pull final..."
-            git pull origin "$TARGET_BRANCH" || exit 1
-          else
-            echo "✅ Código já está sincronizado (commit: $LOCAL)"
-          fi
-          
-          echo "🚀 Executando script de deploy..."
-          chmod +x deploy/docker/scripts/deploy-remote.sh || exit 1
-          ./deploy/docker/scripts/deploy-remote.sh || exit 1
+          chmod +x deploy/docker/scripts/deploy-remote.sh
+          ./deploy/docker/scripts/deploy-remote.sh
         '
-    
+
     - name: Notify deployment
       if: always()
       run: |
@@ -182,9 +99,8 @@ jobs:
           echo "❌ Deploy falhou!"
           echo ""
           echo "Troubleshooting:"
-          echo "1. Verifique se o servidor está online: ping ${{ secrets.SERVER_HOST }}"
-          echo "2. Verifique se a porta SSH está aberta: nc -zv ${{ secrets.SERVER_HOST }} ${{ env.SSH_PORT }}"
-          echo "3. Verifique se a chave SSH está correta no GitHub Secrets"
-          echo "4. Verifique logs do servidor: journalctl -u sshd -n 50"
+          echo "1. Verifique se o servidor está online"
+          echo "2. Verifique porta SSH: ${{ env.SSH_PORT }}"
+          echo "3. Logs no servidor: docker logs phdstudio-app"
+          echo "4. Guia: docs/troubleshooting-deploy-ssh.md"
         fi
-

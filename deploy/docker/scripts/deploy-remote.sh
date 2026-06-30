@@ -23,6 +23,9 @@ GIT_BRANCH="main"
 COMPOSE_FILE="${ROOT_DIR}/deploy/docker/config/docker-compose.yml"
 ENV_FILE="${ROOT_DIR}/deploy/config/shared/.env"
 CONTAINER_NAME="phdstudio-app"
+HEALTH_CHECK_URL="${HEALTH_CHECK_URL:-https://phdstudio.com.br/}"
+HEALTH_CHECK_RETRIES="${HEALTH_CHECK_RETRIES:-12}"
+HEALTH_CHECK_INTERVAL="${HEALTH_CHECK_INTERVAL:-5}"
 
 # Funções de log
 log() {
@@ -116,76 +119,46 @@ check_traefik() {
     fi
 }
 
-git_pull() {
-    log "Atualizando repositório Git..."
-    
-    # Sempre fazer fetch primeiro para garantir que temos as últimas referências
-    git fetch origin "$GIT_BRANCH" || error "Falha ao fazer fetch do Git"
-    
-    # Verificar se estamos no branch correto
-    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    if [ "$CURRENT_BRANCH" != "$GIT_BRANCH" ]; then
-        log "Mudando para o branch $GIT_BRANCH..."
-        git checkout "$GIT_BRANCH" || error "Falha ao mudar para o branch $GIT_BRANCH"
-    fi
-    
-    # Obter commits locais e remotos
-    LOCAL=$(git rev-parse @ 2>/dev/null || echo "")
-    REMOTE=$(git rev-parse "origin/$GIT_BRANCH" 2>/dev/null || echo "")
-    
-    if [ -z "$LOCAL" ] || [ -z "$REMOTE" ]; then
-        error "Não foi possível obter referências do Git. Verifique a conexão e o branch."
-    fi
-    
-    # Se já está atualizado, ainda assim garantir que está sincronizado
-    if [ "$LOCAL" = "$REMOTE" ]; then
-        log "Repositório já está atualizado (local e remoto no mesmo commit)"
-        log "Commit atual: $LOCAL"
-        # Mesmo atualizado, garantir que não há mudanças locais não commitadas
-        if [ -n "$(git status --porcelain)" ]; then
-            warning "Há mudanças locais não commitadas. Fazendo stash..."
-            git stash || warning "Falha ao fazer stash, continuando..."
-        fi
-        return 0
-    fi
-    
-    # Verificar se há commits locais não enviados
-    BASE=$(git merge-base @ "origin/$GIT_BRANCH" 2>/dev/null || echo "")
-    if [ -z "$BASE" ]; then
-        error "Não foi possível encontrar base comum entre local e remoto"
-    fi
-    
-    if [ "$LOCAL" = "$BASE" ]; then
-        # Local está atrás, fazer pull simples
-        log "Atualizações encontradas. Fazendo pull..."
-        git pull origin "$GIT_BRANCH" || error "Falha ao fazer pull do Git"
-        success "Pull do Git concluído com sucesso"
-    elif [ "$REMOTE" = "$BASE" ]; then
-        # Local está à frente (commits não enviados)
-        warning "Repositório local tem commits não enviados. Fazendo pull com merge..."
-        git pull origin "$GIT_BRANCH" --no-rebase || error "Falha ao fazer pull do Git"
-        success "Pull do Git concluído com sucesso"
+# Espelha origin/main (ou origin/master) de forma determinística.
+# Não utiliza git pull — suporta histórico reescrito (amend, rebase, force push).
+sync_to_remote() {
+    local BRANCH=""
+
+    log "Buscando referências remotas..."
+    git fetch origin || error "Falha ao fazer fetch do origin"
+
+    if git show-ref --verify --quiet refs/remotes/origin/main; then
+        BRANCH="main"
+    elif git show-ref --verify --quiet refs/remotes/origin/master; then
+        BRANCH="master"
     else
-        # Divergência (ambos têm commits diferentes)
-        warning "Repositório local e remoto divergiram. Fazendo pull com merge..."
-        git pull origin "$GIT_BRANCH" --no-rebase || error "Falha ao fazer pull do Git (divergência)"
-        success "Pull do Git concluído com sucesso (merge realizado)"
+        error "Nenhum branch origin/main ou origin/master encontrado após fetch"
     fi
-    
-    # Validar que agora está sincronizado
-    LOCAL_AFTER=$(git rev-parse @)
-    REMOTE_AFTER=$(git rev-parse "origin/$GIT_BRANCH")
-    
-    if [ "$LOCAL_AFTER" != "$REMOTE_AFTER" ]; then
-        warning "Aviso: Após pull, local e remoto ainda diferem"
-        warning "Local: $LOCAL_AFTER"
-        warning "Remoto: $REMOTE_AFTER"
-        warning "Continuando com deploy, mas pode haver inconsistências"
+
+    GIT_BRANCH="$BRANCH"
+    log "Branch alvo: $BRANCH (origin é fonte de verdade)"
+
+    if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
+        git checkout "$BRANCH" || error "Falha ao fazer checkout de $BRANCH"
     else
-        success "Repositório sincronizado com sucesso (commit: $LOCAL_AFTER)"
+        git checkout -B "$BRANCH" "origin/$BRANCH" || error "Falha ao criar branch local $BRANCH"
     fi
-    
-    return 0
+
+    log "Sincronizando HEAD com origin/$BRANCH (reset --hard)..."
+    git reset --hard "origin/$BRANCH" || error "Falha ao resetar para origin/$BRANCH"
+
+    log "Removendo artefatos locais não rastreados..."
+    git clean -fd
+
+    LOCAL=$(git rev-parse HEAD)
+    REMOTE=$(git rev-parse "origin/$BRANCH")
+
+    if [ "$LOCAL" != "$REMOTE" ]; then
+        error "Sincronização falhou: HEAD ($LOCAL) != origin/$BRANCH ($REMOTE)"
+    fi
+
+    success "Repositório espelhado em origin/$BRANCH"
+    log "Commit atual: $(git log -1 --oneline)"
 }
 
 stop_existing() {
@@ -231,6 +204,35 @@ check_status() {
     fi
 }
 
+health_check_http() {
+    log "Health check HTTP da Landing: $HEALTH_CHECK_URL"
+
+    if ! command -v curl &> /dev/null; then
+        error "curl não está instalado — necessário para health check HTTP"
+    fi
+
+    local attempt=1
+    while [ "$attempt" -le "$HEALTH_CHECK_RETRIES" ]; do
+        HTTP_CODE=$(curl -sS -o /tmp/phd-health-check-body.html -w "%{http_code}" \
+            --max-time 20 \
+            -L \
+            "$HEALTH_CHECK_URL" 2>/dev/null || echo "000")
+
+        if [ "$HTTP_CODE" = "200" ] && grep -qi "phd" /tmp/phd-health-check-body.html 2>/dev/null; then
+            success "Landing respondeu HTTP 200 com conteúdo válido (tentativa $attempt/$HEALTH_CHECK_RETRIES)"
+            rm -f /tmp/phd-health-check-body.html
+            return 0
+        fi
+
+        warning "Tentativa $attempt/$HEALTH_CHECK_RETRIES: HTTP $HTTP_CODE — aguardando ${HEALTH_CHECK_INTERVAL}s..."
+        sleep "$HEALTH_CHECK_INTERVAL"
+        attempt=$((attempt + 1))
+    done
+
+    rm -f /tmp/phd-health-check-body.html
+    error "Health check HTTP falhou após $HEALTH_CHECK_RETRIES tentativas em $HEALTH_CHECK_URL"
+}
+
 cleanup_images() {
     log "Limpando imagens antigas (docker image prune -f)..."
     docker image prune -f || warning "Falha ao limpar imagens antigas"
@@ -259,16 +261,16 @@ main() {
     check_env
     check_traefik
     
-    # SEMPRE fazer git pull antes do deploy para garantir sincronização
-    log "Sincronizando código com repositório remoto..."
-    git_pull || error "Falha ao sincronizar código do repositório"
-    
+    log "Sincronizando código com origin (espelho determinístico)..."
+    sync_to_remote || error "Falha ao sincronizar código do repositório"
+
     log "Código sincronizado. Iniciando processo de deploy..."
-    
+
     stop_existing
     build_image
     deploy
     check_status
+    health_check_http
     cleanup_images
     
     echo ""
